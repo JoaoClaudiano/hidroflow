@@ -1,0 +1,2529 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProjeçãoPop v5 — Suporte à Decisão em Engenharia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#fafaf8; --bg2:#f2f2ef; --bg3:#e8e8e4;
+  --text:#1a1a18; --text2:#5a5a54; --text3:#909088;
+  --border:rgba(0,0,0,0.09); --border2:rgba(0,0,0,0.17);
+  --accent:#1a4fd6; --accent-bg:#e8eefb;
+  --green:#1a7a4a; --green-bg:#e4f5ed;
+  --red:#c0392b; --red-bg:#fbeaea;
+  --amber:#925f0a; --amber-bg:#fdf3e3;
+  --teal:#0e7490; --teal-bg:#e0f7fa;
+  --radius:6px; --radius-lg:10px;
+  --font:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+  --shadow:0 1px 3px rgba(0,0,0,0.07);
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#16161a; --bg2:#1f1f24; --bg3:#28282e;
+  --text:#e8e8e2; --text2:#9090a0; --text3:#5a5a70;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.14);
+  --accent:#4f7ef5; --accent-bg:#0e1a3a;
+  --green:#4caf82; --green-bg:#0a2418;
+  --red:#e07070; --red-bg:#2a0e0e;
+  --amber:#e0a060; --amber-bg:#2a1800;
+  --teal:#38bcd4; --teal-bg:#042830;
+  --shadow:0 1px 4px rgba(0,0,0,0.3);
+}}
+body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:100vh;font-size:14px;}
+
+/* SVG ICONS */
+.icon{display:inline-block;vertical-align:middle;flex-shrink:0;}
+
+/* LAYOUT */
+.app{max-width:1060px;margin:0 auto;padding:1.5rem 1rem 4rem;}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.topbar-left h1{font-size:18px;font-weight:600;letter-spacing:-.02em;}
+.topbar-left p{font-size:11px;color:var(--text3);margin-top:3px;font-family:var(--mono);}
+.topbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.version-badge{font-family:var(--mono);font-size:11px;padding:3px 8px;border:1px solid var(--border2);border-radius:4px;color:var(--text3);}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border2);margin-bottom:1.5rem;overflow-x:auto;}
+.tab{padding:9px 14px;border:none;border-bottom:2px solid transparent;font-size:12px;font-family:var(--font);cursor:pointer;background:transparent;color:var(--text3);margin-bottom:-1px;white-space:nowrap;transition:color .15s;display:flex;align-items:center;gap:5px;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500;}
+.section{display:none;}.section.active{display:block;}
+
+/* CARDS */
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow);}
+.card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;}
+.card-title::before{content:'';display:inline-block;width:3px;height:14px;background:var(--accent);border-radius:2px;flex-shrink:0;}
+
+/* GRIDS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+
+/* FORM */
+label{font-size:11px;color:var(--text3);display:block;margin-bottom:5px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;}
+input[type=number],input[type=text],select,textarea{width:100%;padding:8px 10px;font-size:13px;font-family:var(--font);border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none;transition:border-color .15s;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,126,245,0.1);}
+input[type=checkbox]{width:auto;accent-color:var(--accent);}
+
+/* BUTTONS */
+.btn{padding:8px 14px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;font-family:var(--font);cursor:pointer;background:var(--bg);color:var(--text);transition:all .12s;display:inline-flex;align-items:center;gap:6px;}
+.btn:hover{background:var(--bg2);}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn-primary:hover{opacity:.88;background:var(--accent);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn-danger{color:var(--red);border-color:rgba(192,57,43,.25);}
+.btn-danger:hover{background:var(--red-bg);}
+.btn-loading{opacity:.6;pointer-events:none;}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ALERTS */
+.alert{padding:10px 14px;border-radius:var(--radius);font-size:13px;margin-bottom:1rem;border-left:3px solid;line-height:1.5;}
+.alert-success{background:var(--green-bg);color:var(--green);border-color:var(--green);}
+.alert-info{background:var(--accent-bg);color:var(--accent);border-color:var(--accent);}
+.alert-warning{background:var(--amber-bg);color:var(--amber);border-color:var(--amber);}
+.alert-danger{background:var(--red-bg);color:var(--red);border-color:var(--red);}
+
+/* METRICS */
+.metric-card{background:var(--bg2);border-radius:var(--radius);padding:14px 12px;text-align:center;border:1px solid var(--border);}
+.metric-label{font-size:10px;color:var(--text3);margin-bottom:6px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;}
+.metric-value{font-size:20px;font-weight:600;color:var(--text);font-family:var(--mono);letter-spacing:-.03em;}
+.metric-sub{font-size:10px;color:var(--text3);margin-top:4px;font-family:var(--mono);}
+.metric-card.accent{border-left:3px solid var(--accent);}
+.metric-card.green{border-left:3px solid var(--green);}
+.metric-card.amber{border-left:3px solid var(--amber);}
+.metric-card.teal{border-left:3px solid var(--teal);}
+
+/* MODELS */
+.r2-bar{height:5px;border-radius:3px;background:var(--bg3);margin:5px 0;overflow:hidden;}
+.r2-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.model-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.model-row:last-child{border-bottom:none;}
+.model-name{font-size:13px;font-weight:500;width:110px;}
+.model-r2{font-size:12px;font-family:var(--mono);color:var(--text2);min-width:48px;text-align:right;}
+.rec-badge{padding:2px 8px;font-size:11px;font-weight:500;background:var(--green-bg);color:var(--green);border-radius:4px;white-space:nowrap;font-family:var(--mono);}
+.conf-badge{padding:2px 8px;font-size:11px;font-weight:500;border-radius:4px;font-family:var(--mono);white-space:nowrap;}
+.conf-high{background:var(--green-bg);color:var(--green);}
+.conf-med{background:var(--amber-bg);color:var(--amber);}
+.conf-low{background:var(--red-bg);color:var(--red);}
+
+/* TABLES */
+.tbl{width:100%;font-size:12px;border-collapse:collapse;font-family:var(--mono);}
+.tbl th{text-align:left;color:var(--text3);font-weight:500;padding:7px 10px;border-bottom:1px solid var(--border2);font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
+.tbl td{padding:6px 10px;border-bottom:1px solid var(--border);}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr.highlight td{background:var(--accent-bg);font-weight:600;color:var(--accent);}
+.tbl-wrap{max-height:340px;overflow-y:auto;}
+
+/* CHARTS */
+.chart-wrap{position:relative;width:100%;height:300px;}
+.chart-wrap-lg{position:relative;width:100%;height:400px;}
+
+/* INFRA CARDS */
+.infra-section-title{font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.infra-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px;}
+.infra-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.infra-card{border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;background:var(--bg);position:relative;overflow:hidden;}
+.infra-card::after{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent);border-radius:3px 0 0 3px;}
+.infra-card.green::after{background:var(--green);}
+.infra-card.amber::after{background:var(--amber);}
+.infra-card.teal::after{background:var(--teal);}
+.infra-card.red::after{background:var(--red);}
+.infra-icon{width:28px;height:28px;margin-bottom:10px;color:var(--accent);}
+.infra-icon.green{color:var(--green);}
+.infra-icon.amber{color:var(--amber);}
+.infra-icon.teal{color:var(--teal);}
+.infra-icon.red{color:var(--red);}
+.infra-title{font-size:10px;color:var(--text3);margin-bottom:6px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;}
+.infra-value{font-size:26px;font-weight:600;color:var(--text);font-family:var(--mono);letter-spacing:-.04em;line-height:1;}
+.infra-unit{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+.infra-ponta{font-size:11px;color:var(--accent);font-family:var(--mono);margin-top:6px;}
+
+/* DIMENSIONAMENTO */
+.dim-card{border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;background:var(--bg);margin-bottom:10px;}
+.dim-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.dim-title{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;}
+.dim-result{font-size:22px;font-weight:600;font-family:var(--mono);color:var(--accent);}
+.dim-unit{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.dim-detail{font-size:12px;color:var(--text2);line-height:1.5;font-family:var(--mono);}
+.dim-formula{font-family:var(--mono);font-size:11px;background:var(--bg2);padding:6px 10px;border-radius:var(--radius);color:var(--text2);margin-top:8px;}
+
+/* SLIDERS */
+.slider-row{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.slider-row>label{min-width:200px;margin:0;}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent);}
+.slider-val{font-size:12px;font-weight:500;min-width:140px;text-align:right;color:var(--text);font-family:var(--mono);}
+.custom-param{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-top:4px;}
+.custom-param-title{font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
+
+/* CONFIABILIDADE */
+.conf-bar-wrap{display:flex;gap:4px;margin:10px 0;align-items:center;}
+.conf-segment{height:8px;border-radius:2px;flex:1;}
+.conf-label{font-size:10px;font-family:var(--mono);color:var(--text3);margin-top:3px;}
+
+/* MAPA */
+#mapa-municipio{width:100%;height:360px;border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden;}
+.mapa-info{font-size:12px;font-family:var(--mono);color:var(--text2);margin-top:8px;line-height:1.6;}
+.densidade-chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-family:var(--mono);font-weight:500;}
+
+/* MISC */
+.separator{height:1px;background:var(--border);margin:1rem 0;}
+.formula{font-family:var(--mono);font-size:12px;background:var(--bg2);padding:10px 14px;border-radius:var(--radius);color:var(--text);margin:6px 0;border-left:3px solid var(--accent);}
+.info-box{background:var(--accent-bg);border:1px solid rgba(79,126,245,.2);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--accent);margin-bottom:14px;font-family:var(--mono);line-height:1.5;}
+.info-box a{color:inherit;}
+.sidra-row{display:flex;gap:8px;margin-bottom:14px;align-items:flex-start;flex-wrap:wrap;}
+.sidra-search{display:flex;gap:8px;width:100%;flex-wrap:wrap;}
+.sidra-status{font-size:12px;font-family:var(--mono);display:flex;align-items:center;gap:6px;margin-top:4px;}
+.sidra-status.ok{color:var(--green);}.sidra-status.err{color:var(--red);}
+.census-row{display:grid;grid-template-columns:90px 1fr 36px;gap:8px;align-items:center;margin-bottom:8px;}
+.census-year{font-size:13px;font-weight:600;font-family:var(--mono);}
+.event-row{display:grid;grid-template-columns:80px 1fr 130px 36px;gap:8px;align-items:center;margin-bottom:8px;}
+.env-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);font-family:var(--mono);}
+.env-dot{width:24px;height:3px;border-radius:2px;}
+.proj-list{display:flex;flex-direction:column;gap:8px;}
+.proj-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);}
+.proj-item-name{font-weight:500;font-size:13px;flex:1;}
+.proj-item-meta{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.mun-results{position:absolute;top:100%;left:0;right:0;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);z-index:200;max-height:220px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.12);}
+.mun-result-item{padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.mun-result-item:last-child{border-bottom:none;}
+.mun-result-item:hover{background:var(--bg2);}
+.mun-result-cod{font-family:var(--mono);font-size:11px;color:var(--text3);}
+.mun-search-wrap{position:relative;flex:1;min-width:260px;}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.compare-header{font-size:12px;font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--text3);padding:6px 0 8px;border-bottom:1px solid var(--border);margin-bottom:10px;}
+.audit-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;font-family:var(--mono);}
+.audit-row:last-child{border-bottom:none;}
+.audit-time{color:var(--text3);min-width:90px;}
+.audit-action{color:var(--text2);flex:1;}
+.audit-user{color:var(--accent);min-width:80px;text-align:right;}
+.report-section{border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;margin-bottom:12px;}
+.report-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;font-family:var(--mono);}
+.print-header{display:none;}
+.print-footer{display:none;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--bg);border-radius:var(--radius-lg);padding:1.5rem;max-width:440px;width:92%;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:1rem;}
+
+/* DECISION PANEL */
+.decision-panel{background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;}
+.decision-panel-title{font-size:12px;font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.decision-panel-title::before{content:'';display:inline-block;width:3px;height:14px;background:var(--accent);border-radius:2px;}
+.decision-items{display:flex;flex-direction:column;gap:8px;}
+.decision-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:var(--radius);border-left:4px solid;font-size:12px;line-height:1.55;font-family:var(--mono);}
+.decision-item.ok{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.decision-item.warn{background:var(--amber-bg);border-color:var(--amber);color:var(--amber);}
+.decision-item.crit{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.decision-item.info{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);}
+.decision-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.decision-text strong{display:block;font-size:13px;margin-bottom:2px;}
+.decision-year{font-size:11px;opacity:.8;}
+
+/* CONFIDENCE INTERVAL */
+.ci-band{font-size:11px;font-family:var(--mono);color:var(--text3);display:flex;align-items:center;gap:6px;margin-top:4px;}
+.ci-range{background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--text2);}
+
+/* EXTRAPOLATION WARNING */
+.extrap-warn{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--amber-bg);border:1px solid var(--amber);border-radius:var(--radius);font-size:11px;font-family:var(--mono);color:var(--amber);margin-top:8px;}
+
+/* SCORE BADGE */
+.score-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-family:var(--mono);font-weight:600;}
+.score-chip.a{background:#e4f5ed;color:#1a7a4a;}
+.score-chip.b{background:#fdf3e3;color:#925f0a;}
+.score-chip.c{background:#fbeaea;color:#c0392b;}
+
+/* MODEL SCORE BAR */
+.score-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);}
+.score-row:last-child{border-bottom:none;}
+.score-name{font-size:12px;font-weight:500;width:110px;}
+.score-bars{flex:1;display:flex;flex-direction:column;gap:3px;}
+.score-bar-wrap{display:flex;align-items:center;gap:6px;}
+.score-bar-label{font-size:9px;font-family:var(--mono);color:var(--text3);width:28px;text-align:right;}
+.score-bar-track{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+
+/* HYDRAULIC */
+.hyd-step{background:var(--bg2);border-radius:var(--radius);padding:10px 14px;margin-bottom:8px;border-left:3px solid var(--accent);}
+.hyd-step.green{border-left-color:var(--green);}
+.hyd-step.amber{border-left-color:var(--amber);}
+.hyd-step.red{border-left-color:var(--red);}
+.hyd-step.teal{border-left-color:var(--teal);}
+.hyd-label{font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.hyd-value{font-size:22px;font-weight:600;font-family:var(--mono);color:var(--text);letter-spacing:-.03em;}
+.hyd-unit{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.hyd-formula{font-family:var(--mono);font-size:11px;background:var(--bg3);padding:8px 12px;border-radius:var(--radius);color:var(--text2);margin-top:8px;line-height:1.6;}
+.hyd-warn{font-size:11px;font-family:var(--mono);color:var(--amber);margin-top:4px;}
+.rippl-table{width:100%;font-size:11px;border-collapse:collapse;font-family:var(--mono);}
+.rippl-table th{text-align:right;color:var(--text3);font-weight:500;padding:5px 8px;border-bottom:1px solid var(--border2);font-size:10px;text-transform:uppercase;}
+.rippl-table th:first-child{text-align:center;}
+.rippl-table td{padding:4px 8px;border-bottom:1px solid var(--border);text-align:right;}
+.rippl-table td:first-child{text-align:center;font-weight:600;}
+.rippl-table tr.rippl-max td{background:var(--red-bg);color:var(--red);font-weight:700;}
+.rippl-table tr.rippl-deficit td{background:var(--amber-bg);}
+
+@media print{
+  body{background:white;color:black;font-size:12px;}
+  .tabs,.topbar-right,.btn,.modal-overlay{display:none!important;}
+  .section{display:block!important;}
+  .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid;}
+  .chart-wrap,.chart-wrap-lg{height:220px;}
+  #mapa-municipio{height:180px;}
+  .print-header{display:block;margin-bottom:1.5rem;border-bottom:2px solid #1a4fd6;padding-bottom:1rem;}
+  .print-header h2{font-size:18px;font-weight:700;}
+  .print-header p{font-size:12px;color:#666;}
+  .print-footer{display:block!important;margin-top:2rem;border-top:1px solid #ccc;padding-top:.5rem;font-size:10px;color:#888;font-family:monospace;}
+}
+@media(max-width:700px){
+  .grid-2,.grid-3,.grid-4,.infra-grid,.infra-grid-4,.compare-grid{grid-template-columns:1fr;}
+  .event-row{grid-template-columns:70px 1fr 36px;}
+  .slider-row>label{min-width:120px;}
+  .slider-val{min-width:90px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>ProjeçãoPop</h1>
+    <p>Suporte à Decisão em Engenharia Demográfica · v5.0</p>
+  </div>
+  <div class="topbar-right">
+    <span class="version-badge" id="responsavel-badge">Responsável: —</span>
+    <button class="btn btn-sm" onclick="abrirConfiguracoes()">
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Configurações
+    </button>
+    <button class="btn btn-sm btn-primary" onclick="salvarProjeto()">
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Salvar projeto
+    </button>
+  </div>
+</div>
+
+<!-- MODAL CONFIG -->
+<div id="modal-config" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title">Configurações do projeto</div>
+    <div style="margin-bottom:10px;"><label>Responsável técnico</label><input type="text" id="cfg-responsavel" placeholder="Ex: João Silva — CREA-SP 123456"></div>
+    <div style="margin-bottom:10px;"><label>Empresa / órgão</label><input type="text" id="cfg-empresa" placeholder="Ex: Prefeitura Municipal de ..."></div>
+    <div style="margin-bottom:10px;"><label>Número da revisão</label><input type="text" id="cfg-revisao" placeholder="Rev. 00" style="max-width:120px;"></div>
+    <div style="margin-bottom:10px;"><label>Observação técnica</label><textarea id="cfg-obs" rows="2" placeholder="Notas para o memorial de cálculo..."></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:1rem;">
+      <button class="btn btn-primary" onclick="salvarConfiguracoes()">Salvar</button>
+      <button class="btn" onclick="fecharModal('modal-config')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab" onclick="showTab('decisao',this)">
+    <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Diagnóstico & Decisão
+  </button>
+  <button class="tab active" onclick="showTab('dados',this)">
+    <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Dados & Best Fit
+  </button>
+  <button class="tab" onclick="showTab('projecao',this)">
+    <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Projeção + Envelope
+  </button>
+  <button class="tab" onclick="showTab('dimensionamento',this)">
+    <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Dimensionamento
+  </button>
+  <button class="tab" onclick="showTab('aducao',this)">
+    <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"/><path d="M2 12a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4"/><path d="M2 12a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4"/><circle cx="18" cy="8" r="2"/></svg>Adução & Elevatórias
+  </button>
+  <button class="tab" onclick="showTab('mapa',this)">
+    <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Mapa & Densidade
+  </button>
+  <button class="tab" onclick="showTab('saturacao',this)">
+    <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Pop. de Saturação
+  </button>
+  <button class="tab" onclick="showTab('eventos',this)">
+    <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Quebras de Tendência
+  </button>
+  <button class="tab" onclick="showTab('comparacao',this)">
+    <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>Comparar Municípios
+  </button>
+  <button class="tab" onclick="showTab('relatorio',this)">
+    <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Relatório
+  </button>
+  <button class="tab" onclick="showTab('projetos',this)">
+    <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>Projetos Salvos
+  </button>
+</div>
+
+<!-- ═══════════ TAB 0 — DIAGNÓSTICO & DECISÃO ═══════════ -->
+<div id="sec-decisao" class="section">
+  <div class="alert alert-info" id="decisao-empty" style="margin-bottom:1rem;">Execute o <strong>Best Fit</strong> e a <strong>Projeção</strong> para gerar o diagnóstico automático de decisão.</div>
+  <div id="decisao-content" style="display:none;">
+    <div class="decision-panel" id="dp-alertas">
+      <div class="decision-panel-title">🚨 Alertas críticos de capacidade</div>
+      <div class="decision-items" id="dp-alertas-items"></div>
+    </div>
+    <div class="decision-panel" id="dp-cenarios">
+      <div class="decision-panel-title">📋 Diagnóstico por sistema</div>
+      <div class="decision-items" id="dp-cenarios-items"></div>
+    </div>
+    <div class="decision-panel">
+      <div class="decision-panel-title">📐 Janela de confiança da projeção</div>
+      <div id="dp-confianca"></div>
+    </div>
+    <div class="decision-panel">
+      <div class="decision-panel-title">📊 Score comparativo dos modelos</div>
+      <div id="dp-score-modelos"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 1 — DADOS & BEST FIT ═══════════ -->
+<div id="sec-dados" class="section active">
+  <div class="card">
+    <div class="card-title">Identificação do município</div>
+    <div class="info-box">
+      API SIDRA/IBGE real · Tabelas 202 (1991/2000/2010) + 4709 (2022).<br>
+      Busque pelo <strong>nome</strong> do município ou informe o <strong>código IBGE</strong> diretamente.
+      <a href="https://www.ibge.gov.br/explica/codigos-dos-municipios.php" target="_blank" style="margin-left:4px;">Tabela de códigos</a>
+    </div>
+    <div class="sidra-row">
+      <div class="sidra-search">
+        <div class="mun-search-wrap">
+          <input type="text" id="mun-busca" placeholder="Digite o nome do município..." autocomplete="off" oninput="buscarMunicipioPorNome(this.value)" onblur="setTimeout(()=>fecharResultados(),200)">
+          <div class="mun-results" id="mun-results" style="display:none;"></div>
+        </div>
+        <input type="text" id="ibge-cod" placeholder="Código IBGE" style="max-width:180px;" maxlength="7" oninput="this.value=this.value.replace(/\D/g,'')">
+        <button class="btn btn-primary btn-sm" id="btn-buscar" onclick="buscarSIDRA()">
+          <span id="buscar-txt">
+            <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Buscar dados SIDRA
+          </span>
+        </button>
+      </div>
+      <div class="sidra-status" id="ibge-status"></div>
+    </div>
+    <div id="census-rows"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+      <button class="btn btn-sm" onclick="addCensusRow()">+ Adicionar censo</button>
+      <button class="btn btn-sm btn-primary" onclick="calcularBestFit()">
+        <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Calcular Best Fit
+      </button>
+      <button class="btn btn-sm" onclick="resetDados()">Restaurar exemplo</button>
+    </div>
+  </div>
+
+  <div id="bestfit-result" style="display:none;">
+    <div class="card">
+      <div class="card-title">Aderência dos modelos — R² e confiabilidade</div>
+      <div id="model-rows"></div>
+      <div id="conf-analysis" style="margin-top:14px;"></div>
+      <div id="rec-alert" class="alert alert-success" style="margin-top:10px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Gráfico comparativo — dados históricos vs modelos</div>
+      <div class="chart-wrap"><canvas id="chart-bestfit"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 2 — PROJEÇÃO + ENVELOPE ═══════════ -->
+<div id="sec-projecao" class="section">
+  <div class="card">
+    <div class="card-title">Parâmetros de projeção</div>
+    <div class="grid-2" style="margin-bottom:14px;">
+      <div><label>Ano horizonte</label><input type="number" id="ano-horizonte" value="2043" min="2025" max="2100"></div>
+      <div><label>Modelo a utilizar</label>
+        <select id="modelo-sel">
+          <option value="auto">Recomendado automaticamente (Best Fit)</option>
+          <option value="aritmetico">Aritmético</option>
+          <option value="geometrico">Geométrico</option>
+          <option value="logistico">Logístico</option>
+          <option value="holt">Holt (suavização exponencial)</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-bottom:14px;">
+      <div><label>Taxa pessimista (%/ano)</label><input type="number" id="env-pess" value="0.5" step="0.1"></div>
+      <div><label>Taxa provável (%/ano)</label><input type="number" id="env-prov" value="1.8" step="0.1"></div>
+      <div><label>Taxa otimista (%/ano)</label><input type="number" id="env-otim" value="3.2" step="0.1"></div>
+    </div>
+    <button class="btn btn-primary" onclick="projetarEEnvelope()">Projetar + Gerar Envelope</button>
+  </div>
+  <div id="proj-result" style="display:none;">
+    <div id="proj-cards" class="grid-4" style="margin-bottom:1rem;"></div>
+    <div id="conf-horizonte" style="margin-bottom:1rem;"></div>
+    <div id="extrap-warning" style="margin-bottom:1rem;display:none;"></div>
+    <div id="ci-summary" style="margin-bottom:1rem;"></div>
+    <div class="card">
+      <div class="card-title">Projeção + Envelope de incerteza</div>
+      <div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;">
+        <span class="env-item"><span class="env-dot" style="background:#E24B4A;"></span>Otimista</span>
+        <span class="env-item"><span class="env-dot" style="background:var(--accent);"></span>Projetado</span>
+        <span class="env-item"><span class="env-dot" style="background:#888780;"></span>Pessimista</span>
+        <span class="env-item"><span class="env-dot" style="background:rgba(79,126,245,0.18);height:12px;width:24px;border-radius:2px;"></span>Faixa de incerteza</span>
+      </div>
+      <div class="chart-wrap-lg"><canvas id="chart-projecao"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Tabela de projeção</div>
+      <div class="tbl-wrap"><div id="proj-table"></div></div>
+      <div style="margin-top:10px;">
+        <button class="btn btn-sm" onclick="exportarCSV()">
+          <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar CSV
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 3 — DIMENSIONAMENTO ═══════════ -->
+<div id="sec-dimensionamento" class="section">
+  <div class="card">
+    <div class="card-title">Parâmetros de consumo</div>
+    <div class="slider-row"><label>Água (L/hab/dia)</label><input type="range" min="80" max="300" value="150" step="5" id="sl-agua" oninput="updateSlider('agua')"><span class="slider-val" id="sv-agua">150 L/hab/dia</span></div>
+    <div class="slider-row"><label>Retorno esgoto (%)</label><input type="range" min="50" max="95" value="80" step="1" id="sl-esgoto" oninput="updateSlider('esgoto')"><span class="slider-val" id="sv-esgoto">80%</span></div>
+    <div class="slider-row"><label>Resíduos (kg/hab/dia)</label><input type="range" min="0.3" max="1.5" value="0.7" step="0.05" id="sl-residuos" oninput="updateSlider('residuos')"><span class="slider-val" id="sv-residuos">0.70 kg/hab/dia</span></div>
+    <div class="slider-row"><label>Energia (kWh/hab/mês)</label><input type="range" min="50" max="500" value="180" step="5" id="sl-energia" oninput="updateSlider('energia')"><span class="slider-val" id="sv-energia">180 kWh/hab/mês</span></div>
+
+    <!-- PARÂMETROS CUSTOMIZADOS -->
+    <div style="margin-top:12px;">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text2);">
+        <input type="checkbox" id="chk-custom" onchange="toggleCustomParams()">
+        Incluir parâmetros fora do intervalo padrão (personalizados)
+      </label>
+    </div>
+    <div id="custom-params" class="custom-param" style="display:none;margin-top:10px;">
+      <div class="custom-param-title">Parâmetros personalizados — sobrescrevem os sliders acima se preenchidos</div>
+      <div class="grid-3">
+        <div><label>Água per capita (L/hab/dia)</label><input type="number" id="cp-agua" placeholder="Ex: 350" min="1" step="1"></div>
+        <div><label>Retorno esgoto (%)</label><input type="number" id="cp-esgoto" placeholder="Ex: 92" min="1" max="100" step="1"></div>
+        <div><label>Resíduos (kg/hab/dia)</label><input type="number" id="cp-residuos" placeholder="Ex: 2.0" min="0.01" step="0.01"></div>
+        <div><label>Energia (kWh/hab/mês)</label><input type="number" id="cp-energia" placeholder="Ex: 600" min="1" step="1"></div>
+        <div><label>Parâmetro extra 1 (nome)</label><input type="text" id="cp-extra1-nome" placeholder="Ex: Demanda hídrica industrial"></div>
+        <div><label>Parâmetro extra 1 (L/s)</label><input type="number" id="cp-extra1-val" placeholder="Ex: 12.5" min="0" step="0.1"></div>
+      </div>
+      <div class="alert alert-warning" style="margin-top:10px;margin-bottom:0;">Valores fora do intervalo padrão devem ser justificados no memorial de cálculo (campo "Observações" em Configurações).</div>
+    </div>
+
+    <div class="separator"></div>
+    <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Coeficientes de ponta (NBR 12211 / FUNASA)</div>
+    <div class="grid-3">
+      <div><label>K1 — dia de maior consumo</label><input type="number" id="k1" value="1.2" step="0.01" min="1" max="1.5" oninput="renderDimensionamento()"></div>
+      <div><label>K2 — hora de maior consumo</label><input type="number" id="k2" value="1.5" step="0.01" min="1" max="2" oninput="renderDimensionamento()"></div>
+      <div><label>K3 — hora de menor consumo</label><input type="number" id="k3" value="0.5" step="0.01" min="0.1" max="1" oninput="renderDimensionamento()"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Horizonte de dimensionamento</div>
+    <div id="infra-anos" style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;"></div>
+    <div id="infra-display"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Dimensionamento de obras — output de projeto</div>
+    <div id="dim-display">
+      <div class="alert alert-info">Execute a Projeção + Envelope para gerar o dimensionamento completo.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Evolução temporal da demanda de infraestrutura</div>
+    <div class="chart-wrap"><canvas id="chart-demanda"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 3b — ADUÇÃO & ELEVATÓRIAS ═══════════ -->
+<div id="sec-aducao" class="section">
+
+  <div class="alert alert-info" style="margin-bottom:1rem;font-family:var(--mono);font-size:12px;">
+    <strong>Módulo de Infraestrutura Hidráulica</strong> · Bresse · Rippl · Hazen-Williams · Golpe de Aríete · Verificação NBR · Preset CAGECE/UFC
+  </div>
+
+  <!-- PRESET + DADOS ENTRADA -->
+  <div class="card">
+    <div class="card-title">Parâmetros hidráulicos e topográficos</div>
+
+    <!-- PRESETS -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+      <span style="font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;">Preset:</span>
+      <button class="btn btn-sm" onclick="presetCagece()">
+        <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        CAGECE / Fortaleza
+      </button>
+      <button class="btn btn-sm" onclick="presetFunasa()">FUNASA padrão</button>
+      <button class="btn btn-sm" onclick="presetConservador()">Conservador</button>
+      <span style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-left:4px;">Preenche automaticamente os campos abaixo</span>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:14px;">
+      <div>
+        <label>Cota captação / manancial (m)</label>
+        <input type="number" id="ad-cota-cap" value="10" step="0.1" oninput="calcAducao()">
+      </div>
+      <div>
+        <label>Cota chegada / reservatório (m)</label>
+        <input type="number" id="ad-cota-res" value="85" step="0.1" oninput="calcAducao()">
+      </div>
+      <div>
+        <label>Comprimento da adutora (m)</label>
+        <input type="number" id="ad-comp" value="3500" step="10" oninput="calcAducao()">
+      </div>
+      <div>
+        <label>Material / Coef. Hazen-Williams C</label>
+        <select id="ad-chw" onchange="calcAducao()">
+          <option value="150">150 — PVC / PEAD (novo)</option>
+          <option value="140" selected>140 — PVC / PEAD (uso)</option>
+          <option value="130">130 — Ferro fundido dúctil (FFD)</option>
+          <option value="120">120 — Ferro fundido cinzento (FFC)</option>
+          <option value="110">110 — Concreto liso</option>
+          <option value="100">100 — Concreto rugoso / Amianto</option>
+          <option value="90">90 — Aço sem revestimento</option>
+        </select>
+      </div>
+      <div>
+        <label>Horas de bombeamento N (h/dia)</label>
+        <input type="number" id="ad-horas" value="16" min="1" max="24" step="1" oninput="calcAducao()">
+        <div style="font-size:10px;color:var(--amber);font-family:var(--mono);margin-top:3px;">⚡ Evitar 18h–21h (pico tarifário ANEEL)</div>
+      </div>
+      <div>
+        <label>Rendimento global bomba η (%)</label>
+        <input type="number" id="ad-eta" value="72" min="30" max="95" step="1" oninput="calcAducao()">
+      </div>
+    </div>
+    <div class="grid-3">
+      <div>
+        <label>Constante K — Fórmula de Bresse</label>
+        <select id="ad-k-bresse" onchange="calcAducao()">
+          <option value="auto" selected>Auto — K = 1,3·(N/24)^0,25</option>
+          <option value="0.9">0,9 — Bombeamento 24h contínuo</option>
+          <option value="1.0">1,0 — Contínuo padrão</option>
+          <option value="1.2">1,2 — Padrão FUNASA (16–20h)</option>
+          <option value="1.3">1,3 — Conservador</option>
+          <option value="1.4">1,4 — Muito conservador</option>
+        </select>
+      </div>
+      <div>
+        <label>Espessura parede tubo e (mm) <span style="font-size:10px;color:var(--text3);">golpe aríete</span></label>
+        <input type="number" id="ad-esp" value="8" min="1" max="50" step="0.5" oninput="calcAducao()">
+      </div>
+      <div>
+        <label>Horizonte de dimensionamento</label>
+        <div id="ad-infra-anos" style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BENTO GRID — RESULTADOS PRINCIPAIS -->
+  <div id="ad-result" style="display:none;">
+
+    <!-- FAIXA DE ALERTA NBR -->
+    <div id="ad-nbr-alerts" style="margin-bottom:1rem;"></div>
+
+    <!-- BENTO GRID 3 COLUNAS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:1rem;">
+
+      <!-- COLUNA A — BOMBAS -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="card" style="margin-bottom:0;">
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;border-bottom:2px solid var(--accent);padding-bottom:6px;">⚡ Coluna A — Recalque</div>
+          <div id="ad-col-bombas"></div>
+        </div>
+      </div>
+
+      <!-- COLUNA B — ADUTORA -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="card" style="margin-bottom:0;">
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;border-bottom:2px solid var(--green);padding-bottom:6px;">🔧 Coluna B — Adutora</div>
+          <div id="ad-col-adutora"></div>
+        </div>
+      </div>
+
+      <!-- COLUNA C — RESERVATÓRIO -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="card" style="margin-bottom:0;">
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;border-bottom:2px solid var(--amber);padding-bottom:6px;">🏗️ Coluna C — Reservatório</div>
+          <div id="ad-col-reservatorio"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GOLPE DE ARÍETE -->
+    <div class="card">
+      <div class="card-title">Golpe de Aríete — Verificação de sobrepressão (Joukowsky)</div>
+      <div id="ad-ariete-display"></div>
+    </div>
+
+    <!-- RIPPL DIAGRAM -->
+    <div class="card">
+      <div class="card-title">Diagrama de Rippl — Curva de massas acumulada (24h)</div>
+      <div id="ad-rippl-display"></div>
+      <div class="chart-wrap-lg" style="margin-top:1rem;"><canvas id="chart-rippl"></canvas></div>
+    </div>
+
+    <!-- VERIFICAÇÃO NBR DETALHADA -->
+    <div class="card">
+      <div class="card-title">Modo Verificação — NBR 12211 / NBR 12218 / NBR 12217</div>
+      <div id="ad-nbr-detail"></div>
+    </div>
+
+    <!-- MEMORIAL -->
+    <div class="card">
+      <div class="card-title">Memorial de cálculo hidráulico — para anexar ao projeto</div>
+      <div id="ad-memorial"></div>
+    </div>
+  </div>
+
+  <div id="ad-empty" class="alert alert-info">Execute a <strong>Projeção + Envelope</strong> para habilitar o módulo de infraestrutura hidráulica.</div>
+</div>
+
+<!-- ═══════════ TAB 4 — MAPA & DENSIDADE ═══════════ -->
+<div id="sec-mapa" class="section">
+  <div class="card">
+    <div class="card-title">Mapa do município e densidade populacional</div>
+    <div id="mapa-municipio"></div>
+    <div class="mapa-info" id="mapa-info">Carregue os dados do município para visualizar o mapa.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Indicadores de densidade</div>
+    <div id="densidade-cards" class="grid-4"></div>
+    <div class="chart-wrap" style="margin-top:1rem;"><canvas id="chart-densidade"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 5 — SATURAÇÃO ═══════════ -->
+<div id="sec-saturacao" class="section">
+  <div class="card">
+    <div class="card-title">Cálculo do K — Pop. de saturação pelo Plano Diretor</div>
+    <div class="grid-2">
+      <div><label>Área total do município (km²)</label><input type="number" id="area-total" value="150" step="0.1"></div>
+      <div><label>Área urbanizável (% do total)</label><input type="number" id="pct-urban" value="35" min="1" max="100"></div>
+      <div><label>Densidade permitida (hab/hectare)</label><input type="number" id="densidade" value="80"></div>
+      <div><label>Coeficiente de aproveitamento</label><input type="number" id="coef-aprov" value="0.85" step="0.01" min="0.1" max="1"></div>
+    </div>
+    <div class="separator"></div>
+    <button class="btn btn-primary" onclick="calcSaturacao()">Calcular K</button>
+  </div>
+  <div id="sat-result" style="display:none;">
+    <div class="card">
+      <div class="grid-3">
+        <div class="metric-card"><div class="metric-label">Área urbanizável</div><div class="metric-value" id="sat-area">–</div><div class="metric-sub">km²</div></div>
+        <div class="metric-card"><div class="metric-label">Capacidade bruta</div><div class="metric-value" id="sat-bruta">–</div><div class="metric-sub">habitantes</div></div>
+        <div class="metric-card accent"><div class="metric-label">K — Pop. saturação</div><div class="metric-value" id="sat-k">–</div><div class="metric-sub">habitantes</div></div>
+      </div>
+      <div class="alert alert-info" style="margin-top:14px;" id="sat-alert"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 6 — EVENTOS ═══════════ -->
+<div id="sec-eventos" class="section">
+  <div class="card">
+    <div class="card-title">Eventos de impacto sobre a tendência demográfica</div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;font-family:var(--mono);">Eventos alteram o ritmo de crescimento a partir do ano informado.</p>
+    <div id="eventos-rows"></div>
+    <button class="btn btn-sm" onclick="addEvento()">+ Adicionar evento</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Simulação com quebras de tendência</div>
+    <button class="btn btn-primary" onclick="projetarComEventos()">Simular cenário</button>
+    <div class="chart-wrap" style="margin-top:1rem;"><canvas id="chart-eventos"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 7 — COMPARAÇÃO ═══════════ -->
+<div id="sec-comparacao" class="section">
+  <div class="card">
+    <div class="card-title">Comparar dois municípios</div>
+    <div class="compare-grid">
+      <div>
+        <div class="compare-header">Município A (atual)</div>
+        <div class="metric-card" id="cmp-a-card">
+          <div class="metric-label">Município A</div>
+          <div class="metric-value" id="cmp-a-nome" style="font-size:14px;">—</div>
+          <div class="metric-sub" id="cmp-a-pop">Carregue dados na aba principal</div>
+        </div>
+      </div>
+      <div>
+        <div class="compare-header">Município B</div>
+        <div class="mun-search-wrap" style="margin-bottom:8px;">
+          <input type="text" id="cmp-b-busca" placeholder="Buscar município B..." autocomplete="off" oninput="buscarMunicipioB(this.value)" onblur="setTimeout(()=>fecharResultadosB(),200)">
+          <div class="mun-results" id="cmp-b-results" style="display:none;"></div>
+        </div>
+        <input type="text" id="cmp-b-cod" placeholder="Código IBGE do município B" style="margin-bottom:8px;" maxlength="7" oninput="this.value=this.value.replace(/\D/g,'')">
+        <button class="btn btn-sm btn-primary" onclick="carregarMunicipioB()">Carregar município B</button>
+        <div class="sidra-status" id="cmp-b-status" style="margin-top:6px;"></div>
+      </div>
+    </div>
+  </div>
+  <div id="cmp-result" style="display:none;">
+    <div class="card">
+      <div class="card-title">Comparativo histórico de crescimento</div>
+      <div class="chart-wrap"><canvas id="chart-comparacao"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Resumo comparativo</div>
+      <div id="cmp-tabela"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB 8 — RELATÓRIO ═══════════ -->
+<div id="sec-relatorio" class="section">
+  <div class="print-header">
+    <h2 id="print-titulo">Memorial de Cálculo — Projeção Populacional</h2>
+    <p id="print-meta"></p>
+  </div>
+  <div class="card" style="margin-bottom:1rem;">
+    <div class="card-title">Exportar relatório</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="imprimirRelatorio()">
+        <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir / PDF
+      </button>
+      <button class="btn" onclick="copiarRelatorio()">Copiar texto</button>
+      <button class="btn" onclick="exportarCSV()">Exportar CSV</button>
+    </div>
+    <p style="font-size:11px;color:var(--text3);margin-top:8px;font-family:var(--mono);">Ctrl+P → "Salvar como PDF" para layout otimizado A4.</p>
+  </div>
+  <div id="relatorio-content">
+    <div class="alert alert-info">Execute o Best Fit e a Projeção para gerar o memorial automaticamente.</div>
+  </div>
+  <div class="print-footer" id="print-footer"></div>
+</div>
+
+<!-- ═══════════ TAB 9 — PROJETOS SALVOS ═══════════ -->
+<div id="sec-projetos" class="section">
+  <div class="card">
+    <div class="card-title">Projetos salvos localmente</div>
+    <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:14px;">Armazenados no navegador via localStorage.</p>
+    <div id="proj-list-container"><div class="alert alert-info">Nenhum projeto salvo ainda.</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Log de auditoria desta sessão</div>
+    <div id="audit-log" style="max-height:300px;overflow-y:auto;"></div>
+  </div>
+</div>
+
+</div><!-- /app -->
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let state={
+  censosData:[{ano:1991,pop:78420},{ano:2000,pop:95310},{ano:2010,pop:108760},{ano:2022,pop:127500}],
+  municipioNome:'Município Exemplo',municipioCod:'',municipioUF:'',
+  municipioLat:null,municipioLon:null,municipioArea:null,
+  bestModel:'geometrico',
+  r2:{aritmetico:0,geometrico:0,logistico:0,holt:0},
+  rmse:{aritmetico:0,geometrico:0,logistico:0,holt:0},
+  scores:{aritmetico:0,geometrico:0,logistico:0,holt:0},
+  loo:{aritmetico:null,geometrico:null,logistico:null,holt:null},
+  coefs:{},K:null,
+  infraAnoIdx:0,infraAnos:[2025,2030,2035,2043],
+  projData:[],censosRaw:null,
+  charts:{},mapaL:null,
+  adAnoIdx:0,
+  config:{responsavel:'',empresa:'',revisao:'Rev. 00',obs:''},
+  auditLog:[],cmpB:null
+};
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+function showTab(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='projetos')renderProjetosSalvos();
+  if(id==='relatorio')gerarRelatorio();
+  if(id==='mapa')renderMapa();
+  if(id==='dimensionamento')renderDimensionamento();
+  if(id==='decisao')renderDecisao();
+  if(id==='aducao')calcAducao();
+}
+
+// ══════════════════════════════════════════
+// CONFIGURAÇÕES
+// ══════════════════════════════════════════
+function abrirConfiguracoes(){
+  document.getElementById('cfg-responsavel').value=state.config.responsavel;
+  document.getElementById('cfg-empresa').value=state.config.empresa;
+  document.getElementById('cfg-revisao').value=state.config.revisao;
+  document.getElementById('cfg-obs').value=state.config.obs;
+  document.getElementById('modal-config').classList.add('open');
+}
+function fecharModal(id){document.getElementById(id).classList.remove('open');}
+function salvarConfiguracoes(){
+  state.config.responsavel=document.getElementById('cfg-responsavel').value;
+  state.config.empresa=document.getElementById('cfg-empresa').value;
+  state.config.revisao=document.getElementById('cfg-revisao').value;
+  state.config.obs=document.getElementById('cfg-obs').value;
+  document.getElementById('responsavel-badge').textContent=state.config.responsavel?'Resp.: '+state.config.responsavel.split('—')[0].trim():'Responsável: —';
+  fecharModal('modal-config');
+  addAudit('Configurações atualizadas');
+}
+
+// ══════════════════════════════════════════
+// BUSCA MUNICÍPIO
+// ══════════════════════════════════════════
+let _munCache=[],_munTimer=null;
+function removeAcentos(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function escHtml(s){return s.replace(/'/g,"\\'");}
+
+async function buscarMunicipioPorNome(termo){
+  clearTimeout(_munTimer);
+  const el=document.getElementById('mun-results');
+  if(!termo||termo.length<3){el.style.display='none';return;}
+  _munTimer=setTimeout(async()=>{
+    try{
+      if(!_munCache.length){const r=await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios?orderBy=nome');_munCache=await r.json();}
+      const q=removeAcentos(termo.toLowerCase());
+      const found=_munCache.filter(m=>removeAcentos(m.nome.toLowerCase()).includes(q)).slice(0,8);
+      if(!found.length){el.style.display='none';return;}
+      el.innerHTML=found.map(m=>`<div class="mun-result-item" onclick="selecionarMunicipio('${m.id}','${escHtml(m.nome)}','${m['regiao-imediata']['regiao-intermediaria']['UF']['sigla']}')"><span>${m.nome} — ${m['regiao-imediata']['regiao-intermediaria']['UF']['sigla']}</span><span class="mun-result-cod">${m.id}</span></div>`).join('');
+      el.style.display='block';
+    }catch(e){el.style.display='none';}
+  },300);
+}
+
+function selecionarMunicipio(cod,nome,uf){
+  document.getElementById('ibge-cod').value=cod;
+  document.getElementById('mun-busca').value=nome+' — '+uf;
+  document.getElementById('mun-results').style.display='none';
+  state.municipioCod=cod;state.municipioNome=nome;state.municipioUF=uf;
+}
+function fecharResultados(){document.getElementById('mun-results').style.display='none';}
+
+async function buscarMunicipioB(termo){
+  clearTimeout(_munTimer);
+  const el=document.getElementById('cmp-b-results');
+  if(!termo||termo.length<3){el.style.display='none';return;}
+  _munTimer=setTimeout(async()=>{
+    try{
+      if(!_munCache.length){const r=await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios?orderBy=nome');_munCache=await r.json();}
+      const q=removeAcentos(termo.toLowerCase());
+      const found=_munCache.filter(m=>removeAcentos(m.nome.toLowerCase()).includes(q)).slice(0,8);
+      if(!found.length){el.style.display='none';return;}
+      el.innerHTML=found.map(m=>`<div class="mun-result-item" onclick="selecionarMunicipioB('${m.id}','${escHtml(m.nome)}','${m['regiao-imediata']['regiao-intermediaria']['UF']['sigla']}')"><span>${m.nome} — ${m['regiao-imediata']['regiao-intermediaria']['UF']['sigla']}</span><span class="mun-result-cod">${m.id}</span></div>`).join('');
+      el.style.display='block';
+    }catch(e){el.style.display='none';}
+  },300);
+}
+function selecionarMunicipioB(cod,nome,uf){document.getElementById('cmp-b-cod').value=cod;document.getElementById('cmp-b-busca').value=nome+' — '+uf;document.getElementById('cmp-b-results').style.display='none';}
+function fecharResultadosB(){document.getElementById('cmp-b-results').style.display='none';}
+
+// ══════════════════════════════════════════
+// SIDRA API
+// ══════════════════════════════════════════
+function parseSIDRA(dados){
+  const pontos=[];
+  if(!dados||!dados[0]||!dados[0].resultados)return pontos;
+  for(const res of dados[0].resultados){
+    const serie=res.series&&res.series[0]&&res.series[0].serie;
+    if(!serie)continue;
+    for(const[periodoStr,valStr]of Object.entries(serie)){
+      const ano=parseInt(periodoStr),pop=parseInt(valStr);
+      if(!isNaN(ano)&&!isNaN(pop)&&pop>0)pontos.push({ano,pop});
+    }
+  }
+  return pontos;
+}
+
+async function fetchSIDRAMunicipio(cod){
+  const r202=await fetch(`https://servicodados.ibge.gov.br/api/v3/agregados/202/periodos/1991|2000|2010/variaveis/93?localidades=N6[${cod}]`);
+  if(!r202.ok)throw new Error(`SIDRA Tabela 202: HTTP ${r202.status}`);
+  const censos=parseSIDRA(await r202.json());
+  let pop2022=null;
+  try{const r4709=await fetch(`https://servicodados.ibge.gov.br/api/v3/agregados/4709/periodos/2022/variaveis/93?localidades=N6[${cod}]`);if(r4709.ok){const pts=parseSIDRA(await r4709.json());if(pts.length)pop2022=pts[0].pop;}}catch(_){}
+  if(!pop2022){try{const r9543=await fetch(`https://servicodados.ibge.gov.br/api/v3/agregados/9543/periodos/2022/variaveis/93?localidades=N6[${cod}]`);if(r9543.ok){const pts=parseSIDRA(await r9543.json());if(pts.length)pop2022=pts[0].pop;}}catch(_){}}
+  if(pop2022)censos.push({ano:2022,pop:pop2022});
+  if(!censos.length)throw new Error('Nenhum dado encontrado. Verifique o código IBGE.');
+  return censos.sort((a,b)=>a.ano-b.ano);
+}
+
+async function buscarSIDRA(){
+  const cod=document.getElementById('ibge-cod').value.trim();
+  const st=document.getElementById('ibge-status');
+  const btn=document.getElementById('btn-buscar');
+  const txt=document.getElementById('buscar-txt');
+  if(!cod||cod.length<6){setStatus(st,'Informe um código IBGE válido (6-7 dígitos).','err');return;}
+  btn.classList.add('btn-loading');
+  txt.innerHTML='<span class="spinner"></span> Buscando…';
+  setStatus(st,'Consultando SIDRA/IBGE…','');
+  try{
+    const nomeResp=await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios/${cod}`);
+    if(nomeResp.ok){
+      const j=await nomeResp.json();
+      state.municipioNome=j.nome||`Município ${cod}`;
+      state.municipioUF=j['regiao-imediata']?.['regiao-intermediaria']?.['UF']?.['sigla']||'';
+      // Tenta obter coordenadas via API de geocodificação IBGE
+      try{
+        const geoR=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(state.municipioNome+', '+state.municipioUF+', Brasil')}&format=json&limit=1`);
+        if(geoR.ok){const geo=await geoR.json();if(geo.length){state.municipioLat=parseFloat(geo[0].lat);state.municipioLon=parseFloat(geo[0].lon);}}
+      }catch(_){}
+      document.getElementById('mun-busca').value=state.municipioNome+(state.municipioUF?' — '+state.municipioUF:'');
+    }
+    state.censosData=await fetchSIDRAMunicipio(cod);
+    state.municipioCod=cod;
+    renderCensusRows();
+    setStatus(st,`${state.municipioNome} — ${state.censosData.length} censos carregados`,'ok');
+    addAudit(`Dados SIDRA: ${state.municipioNome} (${cod})`);
+  }catch(err){setStatus(st,`Erro: ${err.message}`,'err');}
+  finally{btn.classList.remove('btn-loading');txt.innerHTML='<svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Buscar dados SIDRA';}
+}
+
+async function carregarMunicipioB(){
+  const cod=document.getElementById('cmp-b-cod').value.trim();
+  const st=document.getElementById('cmp-b-status');
+  if(!cod||cod.length<6){setStatus(st,'Informe o código IBGE do município B.','err');return;}
+  setStatus(st,'Buscando…','');
+  try{
+    const nomeResp=await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios/${cod}`);
+    let nome=`Município ${cod}`,uf='';
+    if(nomeResp.ok){const j=await nomeResp.json();nome=j.nome;uf=j['regiao-imediata']?.['regiao-intermediaria']?.['UF']?.['sigla']||'';}
+    const censos=await fetchSIDRAMunicipio(cod);
+    state.cmpB={cod,nome,uf,censos};
+    setStatus(st,`${nome} carregado`,'ok');
+    renderComparacao();
+    addAudit(`Município B: ${nome}`);
+  }catch(err){setStatus(st,`Erro: ${err.message}`,'err');}
+}
+
+function setStatus(el,msg,cls){el.textContent=msg;el.className='sidra-status'+(cls?' '+cls:'');}
+
+// ══════════════════════════════════════════
+// CENSO ROWS
+// ══════════════════════════════════════════
+function renderCensusRows(){
+  document.getElementById('census-rows').innerHTML=state.censosData.map((d,i)=>`
+    <div class="census-row">
+      <div class="census-year">${d.ano}</div>
+      <input type="number" value="${d.pop}" onchange="state.censosData[${i}].pop=+this.value">
+      <button class="btn btn-sm btn-danger" onclick="removeCensus(${i})">✕</button>
+    </div>`).join('');
+}
+function addCensusRow(){const last=state.censosData.length?state.censosData[state.censosData.length-1].ano+10:2022;state.censosData.push({ano:last,pop:0});renderCensusRows();}
+function removeCensus(i){state.censosData.splice(i,1);renderCensusRows();}
+function resetDados(){
+  state.censosData=[{ano:1991,pop:78420},{ano:2000,pop:95310},{ano:2010,pop:108760},{ano:2022,pop:127500}];
+  state.municipioNome='Município Exemplo';state.municipioCod='';state.municipioUF='';state.municipioLat=null;state.municipioLon=null;
+  renderCensusRows();
+  document.getElementById('ibge-status').textContent='';
+  document.getElementById('ibge-cod').value='';
+  document.getElementById('mun-busca').value='';
+}
+
+// ══════════════════════════════════════════
+// BEST FIT — 4 modelos + LOO cross-validation
+// ══════════════════════════════════════════
+function calcR2(yReal,yPred){
+  const mean=yReal.reduce((a,b)=>a+b,0)/yReal.length;
+  const ss_tot=yReal.reduce((s,y)=>s+(y-mean)**2,0);
+  const ss_res=yReal.reduce((s,y,i)=>s+(y-yPred[i])**2,0);
+  return ss_tot===0?1:Math.max(0,1-ss_res/ss_tot);
+}
+
+function calcRMSE(yReal,yPred){
+  const n=yReal.length;
+  const sse=yReal.reduce((s,y,i)=>s+(y-yPred[i])**2,0);
+  return Math.sqrt(sse/n);
+}
+
+// Intervalo de confiança (±1.96σ bootstrap simplificado por RMSE do ajuste)
+function calcCI(pred,rmse,dtExtrap){
+  // Incerteza cresce com a raiz do tempo de extrapolação
+  const growth=Math.sqrt(Math.max(1,dtExtrap));
+  const margin=1.96*rmse*growth;
+  return{lower:Math.round(pred-margin),upper:Math.round(pred+margin),margin};
+}
+
+// Leave-One-Out cross-validation — RMSE normalizado
+function calcLOO(anos,pops,modeloFn){
+  if(pops.length<3)return null;
+  let sumSqErr=0,count=0;
+  for(let omit=1;omit<pops.length-1;omit++){
+    const anosT=anos.filter((_,i)=>i!==omit);
+    const popsT=pops.filter((_,i)=>i!==omit);
+    try{
+      const pred=modeloFn(anosT,popsT,anos[omit]);
+      if(isFinite(pred)&&pred>0){sumSqErr+=(pops[omit]-pred)**2;count++;}
+    }catch(_){}
+  }
+  if(!count)return null;
+  const rmse=Math.sqrt(sumSqErr/count);
+  return rmse/(pops.reduce((a,b)=>a+b,0)/pops.length);
+}
+
+// Holt com otimização de alpha/beta por grid search (minimiza RMSE)
+function holtFit(pops,anos){
+  let bestAlpha=0.5,bestBeta=0.3,bestRMSE=Infinity;
+  // Grid search: alpha [0.1..0.9], beta [0.05..0.5]
+  for(let a=0.1;a<=0.9;a+=0.1){
+    for(let b=0.05;b<=0.5;b+=0.05){
+      const pred=_holtPredict(pops,anos,a,b);
+      const rmse=calcRMSE(pops,pred);
+      if(rmse<bestRMSE){bestRMSE=rmse;bestAlpha=+a.toFixed(2);bestBeta=+b.toFixed(2);}
+    }
+  }
+  const pred=_holtPredict(pops,anos,bestAlpha,bestBeta);
+  const res=_holtState(pops,anos,bestAlpha,bestBeta);
+  return{pred:pred.map(x=>Math.round(x)),L:res.L,T:res.T,alpha:bestAlpha,beta:bestBeta};
+}
+
+function _holtPredict(pops,anos,alpha,beta){
+  let L=pops[0],T=pops.length>1?pops[1]-pops[0]:0;
+  const out=[pops[0]];
+  for(let i=1;i<pops.length;i++){
+    const dt=anos[i]-anos[i-1];
+    for(let t=0;t<dt;t++){const Lp=L,Tp=T;L=alpha*pops[i]+(1-alpha)*(Lp+Tp);T=beta*(L-Lp)+(1-beta)*Tp;}
+    out.push(L);
+  }
+  return out;
+}
+
+function _holtState(pops,anos,alpha,beta){
+  let L=pops[0],T=pops.length>1?pops[1]-pops[0]:0;
+  for(let i=1;i<pops.length;i++){
+    const dt=anos[i]-anos[i-1];
+    for(let t=0;t<dt;t++){const Lp=L,Tp=T;L=alpha*pops[i]+(1-alpha)*(Lp+Tp);T=beta*(L-Lp)+(1-beta)*Tp;}
+  }
+  return{L,T};
+}
+
+function holtProject(L,T,anoBase,anoTarget){return Math.round(L+T*(anoTarget-anoBase));}
+
+// Geométrico por regressão log-linear (OLS em ln(P) vs t) — usa TODOS os censos
+function calcGeoLogLinear(anos,pops){
+  const n=anos.length;
+  const lnP=pops.map(p=>Math.log(p));
+  let sX=0,sY=0,sXX=0,sXY=0;
+  for(let i=0;i<n;i++){sX+=anos[i];sY+=lnP[i];sXX+=anos[i]*anos[i];sXY+=anos[i]*lnP[i];}
+  const den=n*sXX-sX*sX;
+  const b_geo=den!==0?(n*sXY-sX*sY)/den:0;
+  const a_geo=sY/n-b_geo*(sX/n);
+  const i_geo=Math.exp(b_geo)-1;
+  const P0_geo=Math.exp(a_geo+b_geo*anos[0]);
+  return{i_geo,a_geo,b_geo,P0_geo};
+}
+
+// Score composto: 60% R² + 40% (1 - LOO normalizado)
+function calcCompositeScore(r2,loo){
+  if(loo===null)return r2*0.8; // sem LOO: penaliza levemente
+  const looScore=Math.max(0,1-loo);
+  return 0.6*r2+0.4*looScore;
+}
+
+function calcularBestFit(){
+  const d=state.censosData.filter(x=>x.pop>0).sort((a,b)=>a.ano-b.ano);
+  if(d.length<2){alert('Insira pelo menos 2 censos com população > 0.');return;}
+  for(let i=1;i<d.length;i++){
+    if(d[i].pop<=d[i-1].pop*0.5){
+      const ok=confirm(`Queda brusca entre ${d[i-1].ano} e ${d[i].ano}. Possível erro de digitação. Continuar?`);
+      if(!ok)return;
+    }
+  }
+  const n=d.length,anos=d.map(x=>x.ano),pops=d.map(x=>x.pop);
+  const dt=anos[n-1]-anos[0],P0=pops[0],Pn=pops[n-1];
+
+  // Aritmético — OLS
+  let sX=0,sY=0,sXX=0,sXY=0;
+  for(let i=0;i<n;i++){sX+=anos[i];sY+=pops[i];sXX+=anos[i]*anos[i];sXY+=anos[i]*pops[i];}
+  const den=n*sXX-sX*sX;
+  const ka=den!==0?(n*sXY-sX*sY)/den:(Pn-P0)/dt;
+  const b_arit=sY/n-ka*(sX/n);
+  const predArit=anos.map(a=>Math.round(b_arit+ka*a));
+  state.coefs.ka=ka;state.coefs.b_arit=b_arit;
+
+  // Geométrico — regressão log-linear (todos os censos)
+  const geoReg=calcGeoLogLinear(anos,pops);
+  const i_geo=geoReg.i_geo;
+  const a_geo=geoReg.a_geo,b_geo=geoReg.b_geo;
+  const predGeo=anos.map(a=>Math.round(Math.exp(a_geo+b_geo*a)));
+  state.coefs.i_geo=i_geo;state.coefs.a_geo=a_geo;state.coefs.b_geo=b_geo;state.coefs.P0_geo=geoReg.P0_geo;
+
+  // Logístico
+  const K=state.K||Pn*2.5;
+  let k_log=0.02;
+  try{const v=(Pn*(K-P0))/(P0*(K-Pn));if(v>0)k_log=(1/dt)*Math.log(v);if(!isFinite(k_log)||k_log<=0)k_log=0.02;}catch(_){}
+  const predLog=anos.map(a=>Math.round(K/(1+((K-P0)/P0)*Math.exp(-k_log*(a-anos[0])))));
+  state.coefs.k_log=k_log;state.coefs.K=K;state.coefs.P0=P0;
+
+  // Holt — parâmetros otimizados por grid search
+  const holt=holtFit(pops,anos);
+  state.coefs.holt=holt;
+  const predHolt=holt.pred;
+
+  state.r2={aritmetico:calcR2(pops,predArit),geometrico:calcR2(pops,predGeo),logistico:calcR2(pops,predLog),holt:calcR2(pops,predHolt)};
+  state.rmse={aritmetico:calcRMSE(pops,predArit),geometrico:calcRMSE(pops,predGeo),logistico:calcRMSE(pops,predLog),holt:calcRMSE(pops,predHolt)};
+
+  // LOO cross-validation
+  state.loo={
+    aritmetico:calcLOO(anos,pops,(at,pt,ao)=>{let sx=0,sy=0,sxx=0,sxy=0;for(let i=0;i<pt.length;i++){sx+=at[i];sy+=pt[i];sxx+=at[i]*at[i];sxy+=at[i]*pt[i];}const d2=pt.length*sxx-sx*sx;const k2=d2!==0?(pt.length*sxy-sx*sy)/d2:(pt[pt.length-1]-pt[0])/(at[at.length-1]-at[0]);const b2=sy/pt.length-k2*(sx/pt.length);return b2+k2*ao;}),
+    geometrico:calcLOO(anos,pops,(at,pt,ao)=>{const gr=calcGeoLogLinear(at,pt);return Math.exp(gr.a_geo+gr.b_geo*ao);}),
+    logistico:calcLOO(anos,pops,(at,pt,ao)=>{const K2=K;let kl=0.02;try{const v2=(pt[pt.length-1]*(K2-pt[0]))/(pt[0]*(K2-pt[pt.length-1]));if(v2>0)kl=(1/(at[at.length-1]-at[0]))*Math.log(v2);if(!isFinite(kl)||kl<=0)kl=0.02;}catch(_){}return K2/(1+((K2-pt[0])/pt[0])*Math.exp(-kl*(ao-at[0])));}),
+    holt:calcLOO(anos,pops,(at,pt,ao)=>{const h=holtFit(pt,at);return holtProject(h.L,h.T,at[at.length-1],ao);})
+  };
+
+  // Score composto (R² 60% + LOO 40%) para seleção do melhor modelo
+  state.scores={};
+  ['aritmetico','geometrico','logistico','holt'].forEach(m=>{
+    state.scores[m]=calcCompositeScore(state.r2[m],state.loo[m]);
+  });
+
+  state.censosRaw=d;
+  state.bestModel=Object.entries(state.scores).sort((a,b)=>b[1]-a[1])[0][0];
+
+  const anoFinal=anos[n-1];
+  state.infraAnos=[anoFinal+3,anoFinal+8,anoFinal+13,anoFinal+20];
+  document.getElementById('infra-anos').innerHTML=state.infraAnos.map((a,i)=>`<button class="btn btn-sm ${i===0?'btn-primary':''}" onclick="setInfraAno(${i},this)">${a}</button>`).join('');
+
+  renderBestFit(d,predArit,predGeo,predLog,predHolt);
+  document.getElementById('bestfit-result').style.display='block';
+  document.getElementById('cmp-a-nome').textContent=state.municipioNome;
+  document.getElementById('cmp-a-pop').textContent=`Pop. ${d[d.length-1].ano}: ${d[d.length-1].pop.toLocaleString('pt-BR')} hab`;
+  addAudit(`Best Fit: ${modelLabel[state.bestModel]} R²=${(state.r2[state.bestModel]*100).toFixed(1)}%`);
+}
+
+const modelLabel={aritmetico:'Aritmético',geometrico:'Geométrico',logistico:'Logístico',holt:'Holt'};
+const modelColors={aritmetico:'#4f7ef5',geometrico:'#1D9E75',logistico:'#E24B4A',holt:'#e09000'};
+
+function confiabilidadeLabel(r2,loo){
+  if(r2>=0.995&&(loo===null||loo<0.03))return{label:'Muito alta',cls:'conf-high'};
+  if(r2>=0.98&&(loo===null||loo<0.06))return{label:'Alta',cls:'conf-high'};
+  if(r2>=0.95&&(loo===null||loo<0.10))return{label:'Média',cls:'conf-med'};
+  return{label:'Baixa — usar com cautela',cls:'conf-low'};
+}
+
+function renderBestFit(d,pa,pg,pl,ph){
+  const best=state.bestModel;
+  const scores=state.scores||{};
+  document.getElementById('model-rows').innerHTML=['aritmetico','geometrico','logistico','holt'].map(m=>{
+    const r2pct=(state.r2[m]*100).toFixed(1);
+    const loo=state.loo[m];
+    const score=scores[m]||0;
+    const conf=confiabilidadeLabel(state.r2[m],loo);
+    const looBar=loo!==null?Math.max(0,Math.round((1-loo)*100)):null;
+    return `<div class="score-row">
+      <span class="score-name">${modelLabel[m]}</span>
+      <div class="score-bars">
+        <div class="score-bar-wrap"><span class="score-bar-label">R²</span><div class="score-bar-track"><div class="score-bar-fill" style="width:${r2pct}%;background:${modelColors[m]};"></div></div><span style="font-size:10px;font-family:var(--mono);color:var(--text2);min-width:38px;">${r2pct}%</span></div>
+        ${looBar!==null?`<div class="score-bar-wrap"><span class="score-bar-label">LOO</span><div class="score-bar-track"><div class="score-bar-fill" style="width:${looBar}%;background:${modelColors[m]};opacity:.55;"></div></div><span style="font-size:10px;font-family:var(--mono);color:var(--text2);min-width:38px;">${(loo*100).toFixed(1)}%</span></div>`:''}
+      </div>
+      <span class="conf-badge ${conf.cls}">${conf.label}</span>
+      ${m===best?'<span class="rec-badge">Recomendado</span>':''}
+    </div>`;
+  }).join('');
+  document.getElementById('rec-alert').textContent=`${state.municipioNome}: ${modelLabel[best]} com R²=${(state.r2[best]*100).toFixed(1)}% e score composto ${((scores[best]||0)*100).toFixed(1)}% — recomendado.`;
+
+  // Análise de confiabilidade por horizonte
+  const n=d.length;
+  const horizon_conf=n>=4?'Alta confiabilidade até '+(d[d.length-1].ano+15)+', média até '+(d[d.length-1].ano+25)+', baixa além disso.':
+    n===3?'Confiabilidade média até '+(d[d.length-1].ano+10)+'. Adicione mais censos para melhorar.':
+    'Poucos dados — confiabilidade limitada. Mínimo recomendado: 3 censos.';
+  document.getElementById('conf-analysis').innerHTML=`<div class="alert alert-warning" style="margin-bottom:0;">${horizon_conf}</div>`;
+
+  if(state.charts.bestfit)state.charts.bestfit.destroy();
+  state.charts.bestfit=new Chart(document.getElementById('chart-bestfit'),{
+    type:'line',
+    data:{
+      labels:d.map(x=>x.ano),
+      datasets:[
+        // Linha conectando os pontos históricos
+        {label:'Histórico IBGE',data:d.map(x=>x.pop),borderColor:'#1a1a18',backgroundColor:'#1a1a18',borderWidth:2,pointRadius:6,pointBackgroundColor:'#1a1a18',showLine:true,fill:false,tension:0},
+        {label:'Aritmético',data:pa,borderColor:modelColors.aritmetico,borderDash:[4,3],pointRadius:0,fill:false,tension:0},
+        {label:'Geométrico',data:pg,borderColor:modelColors.geometrico,borderWidth:2.5,pointRadius:0,fill:false,tension:0},
+        {label:'Logístico',data:pl,borderColor:modelColors.logistico,borderDash:[2,2],pointRadius:0,fill:false,tension:0},
+        {label:'Holt',data:ph,borderColor:modelColors.holt,borderDash:[6,2],pointRadius:0,fill:false,tension:0}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},boxWidth:20,usePointStyle:true}}},
+      scales:{y:{ticks:{callback:v=>v>=1e6?`${(v/1e6).toFixed(2)}M`:v>=1e3?`${(v/1e3).toFixed(0)}k`:v}}}}
+  });
+}
+
+// ══════════════════════════════════════════
+// PROJEÇÃO + ENVELOPE
+// ══════════════════════════════════════════
+function projectModel(modelo,anos,d){
+  const P0=d[0].pop,a0=d[0].ano;
+  if(modelo==='aritmetico')return anos.map(a=>Math.round(state.coefs.b_arit+state.coefs.ka*a));
+  // Geométrico usa regressão log-linear (todos os censos)
+  if(modelo==='geometrico')return anos.map(a=>Math.round(Math.exp(state.coefs.a_geo+state.coefs.b_geo*a)));
+  if(modelo==='logistico')return anos.map(a=>Math.round(state.coefs.K/(1+((state.coefs.K-state.coefs.P0)/state.coefs.P0)*Math.exp(-state.coefs.k_log*(a-d[0].ano)))));
+  if(modelo==='holt'){const{L,T}=state.coefs.holt;const lastAno=d[d.length-1].ano;return anos.map(a=>Math.max(0,holtProject(L,T,lastAno,a)));}
+  return[];
+}
+
+function projetarEEnvelope(){
+  if(!state.censosRaw){alert('Calcule o Best Fit primeiro.');return;}
+  const d=state.censosRaw;
+  const horizonte=+document.getElementById('ano-horizonte').value;
+  const sel=document.getElementById('modelo-sel').value;
+  const modelo=sel==='auto'?state.bestModel:sel;
+  const pess=+document.getElementById('env-pess').value/100;
+  const prov=+document.getElementById('env-prov').value/100;
+  const otim=+document.getElementById('env-otim').value/100;
+  const anos=[];for(let a=d[0].ano;a<=horizonte;a++)anos.push(a);
+  const proj=projectModel(modelo,anos,d);
+  state.projData=anos.map((a,i)=>({ano:a,pop:proj[i]}));
+  const aBase=d[d.length-1].ano,pBase=d[d.length-1].pop;
+  const anosEnv=anos.filter(a=>a>=aBase);
+  const pP=anosEnv.map(a=>Math.round(pBase*Math.pow(1+pess,a-aBase)));
+  const pO=anosEnv.map(a=>Math.round(pBase*Math.pow(1+otim,a-aBase)));
+  const anoAtual=new Date().getFullYear();
+  const idxAtual=anos.indexOf(anoAtual)>=0?anos.indexOf(anoAtual):anos.length-1;
+  const popAtual=proj[idxAtual],popH=proj[proj.length-1];
+
+  // Intervalo de confiança baseado em RMSE do modelo ajustado
+  const rmseModel=state.rmse&&state.rmse[modelo]?state.rmse[modelo]:0;
+  const dtH=horizonte-aBase;
+  const ciH=calcCI(popH,rmseModel,dtH);
+  const ciAtual=calcCI(popAtual,rmseModel,Math.max(0,anoAtual-aBase));
+
+  // Alerta de extrapolação
+  const spanHistorico=d[d.length-1].ano-d[0].ano;
+  const extrapRatio=dtH/Math.max(1,spanHistorico);
+  const extrapWarnEl=document.getElementById('extrap-warning');
+  if(extrapRatio>1){
+    extrapWarnEl.style.display='flex';
+    extrapWarnEl.innerHTML=`<div class="extrap-warn">⚠️ Extrapolação de ${dtH} anos além do último censo — ${extrapRatio.toFixed(1)}× a série histórica (${spanHistorico} anos). Incerteza elevada. Avaliação de confiabilidade: ${dtH<=15?'Moderada':dtH<=25?'Baixa':'Muito baixa'}.</div>`;
+  } else {
+    extrapWarnEl.style.display='none';
+  }
+
+  // Sumário de IC
+  document.getElementById('ci-summary').innerHTML=`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;font-size:12px;font-family:var(--mono);">
+    <span style="font-weight:600;color:var(--text);">Intervalo de confiança 95% (RMSE do ajuste × crescimento temporal)</span><br>
+    <span style="color:var(--text3);">Pop. ${horizonte}: </span><span style="color:var(--text);">${popH.toLocaleString('pt-BR')} hab</span>
+    <span style="color:var(--text3);"> · IC 95%: </span><span style="color:var(--accent);">[${Math.max(0,ciH.lower).toLocaleString('pt-BR')} — ${ciH.upper.toLocaleString('pt-BR')}]</span>
+    <span style="color:var(--text3);"> · RMSE ajuste: </span><span style="color:var(--text2);">${rmseModel.toFixed(0)} hab</span>
+    ${rmseModel===0?'<br><span style="color:var(--amber);font-size:11px;">⚠ RMSE = 0 (≤2 pontos). IC não calculável com precisão. Adicione mais censos.</span>':''}
+  </div>`;
+
+  document.getElementById('proj-cards').innerHTML=[
+    {label:`Pop. estimada (${anoAtual})`,val:popAtual.toLocaleString('pt-BR'),sub:`IC: [${Math.max(0,ciAtual.lower).toLocaleString('pt-BR')}–${ciAtual.upper.toLocaleString('pt-BR')}]`,cls:'accent'},
+    {label:`Pop. em ${horizonte}`,val:popH.toLocaleString('pt-BR'),sub:`Modelo ${modelLabel[modelo]}`,cls:'green'},
+    {label:'Crescimento total',val:`+${((popH/popAtual-1)*100).toFixed(1)}%`,sub:`${anoAtual}→${horizonte}`,cls:'amber'},
+    {label:'Modelo',val:modelLabel[modelo],sub:`R²=${(state.r2[modelo]*100).toFixed(0)}% Score=${((state.scores&&state.scores[modelo]||0)*100).toFixed(0)}%`,cls:''},
+  ].map(c=>`<div class="metric-card ${c.cls}"><div class="metric-label">${c.label}</div><div class="metric-value">${c.val}</div><div class="metric-sub">${c.sub}</div></div>`).join('');
+
+  // Confiabilidade por horizonte
+  const conf_label=dtH<=15?{t:'Alta confiabilidade',c:'conf-high'}:dtH<=25?{t:'Confiabilidade média',c:'conf-med'}:{t:'Baixa confiabilidade — cenário especulativo',c:'conf-low'};
+  document.getElementById('conf-horizonte').innerHTML=`<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:12px;color:var(--text2);font-family:var(--mono);">Horizonte ${horizonte} (${dtH} anos além do último censo):</span><span class="conf-badge ${conf_label.c}">${conf_label.t}</span></div>`;
+
+  // Bandas de IC no gráfico
+  const ciUpper=anosEnv.map((a,i)=>{const dt2=a-aBase;const ci=calcCI(proj[anos.indexOf(a)],rmseModel,dt2);return Math.min(ci.upper,state.coefs.K?state.coefs.K*1.05:ci.upper);});
+  const ciLower=anosEnv.map((a,i)=>{const dt2=a-aBase;const ci=calcCI(proj[anos.indexOf(a)],rmseModel,dt2);return Math.max(0,ci.lower);});
+
+  if(state.charts.projecao)state.charts.projecao.destroy();
+  state.charts.projecao=new Chart(document.getElementById('chart-projecao'),{
+    type:'line',
+    data:{labels:anos,datasets:[
+      {label:'IC 95% — superior',data:anos.map(a=>{const j=anosEnv.indexOf(a);return j>=0?ciUpper[j]:null;}),borderColor:'rgba(79,126,245,0.25)',borderWidth:1,borderDash:[2,3],pointRadius:0,fill:'+1',backgroundColor:'rgba(79,126,245,0.07)',tension:0},
+      {label:'IC 95% — inferior',data:anos.map(a=>{const j=anosEnv.indexOf(a);return j>=0?ciLower[j]:null;}),borderColor:'rgba(79,126,245,0.25)',borderWidth:1,borderDash:[2,3],pointRadius:0,fill:false,tension:0},
+      {label:'Otimista',data:anos.map(a=>{const j=anosEnv.indexOf(a);return j>=0?pO[j]:null;}),borderColor:'#E24B4A',borderWidth:1,borderDash:[4,2],pointRadius:0,fill:false,tension:0},
+      {label:'Pessimista',data:anos.map(a=>{const j=anosEnv.indexOf(a);return j>=0?pP[j]:null;}),borderColor:'#888780',borderWidth:1,borderDash:[4,2],pointRadius:0,fill:false,tension:0},
+      {label:`Projetado — ${modelLabel[modelo]}`,data:anos.map((a,i)=>anosEnv.indexOf(a)>=0?proj[i]:null),borderColor:'#4f7ef5',borderWidth:2.5,pointRadius:0,fill:false,tension:0},
+      {label:'Histórico IBGE',data:anos.map(a=>{const r=d.find(x=>x.ano===a);return r?r.pop:null;}),borderColor:'#1a1a18',backgroundColor:'#1a1a18',borderWidth:1.5,pointRadius:6,showLine:true,fill:false,tension:0},
+      {label:'Ajuste histórico',data:anos.map((a,i)=>anosEnv.indexOf(a)<0?proj[i]:null),borderColor:'#4f7ef5',borderWidth:1.5,borderDash:[4,2],pointRadius:0,fill:false,tension:0},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},boxWidth:20}}},
+      scales:{y:{ticks:{callback:v=>v>=1e6?`${(v/1e6).toFixed(2)}M`:v>=1e3?`${(v/1e3).toFixed(0)}k`:v}},x:{ticks:{maxRotation:45}}}}
+  });
+
+  const anosT2=Array.from(new Set(anos.filter(a=>a%5===0||a===horizonte||a===aBase||a===anoAtual))).sort((a,b)=>a-b);
+  document.getElementById('proj-table').innerHTML=`<table class="tbl">
+    <thead><tr><th>Ano</th><th>Projetado (hab)</th><th>IC 95% — Inferior</th><th>IC 95% — Superior</th><th>Pessimista</th><th>Otimista</th></tr></thead>
+    <tbody>${anosT2.map((a,ti)=>{
+      const idx=anos.indexOf(a),pop=proj[idx]||0;
+      const jEnv=anosEnv.indexOf(a);
+      const dt2=a-aBase;
+      const ci2=calcCI(pop,rmseModel,Math.max(0,dt2));
+      const pessV=jEnv>=0?pP[jEnv].toLocaleString('pt-BR'):'–';
+      const otimV=jEnv>=0?pO[jEnv].toLocaleString('pt-BR'):'–';
+      return `<tr ${a===horizonte?'class="highlight"':''}><td>${a}</td><td>${pop.toLocaleString('pt-BR')}</td><td>${jEnv>=0?Math.max(0,ci2.lower).toLocaleString('pt-BR'):'–'}</td><td>${jEnv>=0?ci2.upper.toLocaleString('pt-BR'):'–'}</td><td>${pessV}</td><td>${otimV}</td></tr>`;
+    }).join('')}</tbody></table>`;
+
+  document.getElementById('proj-result').style.display='block';
+  renderDimensionamento();
+  renderDecisao();
+  gerarRelatorio();
+  addAudit(`Projeção: ${modelLabel[modelo]} até ${horizonte}, pop=${popH.toLocaleString('pt-BR')} hab`);
+}
+
+// ══════════════════════════════════════════
+// DIMENSIONAMENTO + PARÂMETROS CUSTOM
+// ══════════════════════════════════════════
+function toggleCustomParams(){
+  const show=document.getElementById('chk-custom').checked;
+  document.getElementById('custom-params').style.display=show?'block':'none';
+  renderDimensionamento();
+}
+
+function getParams(){
+  const useCustom=document.getElementById('chk-custom').checked;
+  const cp_agua=+document.getElementById('cp-agua').value;
+  const cp_esgoto=+document.getElementById('cp-esgoto').value;
+  const cp_res=+document.getElementById('cp-residuos').value;
+  const cp_en=+document.getElementById('cp-energia').value;
+  return{
+    agua: useCustom&&cp_agua>0?cp_agua:+document.getElementById('sl-agua').value,
+    ret:  useCustom&&cp_esgoto>0?cp_esgoto/100:+document.getElementById('sl-esgoto').value/100,
+    res:  useCustom&&cp_res>0?cp_res:+document.getElementById('sl-residuos').value,
+    en:   useCustom&&cp_en>0?cp_en:+document.getElementById('sl-energia').value,
+    K1:   +(document.getElementById('k1').value)||1.2,
+    K2:   +(document.getElementById('k2').value)||1.5,
+    K3:   +(document.getElementById('k3').value)||0.5,
+    extra1Nome: document.getElementById('cp-extra1-nome').value,
+    extra1Val:  +document.getElementById('cp-extra1-val').value||0,
+    custom: useCustom
+  };
+}
+
+function calcInfra(pop,p){
+  const Qmed=pop*p.agua/86400;
+  // Reservatório: volume de regularização baseado em Q·K1 × 12h + reserva incêndio (NBR 12.218)
+  // Vol_reg = Q·K1 × 43200s / 1000 (m³) — cobre variação diária máxima sem usar K2 (ponta horária ≠ vol. reservatório)
+  const vol_res_m3=Qmed*p.K1*3600*12/1000;
+  return{
+    Qmed, QK1:Qmed*p.K1, QK2:Qmed*p.K1*p.K2, QK3:Qmed*p.K3,
+    Qesg:Qmed*p.ret, QesgK1:Qmed*p.ret*p.K1,
+    res_td:pop*p.res/1000, en_mwh:pop*p.en/1000,
+    m3dia:pop*p.agua/1000,
+    vol_res_m3,
+    vol_eta_m3:Qmed*86400/1000,
+    // ETE lagoa facultativa: TDH 20 dias (Von Sperling / FUNASA — não 2 dias que é de UASB)
+    vol_ete_m3:Qmed*p.ret*86400*20/1000
+  };
+}
+
+function updateSlider(tipo){
+  const sl=document.getElementById('sl-'+tipo),sv=document.getElementById('sv-'+tipo);
+  if(tipo==='agua')sv.textContent=sl.value+' L/hab/dia';
+  else if(tipo==='esgoto')sv.textContent=sl.value+'%';
+  else if(tipo==='residuos')sv.textContent=(+sl.value).toFixed(2)+' kg/hab/dia';
+  else if(tipo==='energia')sv.textContent=sl.value+' kWh/hab/mês';
+  renderDimensionamento();
+}
+
+function setInfraAno(idx,btn){
+  state.infraAnoIdx=idx;
+  document.querySelectorAll('#infra-anos .btn').forEach(b=>b.classList.remove('btn-primary'));
+  btn.classList.add('btn-primary');
+  renderDimensionamento();
+}
+
+function getPopForAno(ano){
+  if(state.projData.length){const r=state.projData.find(x=>x.ano===ano);return r?r.pop:state.projData[state.projData.length-1].pop;}
+  if(!state.censosRaw)return 120000;
+  const d=state.censosRaw;
+  return Math.round(d[0].pop*Math.pow(1+(state.coefs.i_geo||0.015),ano-d[0].ano));
+}
+
+// SVG icons para infra (inline)
+const SVG_WATER=`<svg class="infra-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`;
+const SVG_FLOW=`<svg class="infra-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`;
+const SVG_SEWER=`<svg class="infra-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`;
+const SVG_WASTE=`<svg class="infra-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+const SVG_TANK=`<svg class="infra-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M3 11l4-8h10l4 8"/><line x1="12" y1="11" x2="12" y2="22"/><line x1="3" y1="16" x2="21" y2="16"/></svg>`;
+const SVG_PLANT=`<svg class="infra-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`;
+const SVG_PIPE=`<svg class="infra-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12h20"/><path d="M2 12a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4"/><path d="M2 12a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4"/></svg>`;
+const SVG_ENERGY=`<svg class="infra-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+
+function ic(svg,cls=''){return svg.replace('class="infra-icon"',`class="infra-icon ${cls}"`);}
+
+function renderDimensionamento(){
+  if(!state.infraAnos.length)return;
+  const ano=state.infraAnos[state.infraAnoIdx]||state.infraAnos[0];
+  const pop=getPopForAno(ano);
+  const p=getParams();
+  const v=calcInfra(pop,p);
+  const customTag=p.custom?`<span style="font-size:10px;background:var(--amber-bg);color:var(--amber);padding:1px 6px;border-radius:3px;font-family:var(--mono);margin-left:6px;">param. customizados</span>`:'';
+
+  document.getElementById('infra-display').innerHTML=`
+    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;font-family:var(--mono);">
+      Demanda projetada para <strong style="color:var(--text);">${ano}</strong> · população: <strong style="color:var(--text);">${pop.toLocaleString('pt-BR')} hab</strong>${customTag}
+    </p>
+    <div class="infra-section-title">Sistema de abastecimento de água</div>
+    <div class="infra-grid">
+      <div class="infra-card">${ic(SVG_WATER)}<div class="infra-title">Qméd — Vazão diária</div><div class="infra-value">${v.Qmed.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-unit" style="margin-top:3px;">${v.m3dia.toFixed(0)} m³/dia</div></div>
+      <div class="infra-card">${ic(SVG_FLOW)}<div class="infra-title">Q·K1 — Dia de maior consumo</div><div class="infra-value">${v.QK1.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">K1 = ${p.K1.toFixed(2)}</div></div>
+      <div class="infra-card red">${ic(SVG_FLOW,'red')}<div class="infra-title">Q·K1·K2 — Hora de ponta</div><div class="infra-value">${v.QK2.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">K1·K2 = ${(p.K1*p.K2).toFixed(2)}</div></div>
+    </div>
+    <div class="infra-section-title">Sistema de esgotamento sanitário</div>
+    <div class="infra-grid">
+      <div class="infra-card teal">${ic(SVG_SEWER,'teal')}<div class="infra-title">Qesg médio</div><div class="infra-value">${v.Qesg.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-unit" style="margin-top:3px;">Ret. ${(p.ret*100).toFixed(0)}%</div></div>
+      <div class="infra-card teal">${ic(SVG_FLOW,'teal')}<div class="infra-title">Qesg hora de ponta</div><div class="infra-value">${v.QesgK1.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">K1 = ${p.K1.toFixed(2)}</div></div>
+      <div class="infra-card">${ic(SVG_FLOW)}<div class="infra-title">Q mínima noturna</div><div class="infra-value">${v.QK3.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">K3 = ${p.K3.toFixed(2)}</div></div>
+    </div>
+    <div class="infra-section-title">Resíduos e energia</div>
+    <div class="infra-grid-4">
+      <div class="infra-card amber">${ic(SVG_WASTE,'amber')}<div class="infra-title">Resíduos sólidos</div><div class="infra-value">${v.res_td.toFixed(1)}</div><div class="infra-unit">ton/dia</div><div class="infra-unit" style="margin-top:3px;">${(v.res_td*365).toFixed(0)} ton/ano</div></div>
+      <div class="infra-card amber">${ic(SVG_ENERGY,'amber')}<div class="infra-title">Energia elétrica</div><div class="infra-value">${v.en_mwh.toFixed(0)}</div><div class="infra-unit">MWh/mês</div><div class="infra-unit" style="margin-top:3px;">${(v.en_mwh*12).toLocaleString('pt-BR')} MWh/ano</div></div>
+      ${p.extra1Nome&&p.extra1Val>0?`<div class="infra-card green">${ic(SVG_FLOW,'green')}<div class="infra-title">${p.extra1Nome}</div><div class="infra-value">${p.extra1Val.toFixed(2)}</div><div class="infra-unit">L/s (fixo)</div></div>`:''}
+    </div>`;
+
+  // Dimensionamento de obras
+  renderObras(pop,v,p,ano);
+  renderChartDemanda(p);
+}
+
+function renderObras(pop,v,p,ano){
+  // Cálculos baseados em normas técnicas brasileiras (ABNT/FUNASA)
+  const diam_adut=Math.sqrt((4*v.QK1)/(Math.PI*1.5))*1000; // D em mm, v=1.5 m/s
+  const diam_rede=Math.sqrt((4*v.QK2/0.7)/(Math.PI*2.0))*1000; // 70% da rede, v=2 m/s (critério simplificado)
+  const vol_res=v.vol_res_m3; // 12h × Q·K1 (NBR 12.218 — vol. regularização)
+  const area_eta=v.Qmed*86400/600; // 600 m³/m²/dia taxa de filtração rápida
+  // ETE lagoa facultativa: TDH 20 dias (Von Sperling 2002 / FUNASA — para clima tropical ≥25°C)
+  const vol_ete=v.vol_ete_m3; // Q_esg × 86400 × 20 / 1000 m³
+  const area_lagoa=vol_ete/(3.5); // profundidade típica lagoa facultativa: 3–4 m → 3.5 m
+
+  document.getElementById('dim-display').innerHTML=`
+    <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:14px;">Dimensionamento de obras para <strong style="color:var(--text);">${pop.toLocaleString('pt-BR')} hab</strong> em <strong style="color:var(--text);">${ano}</strong></p>
+
+    <div class="dim-card">
+      <div class="dim-header">
+        <div class="dim-title">${ic(SVG_TANK)} Reservatório de distribuição</div>
+        <div><div class="dim-result">${vol_res.toFixed(0)}</div><div class="dim-unit">m³</div></div>
+      </div>
+      <div class="dim-detail">Volume de regularização para cobrir variação diária máxima (12h × Q·K1). Não usa K2 pois este é coeficiente de ponta horária — o reservatório regula a variação diária, não a instantânea. Ref: NBR 12.218 / FUNASA.</div>
+      <div class="dim-formula">V_res = Q·K1 × 3600 × 12 / 1000 = ${v.QK1.toFixed(2)} L/s × 43.200 s = ${vol_res.toFixed(0)} m³</div>
+    </div>
+
+    <div class="dim-card">
+      <div class="dim-header">
+        <div class="dim-title">${ic(SVG_PIPE)} Adutora principal</div>
+        <div><div class="dim-result">${Math.ceil(diam_adut/25)*25}</div><div class="dim-unit">mm (DN nominal)</div></div>
+      </div>
+      <div class="dim-detail">Diâmetro calculado para conduzir Q·K1 com velocidade de 1,5 m/s. DN nominal arredondado para cima (série ABNT).</div>
+      <div class="dim-formula">D = √(4·Q / π·v) = ${diam_adut.toFixed(0)} mm calc. → DN ${Math.ceil(diam_adut/25)*25} mm</div>
+    </div>
+
+    <div class="dim-card">
+      <div class="dim-header">
+        <div class="dim-title">${ic(SVG_PLANT)} ETA — Estação de Tratamento de Água</div>
+        <div><div class="dim-result">${area_eta.toFixed(0)}</div><div class="dim-unit">m² área de filtração</div></div>
+      </div>
+      <div class="dim-detail">Área de leito filtrante para taxa de filtração de 600 m³/m²/dia (filtro rápido pressão). Capacidade de tratamento: ${v.m3dia.toFixed(0)} m³/dia.</div>
+      <div class="dim-formula">A_ETA = Q / τ = ${v.m3dia.toFixed(0)} m³/dia ÷ 600 m³/m²/dia = ${area_eta.toFixed(0)} m²</div>
+    </div>
+
+    <div class="dim-card">
+      <div class="dim-header">
+        <div class="dim-title">${ic(SVG_SEWER)} ETE — Lagoa Facultativa (TDH 20 dias)</div>
+        <div><div class="dim-result">${(vol_ete/1000).toFixed(1)}</div><div class="dim-unit">mil m³ (volume útil)</div></div>
+      </div>
+      <div class="dim-detail">Lagoa facultativa com tempo de detenção hidráulica de <strong>20 dias</strong> (Von Sperling 2002 / FUNASA — clima tropical). Profundidade útil: 3,5 m. Área da lagoa: ${area_lagoa.toFixed(0)} m² = ${(area_lagoa/10000).toFixed(2)} ha. Vazão afluente: ${v.Qesg.toFixed(2)} L/s. <em>Nota: TDH de 2 dias é adequado para reatores UASB, não para lagoa facultativa.</em></div>
+      <div class="dim-formula">V_ETE = Q_esg × 86.400 × TDH(20d) / 1.000 = ${v.Qesg.toFixed(2)} L/s × 86.400 × 20 / 1.000 = ${vol_ete.toFixed(0)} m³</div>
+    </div>
+
+    <div class="dim-card">
+      <div class="dim-header">
+        <div class="dim-title">${ic(SVG_WASTE,'amber')} Aterro sanitário / Galpão de triagem</div>
+        <div><div class="dim-result">${(v.res_td*365*20/1000).toFixed(1)}</div><div class="dim-unit">mil ton (20 anos)</div></div>
+      </div>
+      <div class="dim-detail">Geração de ${v.res_td.toFixed(1)} ton/dia. Volume de aterro necessário para 20 anos: ${(v.res_td*365*20/0.8/1000).toFixed(0)} m³ (densidade 0,8 t/m³).</div>
+      <div class="dim-formula">V_aterro = ${v.res_td.toFixed(1)} × 365 × 20 / 0,8 = ${(v.res_td*365*20/0.8/1000).toFixed(0)} m³</div>
+    </div>`;
+}
+
+function renderChartDemanda(p){
+  if(!state.projData.length)return;
+  const anos5=state.projData.filter(x=>x.ano%5===0);
+  const labels=anos5.map(x=>x.ano);
+  const agua_ls=anos5.map(x=>+(x.pop*p.agua*p.K1/86400).toFixed(2));
+  const esg_ls=anos5.map(x=>+(x.pop*p.agua*p.ret*p.K1/86400).toFixed(2));
+  const res_td=anos5.map(x=>+(x.pop*p.res/1000).toFixed(1));
+  if(state.charts.demanda)state.charts.demanda.destroy();
+  state.charts.demanda=new Chart(document.getElementById('chart-demanda'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Água Q·K1 (L/s)',data:agua_ls,borderColor:'#4f7ef5',borderWidth:2,pointRadius:3,fill:false,tension:0,yAxisID:'y'},
+      {label:'Esgoto Q·K1 (L/s)',data:esg_ls,borderColor:'#0e7490',borderWidth:2,pointRadius:3,fill:false,tension:0,yAxisID:'y'},
+      {label:'Resíduos (ton/dia)',data:res_td,borderColor:'#e09000',borderWidth:2,pointRadius:3,borderDash:[4,3],fill:false,tension:0,yAxisID:'y2'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},boxWidth:20}}},
+      scales:{
+        y:{type:'linear',position:'left',title:{display:true,text:'L/s',font:{size:11}},ticks:{font:{size:11}}},
+        y2:{type:'linear',position:'right',title:{display:true,text:'ton/dia',font:{size:11}},grid:{drawOnChartArea:false},ticks:{font:{size:11}}}
+      }}
+  });
+}
+
+// ══════════════════════════════════════════
+// ADUÇÃO & ELEVATÓRIAS
+// ══════════════════════════════════════════
+
+// Curva de consumo horária típica (fração do consumo diário por hora, soma=1)
+// Distribuição baseada em padrões de consumo urbano brasileiro (FUNASA/SABESP)
+const CURVA_CONSUMO_HORARIA=[
+  0.022,0.018,0.015,0.014,0.016,0.024, // 0h–5h
+  0.034,0.048,0.056,0.058,0.054,0.050, // 6h–11h
+  0.052,0.050,0.048,0.046,0.044,0.046, // 12h–17h
+  0.058,0.052,0.046,0.040,0.034,0.026  // 18h–23h
+];
+
+function presetCagece(){
+  document.getElementById('ad-horas').value='18';
+  document.getElementById('ad-eta').value='72';
+  document.getElementById('ad-chw').value='140';
+  document.getElementById('ad-k-bresse').value='auto';
+  document.getElementById('ad-esp').value='8';
+  const sa=document.getElementById('sl-agua');
+  if(sa){sa.value='165';document.getElementById('sv-agua').textContent='165 L/hab/dia';}
+  const k1=document.getElementById('k1');if(k1)k1.value='1.20';
+  const k2=document.getElementById('k2');if(k2)k2.value='1.50';
+  calcAducao();addAudit('Preset CAGECE aplicado');
+}
+function presetFunasa(){
+  document.getElementById('ad-horas').value='16';document.getElementById('ad-eta').value='70';
+  document.getElementById('ad-chw').value='140';document.getElementById('ad-k-bresse').value='1.2';
+  document.getElementById('ad-esp').value='8';
+  const sa=document.getElementById('sl-agua');if(sa){sa.value='150';document.getElementById('sv-agua').textContent='150 L/hab/dia';}
+  calcAducao();addAudit('Preset FUNASA aplicado');
+}
+function presetConservador(){
+  document.getElementById('ad-horas').value='12';document.getElementById('ad-eta').value='65';
+  document.getElementById('ad-chw').value='120';document.getElementById('ad-k-bresse').value='1.4';
+  document.getElementById('ad-esp').value='10';
+  const sa=document.getElementById('sl-agua');if(sa){sa.value='200';document.getElementById('sv-agua').textContent='200 L/hab/dia';}
+  calcAducao();addAudit('Preset Conservador aplicado');
+}
+
+function calcAducao(){
+  const emptyEl=document.getElementById('ad-empty');
+  const resultEl=document.getElementById('ad-result');
+  if(!state.projData.length||!state.censosRaw){emptyEl.style.display='block';resultEl.style.display='none';return;}
+  emptyEl.style.display='none';
+  resultEl.style.display='block';
+
+  if(!document.getElementById('ad-infra-anos').children.length){
+    document.getElementById('ad-infra-anos').innerHTML=state.infraAnos.map((a,i)=>
+      `<button class="btn btn-sm ${i===0?'btn-primary':''}" onclick="setAdAno(${i},this)">${a}</button>`).join('');
+  }
+
+  const p=getParams();
+  const adAnoIdx=state.adAnoIdx||0;
+  const ano=state.infraAnos[adAnoIdx]||state.infraAnos[0];
+  const pop=getPopForAno(ano);
+  const Qmed=pop*p.agua/86400;
+  const QK1=Qmed*p.K1;
+  const QK2=QK1*p.K2;
+
+  const cotaCap=+document.getElementById('ad-cota-cap').value||10;
+  const cotaRes=+document.getElementById('ad-cota-res').value||85;
+  const L=+document.getElementById('ad-comp').value||3500;
+  const C=+document.getElementById('ad-chw').value||140;
+  const N=Math.max(1,Math.min(24,+document.getElementById('ad-horas').value||16));
+  const eta=(+document.getElementById('ad-eta').value||72)/100;
+  const e_mm=+document.getElementById('ad-esp').value||8;
+
+  // Vazão de recalque
+  const Qb=QK1*(24/N);
+
+  // Bresse
+  const kBresseInput=document.getElementById('ad-k-bresse').value;
+  const K_bresse=kBresseInput==='auto'?1.3*Math.pow(N/24,0.25):+kBresseInput;
+  const D_bresse=K_bresse*Math.sqrt(Qb/1000);
+  const series_dn=[50,75,100,125,150,200,250,300,350,400,450,500,600,700,800,900,1000];
+  const D_mm_calc=D_bresse*1000;
+  const DN=series_dn.find(d=>d>=D_mm_calc)||series_dn[series_dn.length-1];
+  const D_real=DN/1000;
+  const v_real=(Qb/1000)/(Math.PI*(D_real/2)**2);
+
+  // Hazen-Williams
+  const J=10.643*Math.pow(Qb/1000,1.852)/(Math.pow(C,1.852)*Math.pow(D_real,4.87));
+  const Hf=J*L;
+  const Hloc=Hf*0.10;
+
+  // Altura manométrica
+  const Hgeo=cotaRes-cotaCap;
+  const Hman=Hgeo+Hf+Hloc;
+
+  // Potência
+  const Pot_cv=(1000*(Qb/1000)*Hman)/(75*eta);
+  const Pot_kw=Pot_cv*0.7355;
+  const potMotor=[5.5,7.5,11,15,18.5,22,30,37,45,55,75,90,110,132,160,200,250,315];
+  const Pot_motor_kw=potMotor.find(pw=>pw>=Pot_kw)||potMotor[potMotor.length-1];
+  const Pot_motor_cv=Math.round(Pot_motor_kw/0.7355);
+
+  // Golpe de Aríete — Joukowsky
+  let E_tubo=2800; // PVC/PEAD MPa default
+  const C_val=+document.getElementById('ad-chw').value||140;
+  if(C_val>=130&&C_val<140)E_tubo=170000; // FFD
+  else if(C_val>=120&&C_val<130)E_tubo=170000; // FFC
+  else if(C_val<120)E_tubo=30000; // Concreto/Aço
+  const E_agua=2100;
+  const rho=1000;
+  const e_m=e_mm/1000;
+  const a_celer=Math.sqrt((E_agua*1e6/rho)/(1+(D_real*E_agua)/(e_m*E_tubo)));
+  const g=9.81;
+  const delta_H=(a_celer*v_real)/g;
+  const P_max=Hman+delta_H;
+  const pn_series=[60,80,100,125,160,200,250,315];
+  const PN_rec=pn_series.find(pn=>pn>=P_max*1.2)||pn_series[pn_series.length-1];
+  const risco_ariete=delta_H>Hman*0.5?'crit':delta_H>Hman*0.25?'warn':'ok';
+
+  // Rippl
+  const Qdiario=Qmed*86400;
+  const consumo_h=CURVA_CONSUMO_HORARIA.map(f=>f*Qdiario);
+  const horas_idx=Array.from({length:24},(_,i)=>i);
+  const horas_sorted=[...horas_idx].sort((a2,b2)=>consumo_h[a2]-consumo_h[b2]);
+  const horas_desligadas=new Set(horas_sorted.slice(0,24-N));
+  const aducao_h=horas_idx.map(h=>horas_desligadas.has(h)?0:Qb*3600);
+  let entSum=0,saiSum=0;
+  const entrada_cum=[],saida_cum=[],saldo_cum=[];
+  for(let h=0;h<24;h++){
+    entSum+=aducao_h[h];saiSum+=consumo_h[h];
+    entrada_cum.push(entSum);saida_cum.push(saiSum);saldo_cum.push(entSum-saiSum);
+  }
+  const saldo_max=Math.max(...saldo_cum);
+  const saldo_min=Math.min(...saldo_cum);
+  const V1=(saldo_max-saldo_min)/1000;
+  const h_crit=saldo_cum.indexOf(saldo_min);
+  const V2=Math.max(50,Qmed*3600*2/1000);
+  const V3=Math.max(12,Math.min(108,pop*0.0008));
+  const V_total=Math.ceil(V1+V2+V3);
+
+  // Verificação NBR
+  const nbrChecks=[];
+  const addNBR=(norma,item,ok,msg)=>nbrChecks.push({norma,item,ok,msg});
+  addNBR('NBR 12211','Velocidade na adutora (0,6–3,0 m/s)',v_real>=0.6&&v_real<=3.0,
+    `v = ${v_real.toFixed(2)} m/s — ${v_real<0.6?'⚠ abaixo do mínimo (risco deposição)':v_real>3?'⚠ acima do máximo (risco erosão/aríete)':'✅ OK'}`);
+  addNBR('NBR 12211','Horas de bombeamento (recomendado ≥ 16h/dia)',N>=16,
+    `N = ${N}h/dia — ${N<16?'⚠ abaixo de 16h (Qb elevado, maior DN)':'✅ dentro do recomendado'}`);
+  addNBR('NBR 12211','Evitar bombeamento 18h–21h (pico ANEEL)',!horas_desligadas.has(19)&&!horas_desligadas.has(20),
+    horas_desligadas.has(19)||horas_desligadas.has(20)?'✅ Pico tarifário (19h–20h) está nas horas desligadas':'⚠ Sistema pode operar durante pico tarifário');
+  addNBR('NBR 12217','Volume ≥ 1/3 consumo diário máximo',V_total>=Qmed*p.K1*86400/3000,
+    `V = ${V_total} m³ · 1/3 Dmax = ${(Qmed*p.K1*86400/3000).toFixed(0)} m³ — ${V_total>=Qmed*p.K1*86400/3000?'✅ OK':'⚠ Abaixo do mínimo NBR 12217'}`);
+  addNBR('NBR 12218','Pressão mínima na rede ≥ 10 m.c.a.',Hgeo>=10,
+    `Hgeo = ${Hgeo.toFixed(1)} m — ${Hgeo<10?'⚠ Verificar pressão mínima na extremidade':'✅ Adequado'}`);
+  addNBR('NBR 12218','Pressão máxima na rede ≤ 40–50 m.c.a.',Hgeo<=50,
+    `Hgeo = ${Hgeo.toFixed(1)} m — ${Hgeo>50?'⚠ Pressão alta — instalar VRP':Hgeo>40?'⚠ Atenção: verificar extremidades baixas':'✅ OK'}`);
+  addNBR('NBR 5648','Golpe de aríete ΔH ≤ 50% Hman',delta_H<=Hman*0.5,
+    `ΔH = ${delta_H.toFixed(1)} m · P_max = ${P_max.toFixed(1)} mca — ${delta_H>Hman*0.5?'⚠ Instalar válvula antichoque':'✅ OK'}`);
+
+  // RENDER
+  const nbrOk=nbrChecks.filter(c=>c.ok).length;
+  const nbrFail=nbrChecks.filter(c=>!c.ok).length;
+  const vColor=v_real<0.6||v_real>3?'red':v_real<1?'amber':'green';
+  const arieteCls=risco_ariete==='crit'?'alert-danger':risco_ariete==='warn'?'alert-warning':'alert-success';
+  const arieteMsg=risco_ariete==='crit'?
+    `🚨 RISCO ELEVADO: ΔH = ${delta_H.toFixed(1)} m > 50% Hman. Instalar válvula de alívio/volante de inércia. Adotar PN ${PN_rec} m.c.a.`:
+    risco_ariete==='warn'?
+    `⚠️ ATENÇÃO: ΔH = ${delta_H.toFixed(1)} m (25–50% Hman). Recomendar válvula antichoque. PN ${PN_rec} m.c.a.`:
+    `✅ Baixo risco de golpe de aríete (ΔH = ${delta_H.toFixed(1)} m < 25% Hman). Classe PN ${PN_rec} adequada.`;
+
+  document.getElementById('ad-nbr-alerts').innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius);background:var(--bg);border:1px solid var(--border);margin-bottom:0;">
+      <span style="font-size:11px;font-family:var(--mono);color:var(--text3);">Verificação NBR:</span>
+      <span style="font-size:12px;font-weight:600;color:var(--green);">✅ ${nbrOk} OK</span>
+      <span style="font-size:12px;font-weight:600;color:${nbrFail>0?'var(--red)':'var(--text3)'};">${nbrFail>0?'⚠ '+nbrFail+' não conforme':'✅ todos conformes'}</span>
+    </div>`;
+
+  document.getElementById('ad-col-bombas').innerHTML=`
+    <div class="hyd-step"><div class="hyd-label">Horas bombeamento / dia</div><div class="hyd-value">${N}</div><div class="hyd-unit">h/dia · desliga ${24-N}h</div></div>
+    <div class="hyd-step" style="margin-top:8px;"><div class="hyd-label">Vazão de recalque Qb</div><div class="hyd-value">${Qb.toFixed(2)}</div><div class="hyd-unit">L/s · Q·K1×24/N</div></div>
+    <div class="hyd-step amber" style="margin-top:8px;"><div class="hyd-label">Hman total</div><div class="hyd-value">${Hman.toFixed(1)}</div><div class="hyd-unit">m.c.a.</div></div>
+    <div class="hyd-step teal" style="margin-top:8px;"><div class="hyd-label">Potência calculada</div><div class="hyd-value">${Pot_cv.toFixed(1)}</div><div class="hyd-unit">cv · ${Pot_kw.toFixed(1)} kW · η=${(eta*100).toFixed(0)}%</div></div>
+    <div class="hyd-step green" style="margin-top:8px;"><div class="hyd-label">Motor NBR 17094</div><div class="hyd-value">${Pot_motor_cv}</div><div class="hyd-unit">cv · ${Pot_motor_kw} kW</div></div>
+    <div class="hyd-formula" style="margin-top:10px;font-size:10px;">Pot = γ·Qb·Hman/(75·η) = 1000×${(Qb/1000).toFixed(4)}×${Hman.toFixed(1)}/(75×${eta.toFixed(2)}) = <strong>${Pot_cv.toFixed(2)} cv</strong><br>Hman = ${Hgeo.toFixed(1)} + ${Hf.toFixed(2)} + ${Hloc.toFixed(2)} = ${Hman.toFixed(2)} m.c.a.</div>`;
+
+  document.getElementById('ad-col-adutora').innerHTML=`
+    <div class="hyd-step ${vColor}"><div class="hyd-label">DN adutora (Bresse)</div><div class="hyd-value">${DN}</div><div class="hyd-unit">mm · D_calc=${D_mm_calc.toFixed(0)} mm</div></div>
+    <div class="hyd-step ${vColor}" style="margin-top:8px;"><div class="hyd-label">Velocidade real</div><div class="hyd-value">${v_real.toFixed(2)}</div><div class="hyd-unit">m/s · K=${K_bresse.toFixed(3)}</div></div>
+    <div class="hyd-step amber" style="margin-top:8px;"><div class="hyd-label">Perda de carga Hf</div><div class="hyd-value">${Hf.toFixed(2)}</div><div class="hyd-unit">m · J=${(J*1000).toFixed(3)} m/km</div></div>
+    <div class="hyd-step" style="margin-top:8px;"><div class="hyd-label">Perdas localizadas (10%)</div><div class="hyd-value">${Hloc.toFixed(2)}</div><div class="hyd-unit">m</div></div>
+    <div class="hyd-step" style="margin-top:8px;"><div class="hyd-label">Material / C HW / L</div><div class="hyd-value">${C}</div><div class="hyd-unit">C · ${(L/1000).toFixed(2)} km</div></div>
+    <div class="hyd-formula" style="margin-top:10px;font-size:10px;">D = K√(Qb) = ${K_bresse.toFixed(3)}×√${(Qb/1000).toFixed(4)} = ${D_mm_calc.toFixed(0)} mm → <strong>DN ${DN} mm</strong><br>J = 10,643×Q^1,852/(C^1,852×D^4,87) = ${(J*1000).toFixed(4)} m/m</div>`;
+
+  document.getElementById('ad-col-reservatorio').innerHTML=`
+    <div class="hyd-step"><div class="hyd-label">V₁ — Equilíbrio (Rippl)</div><div class="hyd-value">${V1.toFixed(0)}</div><div class="hyd-unit">m³</div></div>
+    <div class="hyd-step amber" style="margin-top:8px;"><div class="hyd-label">V₂ — Emergência (2h)</div><div class="hyd-value">${V2.toFixed(0)}</div><div class="hyd-unit">m³</div></div>
+    <div class="hyd-step red" style="margin-top:8px;"><div class="hyd-label">V₃ — Incêndio (NBR 13714)</div><div class="hyd-value">${V3.toFixed(0)}</div><div class="hyd-unit">m³</div></div>
+    <div class="hyd-step green" style="margin-top:10px;"><div class="hyd-label">V_total adotado</div><div class="hyd-value" style="font-size:26px;">${V_total.toLocaleString('pt-BR')}</div><div class="hyd-unit">m³ = V₁+V₂+V₃</div></div>
+    <div class="hyd-formula" style="margin-top:10px;font-size:10px;">Rippl: V₁ = ${V1.toFixed(0)} m³ · Hora crit.: ${String(h_crit).padStart(2,'0')}:00<br>Mín. NBR 12217: ${(Qmed*p.K1*86400/3000).toFixed(0)} m³ (1/3 Dmax)</div>`;
+
+  document.getElementById('ad-ariete-display').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;">
+      <div class="hyd-step"><div class="hyd-label">Celeridade onda a</div><div class="hyd-value">${a_celer.toFixed(0)}</div><div class="hyd-unit">m/s</div></div>
+      <div class="hyd-step ${risco_ariete==='crit'?'red':risco_ariete==='warn'?'amber':'green'}"><div class="hyd-label">Sobrepressão ΔH</div><div class="hyd-value">${delta_H.toFixed(1)}</div><div class="hyd-unit">m · a·v/g</div></div>
+      <div class="hyd-step ${risco_ariete==='crit'?'red':risco_ariete==='warn'?'amber':'green'}"><div class="hyd-label">Pressão máxima</div><div class="hyd-value">${P_max.toFixed(1)}</div><div class="hyd-unit">m.c.a.</div></div>
+      <div class="hyd-step green"><div class="hyd-label">Classe de pressão</div><div class="hyd-value">PN ${PN_rec}</div><div class="hyd-unit">m.c.a. (fs=1,2)</div></div>
+    </div>
+    <div class="alert ${arieteCls}" style="font-family:var(--mono);font-size:12px;">${arieteMsg}</div>
+    <div class="hyd-formula" style="margin-top:8px;font-size:10px;">a = √(K_água/(ρ·(1+D·K_água/(e·E_tubo)))) = ${a_celer.toFixed(0)} m/s · ΔH = a·v/g = ${a_celer.toFixed(0)}×${v_real.toFixed(2)}/9,81 = <strong>${delta_H.toFixed(1)} m</strong></div>`;
+
+  const ripplRows=horas_idx.map(h=>{
+    const ligada=!horas_desligadas.has(h);
+    const isCrit=h===h_crit;
+    const deficit=saldo_cum[h]<-10;
+    return `<tr class="${isCrit?'rippl-max':deficit?'rippl-deficit':''}">
+      <td>${String(h).padStart(2,'0')}:00</td><td>${ligada?'🟢':'🔴'}</td>
+      <td>${(aducao_h[h]/1000).toFixed(2)}</td><td>${(consumo_h[h]/1000).toFixed(2)}</td>
+      <td style="color:${aducao_h[h]-consumo_h[h]>=0?'var(--green)':'var(--red)'};">${((aducao_h[h]-consumo_h[h])/1000).toFixed(2)}</td>
+      <td style="font-weight:${isCrit?700:400};color:${isCrit?'var(--red)':'inherit'}">${(saldo_cum[h]/1000).toFixed(2)}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('ad-rippl-display').innerHTML=`
+    <div class="hyd-formula" style="margin-bottom:10px;font-size:10px;">
+      V₁ = saldo_max − saldo_min = ${(saldo_max/1000).toFixed(2)} − ${(saldo_min/1000).toFixed(2)} = <strong>${V1.toFixed(1)} m³</strong> · Hora crítica: ${String(h_crit).padStart(2,'0')}:00h
+    </div>
+    <div class="tbl-wrap" style="max-height:240px;">
+      <table class="rippl-table">
+        <thead><tr><th>Hora</th><th>Bomba</th><th>Entr. (m³)</th><th>Cons. (m³)</th><th>Δ (m³)</th><th>Saldo (m³)</th></tr></thead>
+        <tbody>${ripplRows}</tbody>
+      </table>
+    </div>`;
+
+  if(state.charts.rippl)state.charts.rippl.destroy();
+  state.charts.rippl=new Chart(document.getElementById('chart-rippl'),{
+    type:'line',
+    data:{labels:horas_idx.map(h=>String(h).padStart(2,'0')+':00'),datasets:[
+      {label:'Entrada acumulada (m³)',data:entrada_cum.map(v=>+(v/1000).toFixed(2)),borderColor:'#4f7ef5',borderWidth:2.5,pointRadius:2,fill:false,tension:0},
+      {label:'Saída acumulada (m³)',data:saida_cum.map(v=>+(v/1000).toFixed(2)),borderColor:'#E24B4A',borderWidth:2.5,pointRadius:2,fill:false,tension:0},
+      {label:'Saldo (m³)',data:saldo_cum.map(v=>+(v/1000).toFixed(2)),borderColor:'#1D9E75',borderWidth:1.5,borderDash:[4,2],pointRadius:0,fill:false,tension:0,yAxisID:'y2'},
+      {label:'V₁ Rippl',data:horas_idx.map(()=>+V1.toFixed(1)),borderColor:'#e09000',borderWidth:1,borderDash:[6,3],pointRadius:0,yAxisID:'y'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},boxWidth:20}}},
+      scales:{
+        y:{title:{display:true,text:'m³ acumulado',font:{size:11}}},
+        y2:{type:'linear',position:'right',title:{display:true,text:'Saldo m³',font:{size:11}},grid:{drawOnChartArea:false}}
+      }}
+  });
+
+  document.getElementById('ad-nbr-detail').innerHTML=`
+    <table class="tbl"><thead><tr><th>Norma</th><th>Item verificado</th><th>Resultado</th></tr></thead>
+    <tbody>${nbrChecks.map(c=>`
+      <tr>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap;">${c.norma}</td>
+        <td style="font-size:12px;">${c.item}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:${c.ok?'var(--green)':'var(--amber)'};">${c.msg}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+
+  document.getElementById('ad-memorial').innerHTML=`
+    <table class="tbl"><tbody>
+      <tr><td style="color:var(--text3);width:230px;">Município / Horizonte</td><td>${state.municipioNome} · ${ano} · ${pop.toLocaleString('pt-BR')} hab</td></tr>
+      <tr><td style="color:var(--text3);">Consumo per capita</td><td>q=${p.agua} L/hab/dia · K₁=${p.K1} · Qmed=${Qmed.toFixed(3)} L/s · Q·K1=${QK1.toFixed(3)} L/s</td></tr>
+      <tr><td style="color:var(--text3);">Regime bombeamento</td><td>N=${N} h/dia → <strong>Qb = ${Qb.toFixed(3)} L/s</strong> (Q·K1×24/N)</td></tr>
+      <tr><td style="color:var(--text3);">Adutora — Bresse</td><td>K=${K_bresse.toFixed(3)} · D=${D_mm_calc.toFixed(0)} mm → <strong>DN ${DN} mm</strong> · v=${v_real.toFixed(2)} m/s</td></tr>
+      <tr><td style="color:var(--text3);">Hazen-Williams (C=${C})</td><td>J=${(J*1000).toFixed(4)} m/m · L=${L} m · Hf=${Hf.toFixed(2)} m · Hloc=${Hloc.toFixed(2)} m</td></tr>
+      <tr><td style="color:var(--text3);">Topografia</td><td>Z_cap=${cotaCap} m · Z_res=${cotaRes} m · Hgeo=${Hgeo.toFixed(1)} m</td></tr>
+      <tr><td style="color:var(--text3);">Altura manométrica total</td><td><strong>Hman = ${Hman.toFixed(2)} m.c.a.</strong> = ${Hgeo.toFixed(1)}+${Hf.toFixed(2)}+${Hloc.toFixed(2)}</td></tr>
+      <tr><td style="color:var(--text3);">Potência da bomba</td><td>${Pot_cv.toFixed(1)} cv → Motor: <strong>${Pot_motor_cv} cv (${Pot_motor_kw} kW)</strong> — NBR 17094</td></tr>
+      <tr><td style="color:var(--text3);">Reservatório (Rippl+NBR)</td><td>V₁=${V1.toFixed(0)} + V₂=${V2.toFixed(0)} + V₃=${V3.toFixed(0)} → <strong>V = ${V_total} m³</strong></td></tr>
+      <tr><td style="color:var(--text3);">Golpe de aríete</td><td>a=${a_celer.toFixed(0)} m/s · ΔH=${delta_H.toFixed(1)} m · P_max=${P_max.toFixed(1)} mca → <strong>PN ${PN_rec}</strong></td></tr>
+      <tr><td style="color:var(--text3);">Verificação NBR</td><td>${nbrOk} conforme · ${nbrFail} não conforme — NBR 12211/12217/12218/5648/17094</td></tr>
+    </tbody></table>`;
+
+  addAudit(`Hidráulica: DN${DN}mm · Hman=${Hman.toFixed(1)}m · ${Pot_motor_cv}cv · V=${V_total}m³ · PN${PN_rec}`);
+}
+
+function setAdAno(idx,btn){
+  state.adAnoIdx=idx;
+  document.querySelectorAll('#ad-infra-anos .btn').forEach(b=>b.classList.remove('btn-primary'));
+  btn.classList.add('btn-primary');
+  calcAducao();
+}
+
+// ══════════════════════════════════════════
+// MAPA & DENSIDADE (Leaflet)
+// ══════════════════════════════════════════
+function renderMapa(){
+  if(!state.municipioLat||!state.municipioLon){
+    document.getElementById('mapa-info').textContent='Coordenadas não disponíveis. Carregue os dados do município pela busca SIDRA para ativar o mapa.';
+    return;
+  }
+  const lat=state.municipioLat,lon=state.municipioLon;
+  const mapaEl=document.getElementById('mapa-municipio');
+
+  if(state.mapaL){state.mapaL.remove();state.mapaL=null;}
+  const map=L.map(mapaEl).setView([lat,lon],11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+  L.marker([lat,lon]).addTo(map).bindPopup(`<b>${state.municipioNome}</b><br>${state.municipioUF}`).openPopup();
+  state.mapaL=map;
+
+  // Densidade
+  const d=state.censosRaw||state.censosData.filter(x=>x.pop>0).sort((a,b)=>a.ano-b.ano);
+  const popRec=d[d.length-1];
+  const areaInput=+document.getElementById('area-total').value||null;
+
+  document.getElementById('mapa-info').innerHTML=`
+    <strong>${state.municipioNome} — ${state.municipioUF}</strong> · Código IBGE: ${state.municipioCod||'—'}<br>
+    Coordenadas: ${lat.toFixed(4)}, ${lon.toFixed(4)} · Pop. ${popRec.ano}: ${popRec.pop.toLocaleString('pt-BR')} hab
+    ${areaInput?`· Área informada: ${areaInput} km²`:''}`;
+
+  // Cards de densidade
+  const dens=areaInput&&popRec?popRec.pop/areaInput:null;
+  const densAnterior=d.length>1?(d[d.length-2].pop/(areaInput||1)):null;
+  document.getElementById('densidade-cards').innerHTML=[
+    {label:`Pop. ${popRec.ano}`,val:popRec.pop.toLocaleString('pt-BR'),sub:'habitantes',cls:'accent'},
+    {label:'Densidade atual',val:dens?dens.toFixed(1):'—',sub:'hab/km² '+(areaInput?'':'(informe área na aba Saturação)'),cls:'green'},
+    {label:'Crescimento geométrico',val:state.coefs.i_geo?(+(state.coefs.i_geo*100).toFixed(3))+'% a.a.':'—',sub:'taxa anual',cls:'amber'},
+    {label:'Ano último censo',val:String(popRec.ano),sub:'fonte: IBGE/SIDRA',cls:''},
+  ].map(c=>`<div class="metric-card ${c.cls}"><div class="metric-label">${c.label}</div><div class="metric-value">${c.val}</div><div class="metric-sub">${c.sub}</div></div>`).join('');
+
+  // Gráfico de densidade ao longo do tempo
+  if(areaInput&&d.length>1){
+    if(state.charts.densidade)state.charts.densidade.destroy();
+    state.charts.densidade=new Chart(document.getElementById('chart-densidade'),{
+      type:'line',
+      data:{labels:d.map(x=>x.ano),datasets:[{label:'Densidade (hab/km²)',data:d.map(x=>+(x.pop/areaInput).toFixed(1)),borderColor:'#1D9E75',borderWidth:2.5,pointRadius:5,fill:false,tension:0}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'hab/km²',font:{size:11}}}}}
+    });
+  }
+}
+
+// ══════════════════════════════════════════
+// SATURAÇÃO
+// ══════════════════════════════════════════
+function calcSaturacao(){
+  const area=+document.getElementById('area-total').value,pct=+document.getElementById('pct-urban').value/100;
+  const dens=+document.getElementById('densidade').value,coef=+document.getElementById('coef-aprov').value;
+  const aUrban=area*pct,hect=aUrban*100,bruta=hect*dens,K=Math.round(bruta*coef);
+  state.K=K;
+  document.getElementById('sat-area').textContent=aUrban.toFixed(1);
+  document.getElementById('sat-bruta').textContent=bruta.toLocaleString('pt-BR');
+  document.getElementById('sat-k').textContent=K.toLocaleString('pt-BR');
+  document.getElementById('sat-alert').textContent=`K = ${K.toLocaleString('pt-BR')} hab. Retorne a "Dados & Best Fit" e recalcule para aplicar.`;
+  document.getElementById('sat-result').style.display='block';
+  addAudit(`Saturação K = ${K.toLocaleString('pt-BR')} hab`);
+}
+
+// ══════════════════════════════════════════
+// EVENTOS
+// ══════════════════════════════════════════
+let eventos=[];
+function renderEventoRows(){
+  document.getElementById('eventos-rows').innerHTML=eventos.map((e,i)=>`
+    <div class="event-row">
+      <input type="number" value="${e.ano}" onchange="eventos[${i}].ano=+this.value" placeholder="Ano">
+      <input type="text" value="${e.desc}" onchange="eventos[${i}].desc=this.value" placeholder="Descrição">
+      <select onchange="eventos[${i}].delta=+this.value">
+        <option value="5"   ${e.delta===5?'selected':''}>+5% moderado</option>
+        <option value="10"  ${e.delta===10?'selected':''}>+10% forte</option>
+        <option value="15"  ${e.delta===15?'selected':''}>+15% excepcional</option>
+        <option value="-5"  ${e.delta===-5?'selected':''}>−5% negativo</option>
+        <option value="-10" ${e.delta===-10?'selected':''}>−10% crítico</option>
+      </select>
+      <button class="btn btn-sm btn-danger" onclick="eventos.splice(${i},1);renderEventoRows();">✕</button>
+    </div>`).join('');
+}
+function addEvento(){eventos.push({ano:2030,desc:'',delta:5});renderEventoRows();}
+
+function projetarComEventos(){
+  if(!state.censosRaw){alert('Calcule o Best Fit primeiro.');return;}
+  const d=state.censosRaw,horizonte=d[d.length-1].ano+20;
+  const anos=[];for(let a=d[0].ano;a<=horizonte;a++)anos.push(a);
+  const P0=d[0].pop,a0=d[0].ano;
+  const base=anos.map(a=>Math.round(P0*Math.pow(1+(state.coefs.i_geo||0.015),a-a0)));
+  let proj=[...base];
+  eventos.sort((a,b)=>a.ano-b.ano).forEach(ev=>{
+    const idx=anos.indexOf(ev.ano);
+    if(idx<0)return;
+    for(let j=idx;j<proj.length;j++)proj[j]=Math.round(proj[j]*(1+ev.delta/100));
+  });
+  if(state.charts.eventos)state.charts.eventos.destroy();
+  state.charts.eventos=new Chart(document.getElementById('chart-eventos'),{
+    type:'line',
+    data:{labels:anos,datasets:[
+      {label:'Sem eventos',data:base,borderColor:'#888780',borderDash:[5,3],pointRadius:0,fill:false,tension:0},
+      {label:'Com eventos',data:proj,borderColor:'#4f7ef5',borderWidth:2.5,pointRadius:0,fill:false,tension:0},
+      ...eventos.map(ev=>({label:`${ev.desc||'Evento'} (${ev.ano})`,data:anos.map(a=>a===ev.ano?proj[anos.indexOf(a)]:null),borderColor:ev.delta>0?'#1D9E75':'#E24B4A',pointRadius:7,type:'scatter',showLine:false}))
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},boxWidth:20}}},
+      scales:{y:{ticks:{callback:v=>v>=1e3?`${(v/1e3).toFixed(0)}k`:v}}}}
+  });
+  addAudit(`Simulação com ${eventos.length} evento(s)`);
+}
+
+// ══════════════════════════════════════════
+// DIAGNÓSTICO & DECISÃO AUTOMÁTICO
+// ══════════════════════════════════════════
+function renderDecisao(){
+  if(!state.censosRaw||!state.projData.length){
+    document.getElementById('decisao-empty').style.display='block';
+    document.getElementById('decisao-content').style.display='none';
+    return;
+  }
+  document.getElementById('decisao-empty').style.display='none';
+  document.getElementById('decisao-content').style.display='block';
+
+  const d=state.censosRaw;
+  const p=getParams();
+  const anoAtual=new Date().getFullYear();
+  const aBase=d[d.length-1].ano;
+  const popAtual=state.projData.find(x=>x.ano===anoAtual)||state.projData[state.projData.length-1];
+  const horizonte=+document.getElementById('ano-horizonte').value;
+  const rmse=state.rmse&&state.rmse[state.bestModel]?state.rmse[state.bestModel]:0;
+  const dtH=horizonte-aBase;
+
+  // Calcular infra para cada ano-chave
+  const anos_chave=state.infraAnos.filter(a=>a<=horizonte+1);
+  const infra_por_ano=anos_chave.map(ano=>{
+    const registro=state.projData.find(x=>x.ano===ano)||state.projData[state.projData.length-1];
+    return{ano,pop:registro.pop,v:calcInfra(registro.pop,p)};
+  });
+
+  // Capacidade atual instalada (pop do último censo como referência)
+  const popRef=d[d.length-1].pop;
+  const vRef=calcInfra(popRef,p);
+
+  // --- ALERTAS CRÍTICOS ---
+  const alertas=[];
+
+  // Saturação logística: quando pop atinge 80% de K
+  if(state.coefs.K){
+    const K=state.coefs.K;
+    const limSat=K*0.80;
+    const anoSat=state.projData.find(x=>x.pop>=limSat);
+    if(anoSat&&anoSat.ano<=horizonte){
+      alertas.push({tipo:'warn',icon:'⚠️',titulo:`Sistema urbano atinge 80% da capacidade de saturação em ${anoSat.ano}`,detalhe:`Pop. projetada: ${anoSat.pop.toLocaleString('pt-BR')} hab · K = ${K.toLocaleString('pt-BR')} hab. Revisão do Plano Diretor recomendada antes desta data.`});
+    }
+    if(state.projData[state.projData.length-1].pop>=K*0.95){
+      alertas.push({tipo:'crit',icon:'🚨',titulo:`Pop. projetada (${horizonte}) ultrapassa 95% da capacidade de saturação`,detalhe:`Modelo logístico indica crescimento próximo ao limite de suporte territorial. Necessário revisão urgente de parâmetros de K e ampliação de infraestrutura.`});
+    }
+  }
+
+  // Reservatório: demanda futura vs atual
+  infra_por_ano.forEach(({ano,pop,v})=>{
+    const crescRes=(v.vol_res_m3/vRef.vol_res_m3-1)*100;
+    if(crescRes>50&&ano<=horizonte){
+      alertas.push({tipo:'warn',icon:'🔵',titulo:`Reservatório exige ampliação de ${crescRes.toFixed(0)}% até ${ano}`,detalhe:`Vol. necessário: ${v.vol_res_m3.toFixed(0)} m³ (hoje: ${vRef.vol_res_m3.toFixed(0)} m³ para ${popRef.toLocaleString('pt-BR')} hab). Planejar ampliação antes de ${ano-3}.`});
+    }
+  });
+
+  // ETE: crescimento de carga
+  infra_por_ano.forEach(({ano,pop,v})=>{
+    const crescETE=(v.vol_ete_m3/vRef.vol_ete_m3-1)*100;
+    if(crescETE>60&&ano<=horizonte){
+      alertas.push({tipo:'warn',icon:'🟡',titulo:`ETE necessita ampliação de ${crescETE.toFixed(0)}% para ${ano}`,detalhe:`Volume útil necessário: ${(v.vol_ete_m3/1000).toFixed(1)} mil m³ vs ${(vRef.vol_ete_m3/1000).toFixed(1)} mil m³ atual (TDH 20d, lagoa facultativa).`});
+    }
+  });
+
+  // Extrapolação além da série histórica
+  const spanHistorico=d[d.length-1].ano-d[0].ano;
+  if(dtH>spanHistorico){
+    alertas.push({tipo:'warn',icon:'📏',titulo:`Extrapolação de ${dtH} anos além de série histórica de ${spanHistorico} anos`,detalhe:`Incerteza aumenta com a raiz do tempo extrapolado. IC 95% para ${horizonte}: ±${(1.96*rmse*Math.sqrt(dtH)).toLocaleString('pt-BR',{maximumFractionDigits:0})} hab. Use cenários pessimista/otimista como limites de projeto.`});
+  }
+
+  // Modelo com baixa confiança
+  const r2best=state.r2[state.bestModel]||0;
+  if(r2best<0.95){
+    alertas.push({tipo:'crit',icon:'❌',titulo:`Modelo recomendado (${modelLabel[state.bestModel]}) com R² = ${(r2best*100).toFixed(1)}% — confiabilidade baixa`,detalhe:`R² < 95% indica que o modelo não ajusta bem os dados históricos. Adicione mais censos ou verifique inconsistências nos dados populacionais.`});
+  } else if(r2best>=0.999){
+    alertas.push({tipo:'ok',icon:'✅',titulo:`Ajuste excelente — ${modelLabel[state.bestModel]} R² = ${(r2best*100).toFixed(2)}%`,detalhe:`Modelo ajusta os dados históricos com precisão muito alta. Projeção confiável dentro do horizonte de ${Math.min(15,dtH)} anos.`});
+  }
+
+  if(!alertas.length){
+    alertas.push({tipo:'ok',icon:'✅',titulo:'Nenhum alerta crítico identificado',detalhe:'Todos os parâmetros dentro de faixas esperadas para o horizonte projetado.'});
+  }
+
+  document.getElementById('dp-alertas-items').innerHTML=alertas.map(a=>`
+    <div class="decision-item ${a.tipo}">
+      <span class="decision-icon">${a.icon}</span>
+      <div class="decision-text"><strong>${a.titulo}</strong><span class="decision-year">${a.detalhe}</span></div>
+    </div>`).join('');
+
+  // --- DIAGNÓSTICO POR SISTEMA ---
+  const sistemas=[];
+
+  // Para cada horizonte, gerar diagnóstico de sistema
+  const anosDiag=[anoAtual,...state.infraAnos.filter(a=>a>anoAtual&&a<=horizonte)];
+  const crescPop=(infra_por_ano[infra_por_ano.length-1]?.pop||popAtual.pop)/popRef;
+
+  // SAA
+  const qk1Final=infra_por_ano[infra_por_ano.length-1]?.v.QK1||vRef.QK1;
+  const crescQK1=qk1Final/vRef.QK1;
+  const saaStatus=crescQK1>2?'crit':crescQK1>1.4?'warn':'ok';
+  const saaIcon=saaStatus==='crit'?'🚨':saaStatus==='warn'?'⚠️':'✅';
+  sistemas.push({tipo:saaStatus,icon:saaIcon,
+    titulo:`SAA — Sistema de abastecimento de água`,
+    detalhe:`Q·K1 atual: ${vRef.QK1.toFixed(1)} L/s → ${horizonte}: ${qk1Final.toFixed(1)} L/s (×${crescQK1.toFixed(1)}). Reservatório: ${vRef.vol_res_m3.toFixed(0)} m³ → ${(infra_por_ano[infra_por_ano.length-1]?.v.vol_res_m3||vRef.vol_res_m3).toFixed(0)} m³. ${saaStatus==='crit'?`⚠ Ampliação urgente necessária — crescimento acima de 100%.`:saaStatus==='warn'?`Planejar ampliação com antecedência mínima de 5 anos.`:`Sistema suporta crescimento projetado.`}`});
+
+  // SES
+  const qesgFinal=infra_por_ano[infra_por_ano.length-1]?.v.Qesg||vRef.Qesg;
+  const crescEsg=qesgFinal/vRef.Qesg;
+  const sesStatus=crescEsg>2?'crit':crescEsg>1.4?'warn':'ok';
+  const sesIcon=sesStatus==='crit'?'🚨':sesStatus==='warn'?'⚠️':'✅';
+  sistemas.push({tipo:sesStatus,icon:sesIcon,
+    titulo:`SES + ETE — Esgotamento sanitário`,
+    detalhe:`Qesg atual: ${vRef.Qesg.toFixed(1)} L/s → ${horizonte}: ${qesgFinal.toFixed(1)} L/s (×${crescEsg.toFixed(1)}). ETE (lagoa facultativa, TDH 20d): ${(vRef.vol_ete_m3/1000).toFixed(1)} mil m³ → ${((infra_por_ano[infra_por_ano.length-1]?.v.vol_ete_m3||vRef.vol_ete_m3)/1000).toFixed(1)} mil m³. ${sesStatus==='crit'?`Nova ETE ou ampliação urgente.`:sesStatus==='warn'?`Iniciar projeto de ampliação em até 5 anos.`:`ETE suporta crescimento projetado.`}`});
+
+  // RSU
+  const resFinal=infra_por_ano[infra_por_ano.length-1]?.v.res_td||vRef.res_td;
+  const crescRes=resFinal/vRef.res_td;
+  const rsuStatus=crescRes>1.8?'warn':'ok';
+  sistemas.push({tipo:rsuStatus,icon:rsuStatus==='warn'?'⚠️':'✅',
+    titulo:`RSU — Resíduos sólidos urbanos`,
+    detalhe:`Geração atual: ${vRef.res_td.toFixed(1)} ton/dia → ${horizonte}: ${resFinal.toFixed(1)} ton/dia. Volume de aterro 20 anos: ${(resFinal*365*20/0.8/1000).toFixed(0)} m³. ${rsuStatus==='warn'?`Planejar nova célula ou expansão do aterro.`:`Capacidade adequada para o horizonte.`}`});
+
+  // Modelo / confiança geral
+  const dtBase=horizonte-aBase;
+  const confStatus=dtBase<=15?'ok':dtBase<=25?'warn':'crit';
+  const confTxt=dtBase<=15?`Horizonte de ${dtH} anos: confiabilidade alta.`:dtBase<=25?`Horizonte de ${dtH} anos: confiabilidade moderada — complementar com estudos locais.`:`Horizonte de ${dtH} anos: muito além da série histórica — alta incerteza.`;
+  sistemas.push({tipo:confStatus,icon:confStatus==='ok'?'📊':confStatus==='warn'?'⚠️':'🚨',
+    titulo:`Confiabilidade da projeção (${modelLabel[state.bestModel]}, R²=${(r2best*100).toFixed(1)}%)`,
+    detalhe:confTxt+` IC 95% em ${horizonte}: ±${(1.96*rmse*Math.sqrt(Math.max(1,dtH))).toLocaleString('pt-BR',{maximumFractionDigits:0})} hab. RMSE ajuste: ${rmse.toFixed(0)} hab.`});
+
+  document.getElementById('dp-cenarios-items').innerHTML=sistemas.map(s=>`
+    <div class="decision-item ${s.tipo}">
+      <span class="decision-icon">${s.icon}</span>
+      <div class="decision-text"><strong>${s.titulo}</strong><span class="decision-year">${s.detalhe}</span></div>
+    </div>`).join('');
+
+  // --- JANELA DE CONFIANÇA ---
+  const anosFim=[aBase+5,aBase+10,aBase+15,aBase+20,aBase+25,horizonte].filter((a,i,arr)=>a<=horizonte&&arr.indexOf(a)===i).sort((a,b)=>a-b);
+  document.getElementById('dp-confianca').innerHTML=`<table class="tbl">
+    <thead><tr><th>Ano</th><th>Pop. projetada</th><th>IC 95% inferior</th><th>IC 95% superior</th><th>Amplitude IC</th><th>Confiabilidade</th></tr></thead>
+    <tbody>${anosFim.map(ano=>{
+      const reg=state.projData.find(x=>x.ano===ano)||state.projData[state.projData.length-1];
+      const dt2=ano-aBase;
+      const ci=calcCI(reg.pop,rmse,Math.max(1,dt2));
+      const amp=ci.upper-Math.max(0,ci.lower);
+      const pct=(amp/reg.pop*100).toFixed(1);
+      const conf=dt2<=15?'conf-high':dt2<=25?'conf-med':'conf-low';
+      const confTxt=dt2<=15?'Alta':dt2<=25?'Média':'Baixa';
+      return `<tr><td>${ano}</td><td>${reg.pop.toLocaleString('pt-BR')}</td><td>${Math.max(0,ci.lower).toLocaleString('pt-BR')}</td><td>${ci.upper.toLocaleString('pt-BR')}</td><td>±${(amp/2).toLocaleString('pt-BR',{maximumFractionDigits:0})} hab (${pct}%)</td><td><span class="conf-badge ${conf}">${confTxt}</span></td></tr>`;
+    }).join('')}</tbody></table>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3);font-family:var(--mono);">IC baseado em RMSE do ajuste × √(anos de extrapolação) × 1,96. RMSE = ${rmse.toFixed(0)} hab.</div>`;
+
+  // --- SCORE DOS MODELOS ---
+  const scores=state.scores||{};
+  document.getElementById('dp-score-modelos').innerHTML=`<div style="margin-bottom:10px;font-size:12px;font-family:var(--mono);color:var(--text2);">Seleção pelo score composto: 60% R² + 40% LOO (leave-one-out cross-validation). Holt com parâmetros α, β otimizados por grid search. Geométrico por regressão log-linear sobre todos os censos.</div>
+  <table class="tbl">
+    <thead><tr><th>Modelo</th><th>R²</th><th>LOO RMSE/μ</th><th>Score composto</th><th>RMSE (hab)</th><th>Status</th></tr></thead>
+    <tbody>${['aritmetico','geometrico','logistico','holt'].map(m=>{
+      const s=scores[m]||0;
+      const loo=state.loo[m];
+      const isB=m===state.bestModel;
+      const grade=s>=0.95?'A':s>=0.85?'B':'C';
+      return `<tr ${isB?'class="highlight"':''}><td><strong>${modelLabel[m]}</strong>${isB?' ←':''}</td><td>${(state.r2[m]*100).toFixed(2)}%</td><td>${loo!==null?(loo*100).toFixed(1)+'%':'—'}</td><td><span class="score-chip ${grade.toLowerCase()}">${grade} · ${(s*100).toFixed(1)}%</span></td><td>${(state.rmse&&state.rmse[m]||0).toFixed(0)}</td><td>${isB?'<span class="rec-badge">Selecionado</span>':''}</td></tr>`;
+    }).join('')}</tbody></table>`;
+
+  addAudit('Diagnóstico & Decisão gerado');
+}
+
+// ══════════════════════════════════════════
+// COMPARAÇÃO
+// ══════════════════════════════════════════
+function renderComparacao(){
+  if(!state.censosRaw||!state.cmpB)return;
+  const dA=state.censosRaw,dB=state.cmpB.censos;
+  const todosAnos=[...new Set([...dA.map(x=>x.ano),...dB.map(x=>x.ano)])].sort((a,b)=>a-b);
+  if(state.charts.comparacao)state.charts.comparacao.destroy();
+  state.charts.comparacao=new Chart(document.getElementById('chart-comparacao'),{
+    type:'line',
+    data:{labels:todosAnos,datasets:[
+      {label:state.municipioNome,data:todosAnos.map(a=>{const r=dA.find(x=>x.ano===a);return r?r.pop:null;}),borderColor:'#4f7ef5',borderWidth:2.5,pointRadius:5,fill:false,tension:0},
+      {label:state.cmpB.nome,data:todosAnos.map(a=>{const r=dB.find(x=>x.ano===a);return r?r.pop:null;}),borderColor:'#E24B4A',borderWidth:2.5,pointRadius:5,fill:false,tension:0}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{font:{size:12},boxWidth:20}}},
+      scales:{y:{ticks:{callback:v=>v>=1e6?`${(v/1e6).toFixed(2)}M`:v>=1e3?`${(v/1e3).toFixed(0)}k`:v}}}}
+  });
+  const calcTx=d=>{if(d.length<2)return 0;const dt=d[d.length-1].ano-d[0].ano;return dt>0?(Math.pow(d[d.length-1].pop/d[0].pop,1/dt)-1)*100:0;};
+  document.getElementById('cmp-tabela').innerHTML=`<table class="tbl">
+    <thead><tr><th>Indicador</th><th>${state.municipioNome}</th><th>${state.cmpB.nome}</th></tr></thead>
+    <tbody>
+      <tr><td>Pop. inicial</td><td>${dA[0].pop.toLocaleString('pt-BR')} (${dA[0].ano})</td><td>${dB[0].pop.toLocaleString('pt-BR')} (${dB[0].ano})</td></tr>
+      <tr><td>Pop. mais recente</td><td>${dA[dA.length-1].pop.toLocaleString('pt-BR')} (${dA[dA.length-1].ano})</td><td>${dB[dB.length-1].pop.toLocaleString('pt-BR')} (${dB[dB.length-1].ano})</td></tr>
+      <tr><td>Crescimento total</td><td>+${((dA[dA.length-1].pop/dA[0].pop-1)*100).toFixed(1)}%</td><td>+${((dB[dB.length-1].pop/dB[0].pop-1)*100).toFixed(1)}%</td></tr>
+      <tr><td>Taxa geométrica média</td><td>${calcTx(dA).toFixed(3)}% a.a.</td><td>${calcTx(dB).toFixed(3)}% a.a.</td></tr>
+      <tr><td>Censos disponíveis</td><td>${dA.length}</td><td>${dB.length}</td></tr>
+    </tbody></table>`;
+  document.getElementById('cmp-result').style.display='block';
+}
+
+// ══════════════════════════════════════════
+// RELATÓRIO
+// ══════════════════════════════════════════
+function gerarRelatorio(){
+  if(!state.r2||!state.censosRaw)return;
+  const best=state.bestModel,d=state.censosRaw;
+  const dataGer=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  const hora=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const popH=state.projData.length?state.projData[state.projData.length-1].pop:null;
+  const horizonte=document.getElementById('ano-horizonte')?.value||'—';
+  const p=getParams();
+  document.getElementById('print-titulo').textContent=`Memorial de Cálculo — Projeção Populacional — ${state.municipioNome}`;
+  document.getElementById('print-meta').textContent=`${state.config.empresa||''} · Resp.: ${state.config.responsavel||'—'} · ${state.config.revisao} · ${dataGer} ${hora}`;
+  document.getElementById('print-footer').textContent=`ProjeçãoPop v5.0 · ${state.config.responsavel||'—'} · ${state.config.empresa||'—'} · ${state.config.revisao} · ${dataGer}`;
+
+  document.getElementById('relatorio-content').innerHTML=`
+    <div class="report-section">
+      <div class="report-title">1. Identificação</div>
+      <table class="tbl"><tbody>
+        <tr><td style="color:var(--text3);width:180px;">Município</td><td><strong>${state.municipioNome}</strong>${state.municipioUF?' — '+state.municipioUF:''}</td></tr>
+        <tr><td style="color:var(--text3);">Código IBGE</td><td>${state.municipioCod||'—'}</td></tr>
+        <tr><td style="color:var(--text3);">Responsável técnico</td><td>${state.config.responsavel||'—'}</td></tr>
+        <tr><td style="color:var(--text3);">Empresa/órgão</td><td>${state.config.empresa||'—'}</td></tr>
+        <tr><td style="color:var(--text3);">Revisão</td><td>${state.config.revisao}</td></tr>
+        <tr><td style="color:var(--text3);">Data de geração</td><td>${dataGer} ${hora}</td></tr>
+        <tr><td style="color:var(--text3);">Horizonte de projeto</td><td>${horizonte}</td></tr>
+        ${popH?`<tr><td style="color:var(--text3);">Pop. projetada (${horizonte})</td><td><strong>${popH.toLocaleString('pt-BR')} hab</strong></td></tr>`:''}
+        ${state.config.obs?`<tr><td style="color:var(--text3);">Observações</td><td>${state.config.obs}</td></tr>`:''}
+        ${p.custom?`<tr><td style="color:var(--text3);">Parâmetros</td><td>Customizados (fora intervalo padrão)</td></tr>`:''}
+      </tbody></table>
+    </div>
+    <div class="report-section">
+      <div class="report-title">2. Dados históricos (IBGE/SIDRA)</div>
+      <table class="tbl"><thead><tr><th>Ano</th><th>Pop. recenseada (hab)</th><th>Fonte</th></tr></thead>
+      <tbody>${d.map(x=>`<tr><td>${x.ano}</td><td>${x.pop.toLocaleString('pt-BR')}</td><td>IBGE — Censo ${x.ano}</td></tr>`).join('')}</tbody></table>
+    </div>
+    <div class="report-section">
+      <div class="report-title">3. Análise de aderência — R² e validação cruzada (LOO)</div>
+      <table class="tbl"><thead><tr><th>Modelo</th><th>R²</th><th>LOO RMSE/μ</th><th>Confiabilidade</th></tr></thead>
+      <tbody>${['aritmetico','geometrico','logistico','holt'].map(m=>{
+        const conf=confiabilidadeLabel(state.r2[m],state.loo[m]);
+        return `<tr ${m===best?'class="highlight"':''}><td>${modelLabel[m]}${m===best?' ←':''}</td><td>${(state.r2[m]*100).toFixed(2)}%</td><td>${state.loo[m]!==null?(state.loo[m]*100).toFixed(1)+'%':'—'}</td><td>${conf.label}</td></tr>`;
+      }).join('')}</tbody></table>
+    </div>
+    <div class="report-section">
+      <div class="report-title">4. Modelo selecionado: ${modelLabel[best]} (R² = ${(state.r2[best]*100).toFixed(2)}%)</div>
+      ${best==='aritmetico'?`<div class="formula">P(t) = ka·t + b | Regressão OLS em todos os censos</div><div class="formula">ka = ${state.coefs.ka.toFixed(2)} hab/ano | b = ${state.coefs.b_arit.toFixed(0)} | Eq: P(t) = ${state.coefs.ka.toFixed(2)}·t + ${state.coefs.b_arit.toFixed(0)}</div>`:''}
+      ${best==='geometrico'?`<div class="formula">P(t) = exp(a + b·t) | Regressão log-linear OLS (todos os censos)</div><div class="formula">i = ${(state.coefs.i_geo*100).toFixed(4)}% a.a. | a = ${(state.coefs.a_geo||0).toFixed(6)} | b = ${(state.coefs.b_geo||0).toFixed(6)}</div>`:''}
+      ${best==='logistico'?`<div class="formula">P(t) = K / [1 + ((K − P₀) / P₀) · e^(−r·(t−t₀))]</div><div class="formula">K = ${state.coefs.K.toLocaleString('pt-BR')} hab | r = ${state.coefs.k_log.toFixed(6)} | P₀ = ${d[0].pop.toLocaleString('pt-BR')} hab</div>`:''}
+      ${best==='holt'?`<div class="formula">Holt: L(t) = α·P(t) + (1−α)·[L(t−1)+T(t−1)] | T(t) = β·[L(t)−L(t−1)]+(1−β)·T(t−1)</div><div class="formula">α = ${state.coefs.holt.alpha} | β = ${state.coefs.holt.beta} (otimizados por grid search — minimização RMSE)</div>`:''}
+      <div class="formula" style="border-left-color:var(--amber);">Score composto seleção: R²×0,6 + (1−LOO)×0,4 = ${((state.scores&&state.scores[best]||0)*100).toFixed(1)}% | RMSE ajuste = ${(state.rmse&&state.rmse[best]||0).toFixed(0)} hab</div>
+    </div>
+    <div class="report-section">
+      <div class="report-title">5. Parâmetros de dimensionamento${p.custom?' (customizados)':''}</div>
+      <table class="tbl"><tbody>
+        <tr><td style="color:var(--text3);">Consumo per capita</td><td>${p.agua} L/hab/dia${p.custom&&+document.getElementById('cp-agua').value>0?' (customizado)':''}</td></tr>
+        <tr><td style="color:var(--text3);">Coef. retorno esgoto</td><td>${(p.ret*100).toFixed(0)}%</td></tr>
+        <tr><td style="color:var(--text3);">K1 — dia maior consumo</td><td>${p.K1}</td></tr>
+        <tr><td style="color:var(--text3);">K2 — hora maior consumo</td><td>${p.K2}</td></tr>
+        <tr><td style="color:var(--text3);">K3 — hora menor consumo</td><td>${p.K3}</td></tr>
+        <tr><td style="color:var(--text3);">Norma referência</td><td>NBR 12.211, NBR 9.649, FUNASA Manual Saneamento</td></tr>
+      </tbody></table>
+    </div>
+    ${popH?`<div class="report-section">
+      <div class="report-title">6. Síntese do dimensionamento para ${horizonte}</div>
+      <table class="tbl"><thead><tr><th>Obra / Sistema</th><th>Parâmetro de projeto</th><th>Valor</th></tr></thead>
+      <tbody>${(()=>{const pop=popH,v=calcInfra(pop,p);return[
+        ['SAA — Adutora principal','Vazão Q·K1',v.QK1.toFixed(2)+' L/s'],
+        ['SAA — Hora de ponta','Vazão Q·K1·K2',v.QK2.toFixed(2)+' L/s'],
+        ['SAA — Reservatório','Vol. regularização (12h × Q·K1)',v.vol_res_m3.toFixed(0)+' m³'],
+        ['ETA','Capacidade de tratamento',v.m3dia.toFixed(0)+' m³/dia'],
+        ['SES — Rede coletora','Vazão Q·K1 esgoto',v.QesgK1.toFixed(2)+' L/s'],
+        ['ETE — Lagoa facultativa','Volume útil (TDH 20d)',(v.vol_ete_m3/1000).toFixed(1)+' mil m³'],
+        ['Resíduos sólidos','Geração diária',v.res_td.toFixed(1)+' ton/dia'],
+        ['Energia elétrica','Consumo mensal',v.en_mwh.toFixed(0)+' MWh/mês'],
+      ].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td><strong>${r[2]}</strong></td></tr>`).join('');})()}</tbody></table>
+    </div>`:''}
+    <div class="report-section">
+      <div class="report-title">${popH?'7':'6'}. Log de auditoria</div>
+      <table class="tbl"><thead><tr><th>Horário</th><th>Ação</th></tr></thead>
+      <tbody>${state.auditLog.slice(-10).map(l=>`<tr><td>${l.time}</td><td>${l.action}</td></tr>`).join('')}</tbody></table>
+    </div>`;
+}
+
+function imprimirRelatorio(){gerarRelatorio();setTimeout(()=>window.print(),200);}
+function copiarRelatorio(){navigator.clipboard.writeText(document.getElementById('relatorio-content').innerText).then(()=>alert('Texto copiado!'));}
+function exportarCSV(){
+  if(!state.projData.length){alert('Calcule e projete a população primeiro.');return;}
+  const cenosAnos=state.censosRaw?state.censosRaw.map(x=>x.ano):[];
+  const linhas=['Ano,Populacao_hab,Tipo,Municipio'];
+  state.projData.forEach(r=>linhas.push(`${r.ano},${r.pop},${cenosAnos.includes(r.ano)?'historico':'projetado'},${state.municipioNome}`));
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([linhas.join('\n')],{type:'text/csv;charset=utf-8;'}));
+  a.download=`projecao_${(state.municipioNome||'municipio').replace(/\s+/g,'_')}_${new Date().getFullYear()}.csv`;
+  a.click();
+  addAudit('CSV exportado');
+}
+
+// ══════════════════════════════════════════
+// PROJETOS SALVOS
+// ══════════════════════════════════════════
+function salvarProjeto(){
+  const nome=state.municipioNome+' — '+new Date().toLocaleDateString('pt-BR');
+  const snap={nome,ts:Date.now(),municipioNome:state.municipioNome,municipioCod:state.municipioCod,municipioUF:state.municipioUF,municipioLat:state.municipioLat,municipioLon:state.municipioLon,censosData:state.censosData,bestModel:state.bestModel,r2:state.r2,loo:state.loo,coefs:state.coefs,projData:state.projData,censosRaw:state.censosRaw,K:state.K,config:state.config,infraAnos:state.infraAnos};
+  try{localStorage.setItem('projecaopop_'+Date.now(),JSON.stringify(snap));addAudit('Projeto salvo: '+nome);alert('Projeto salvo!');renderProjetosSalvos();}catch(e){alert('Erro ao salvar: '+e.message);}
+}
+
+function renderProjetosSalvos(){
+  const container=document.getElementById('proj-list-container');
+  const keys=Object.keys(localStorage).filter(k=>k.startsWith('projecaopop_')).sort((a,b)=>b.localeCompare(a));
+  if(!keys.length){container.innerHTML='<div class="alert alert-info">Nenhum projeto salvo ainda.</div>';return;}
+  container.innerHTML='<div class="proj-list">'+keys.map(k=>{
+    let p;try{p=JSON.parse(localStorage.getItem(k));}catch(e){return '';}
+    return `<div class="proj-item"><div><div class="proj-item-name">${p.nome||p.municipioNome}</div><div class="proj-item-meta">${new Date(p.ts).toLocaleString('pt-BR')} · ${p.censosData?.length||0} censos · ${modelLabel[p.bestModel]||p.bestModel}</div></div><button class="btn btn-sm btn-primary" onclick="carregarProjeto('${k}')">Carregar</button><button class="btn btn-sm btn-danger" onclick="excluirProjeto('${k}')">✕</button></div>`;
+  }).join('')+'</div>';
+  const auditEl=document.getElementById('audit-log');
+  auditEl.innerHTML=state.auditLog.length?state.auditLog.slice().reverse().map(l=>`<div class="audit-row"><span class="audit-time">${l.time}</span><span class="audit-action">${l.action}</span><span class="audit-user">${state.config.responsavel?.split(' ')[0]||'—'}</span></div>`).join(''):'<div style="font-size:12px;color:var(--text3);font-family:var(--mono);">Nenhuma ação registrada.</div>';
+}
+
+function carregarProjeto(key){
+  try{
+    const p=JSON.parse(localStorage.getItem(key));
+    Object.assign(state,{censosData:p.censosData,municipioNome:p.municipioNome,municipioCod:p.municipioCod,municipioUF:p.municipioUF,municipioLat:p.municipioLat||null,municipioLon:p.municipioLon||null,bestModel:p.bestModel,r2:p.r2,rmse:p.rmse||{aritmetico:0,geometrico:0,logistico:0,holt:0},scores:p.scores||{aritmetico:0,geometrico:0,logistico:0,holt:0},loo:p.loo||{aritmetico:null,geometrico:null,logistico:null,holt:null},coefs:p.coefs,projData:p.projData,censosRaw:p.censosRaw,K:p.K,config:p.config||state.config,infraAnos:p.infraAnos||state.infraAnos});
+    renderCensusRows();
+    if(state.censosRaw){
+      const d=state.censosRaw,anos=d.map(x=>x.ano),pops=d.map(x=>x.pop),P0=pops[0];
+      const pa=anos.map(a=>Math.round(state.coefs.b_arit+state.coefs.ka*a));
+      const pg=anos.map(a=>Math.round(P0*Math.pow(1+state.coefs.i_geo,a-anos[0])));
+      const K=state.coefs.K||P0*2.5;
+      const pl=anos.map(a=>Math.round(K/(1+((K-P0)/P0)*Math.exp(-state.coefs.k_log*(a-anos[0])))));
+      const ph=state.coefs.holt?state.coefs.holt.pred:pops;
+      renderBestFit(d,pa,pg,pl,ph);
+      document.getElementById('bestfit-result').style.display='block';
+    }
+    if(state.config.responsavel)document.getElementById('responsavel-badge').textContent='Resp.: '+state.config.responsavel.split('—')[0].trim();
+    document.getElementById('infra-anos').innerHTML=state.infraAnos.map((a,i)=>`<button class="btn btn-sm ${i===0?'btn-primary':''}" onclick="setInfraAno(${i},this)">${a}</button>`).join('');
+    addAudit('Projeto carregado: '+p.nome);
+    alert('Projeto carregado: '+p.nome);
+    showTab('dados',document.querySelectorAll('.tab')[1]);
+  }catch(e){alert('Erro ao carregar: '+e.message);}
+}
+
+function excluirProjeto(key){if(!confirm('Excluir este projeto?'))return;localStorage.removeItem(key);renderProjetosSalvos();}
+
+// ══════════════════════════════════════════
+// DIAGNÓSTICO & DECISÃO AUTOMÁTICA
+// ══════════════════════════════════════════
+function renderDecisao(){
+  if(!state.censosRaw||!state.projData.length){
+    document.getElementById('decisao-empty').style.display='block';
+    document.getElementById('decisao-content').style.display='none';
+    return;
+  }
+  document.getElementById('decisao-empty').style.display='none';
+  document.getElementById('decisao-content').style.display='block';
+
+  const d=state.censosRaw;
+  const p=getParams();
+  const horizonte=+document.getElementById('ano-horizonte').value;
+  const aBase=d[d.length-1].ano;
+  const popBase=d[d.length-1].pop;
+  const anoAtual=new Date().getFullYear();
+  const modelo=state.bestModel;
+
+  // Capacidades atuais estimadas (baseadas na população do último censo)
+  const vBase=calcInfra(popBase,p);
+
+  // Thresholds de alerta: quando demanda supera % da capacidade base (do último censo)
+  const LIMITES={agua80:vBase.QK1*1.25,agua100:vBase.QK1*1.5,res80:vBase.res_td*1.25,esg80:vBase.Qesg*1.25,ete100:vBase.vol_ete_m3*1.0};
+
+  // Encontra ano em que população dispara determinado critério (a partir do ano atual)
+  const acharAno=(testFn)=>{
+    for(const r of state.projData){
+      if(r.ano<anoAtual)continue;
+      if(testFn(r.pop))return r.ano;
+    }
+    return null;
+  };
+
+  const rmseModel=state.rmse&&state.rmse[modelo]?state.rmse[modelo]:0;
+  const dtH=horizonte-aBase;
+
+  // Crescimento projetado até horizonte
+  const popH=state.projData[state.projData.length-1].pop;
+  const crescPct=((popH/popBase-1)*100).toFixed(1);
+
+  // Ano em que necessita ampliar sistemas (pop cresce > 20%)
+  const anoAmpl20=acharAno(pop=>pop>popBase*1.20);
+  const anoAmpl40=acharAno(pop=>pop>popBase*1.40);
+  const anoAmpl60=acharAno(pop=>pop>popBase*1.60);
+
+  // Análise de extrapolação
+  const extrapRatio=dtH/Math.max(1,d[d.length-1].ano-d[0].ano);
+  const confiancaTexto=dtH<=10?'Alta (≤10 anos)':dtH<=20?'Média (11–20 anos)':dtH<=30?'Baixa (21–30 anos)':'Muito baixa (>30 anos)';
+  const confiancaCls=dtH<=10?'conf-high':dtH<=20?'conf-high':dtH<=30?'conf-med':'conf-low';
+
+  // ── ALERTAS CRÍTICOS ──
+  const alertas=[];
+
+  // 1. Extrapolação excessiva
+  if(extrapRatio>2){
+    alertas.push({tipo:'warn',icon:'⚠️',titulo:`Extrapolação elevada (${extrapRatio.toFixed(1)}× série histórica)`,
+      texto:`O horizonte de ${horizonte} representa ${dtH} anos de projeção sobre ${d[d.length-1].ano-d[0].ano} anos de dados históricos. Incerteza muito alta. Resultados devem ser tratados como cenário indicativo.`});
+  }
+
+  // 2. Poucos censos
+  if(d.length<3){
+    alertas.push({tipo:'warn',icon:'📊',titulo:'Série histórica insuficiente',
+      texto:`Apenas ${d.length} censo(s) disponível(is). Mínimo recomendado: 3 censos para validação cruzada confiável. LOO não calculável — margem de erro pode ser subestimada.`});
+  }
+
+  // 3. K próximo à saturação logística
+  if(modelo==='logistico'&&state.coefs.K){
+    const satPct=(popH/state.coefs.K*100).toFixed(0);
+    if(popH>state.coefs.K*0.80){
+      alertas.push({tipo:'crit',icon:'🚨',titulo:`Município próximo à saturação logística (${satPct}% de K)`,
+        texto:`A população projetada em ${horizonte} (${popH.toLocaleString('pt-BR')} hab) atinge ${satPct}% da capacidade de saturação K = ${state.coefs.K.toLocaleString('pt-BR')} hab. Revise o valor de K no Plano Diretor.`});
+    }
+  }
+
+  // 4. R² baixo
+  if(state.r2[modelo]<0.95){
+    alertas.push({tipo:'warn',icon:'📉',titulo:`Aderência estatística limitada (R² = ${(state.r2[modelo]*100).toFixed(1)}%)`,
+      texto:`O modelo ${modelLabel[modelo]} apresenta R² abaixo de 95%. A série histórica pode ter quebras de tendência. Verifique a aba "Quebras de Tendência" para modelar eventos demográficos específicos.`});
+  }
+
+  // 5. K1 ou K2 fora do intervalo NBR
+  if(p.K1>1.5){alertas.push({tipo:'warn',icon:'🔧',titulo:`K1 = ${p.K1} fora do intervalo NBR (1,0–1,5)`,texto:'O coeficiente de dia de maior consumo excede o limite superior da NBR 12.211. Justifique no memorial técnico.'});}
+  if(p.K2>2.0){alertas.push({tipo:'warn',icon:'🔧',titulo:`K2 = ${p.K2} fora do intervalo NBR (1,0–2,0)`,texto:'O coeficiente de hora de maior consumo excede o limite da NBR 12.211. Justifique no memorial técnico.'});}
+
+  if(!alertas.length){
+    alertas.push({tipo:'ok',icon:'✅',titulo:'Sem alertas críticos',texto:'Parâmetros dentro dos limites normativos. Série histórica adequada para o horizonte selecionado.'});
+  }
+
+  document.getElementById('dp-alertas-items').innerHTML=alertas.map(a=>`
+    <div class="decision-item ${a.tipo}">
+      <span class="decision-icon">${a.icon}</span>
+      <div class="decision-text"><strong>${a.titulo}</strong>${a.texto}</div>
+    </div>`).join('');
+
+  // ── DIAGNÓSTICO POR SISTEMA ──
+  const sistemas=[];
+
+  // SAA — água
+  if(anoAmpl20){
+    const dtAmpl=anoAmpl20-anoAtual;
+    const urgencia=dtAmpl<=5?'crit':dtAmpl<=10?'warn':'ok';
+    const urg_txt=dtAmpl<=5?'URGENTE — janela ≤5 anos':dtAmpl<=10?'Atenção — planejar expansão':' Sistema adequado no curto prazo';
+    sistemas.push({tipo:urgencia,icon:'💧',titulo:`SAA — Sistema de Abastecimento de Água`,
+      texto:`Sistema atual dimensionado para ${popBase.toLocaleString('pt-BR')} hab. Ampliação de 20% necessária em ${anoAmpl20} (${dtAmpl} anos). ${urg_txt}.`,
+      detalhe:`Q·K1 atual: ${vBase.QK1.toFixed(2)} L/s | Demanda em ${anoAmpl20}: ${calcInfra(state.projData.find(r=>r.ano===anoAmpl20)?.pop||popBase,p).QK1.toFixed(2)} L/s`});
+  } else {
+    sistemas.push({tipo:'ok',icon:'💧',titulo:'SAA — Sistema atende o horizonte completo',
+      texto:`Crescimento de ${crescPct}% até ${horizonte} não exige ampliação de 20% da capacidade atual neste horizonte.`,
+      detalhe:`Q·K1 em ${horizonte}: ${calcInfra(popH,p).QK1.toFixed(2)} L/s`});
+  }
+
+  // Reservatório
+  const volResBase=vBase.vol_res_m3;
+  const volResH=calcInfra(popH,p).vol_res_m3;
+  const anoRes20=acharAno(pop=>calcInfra(pop,p).vol_res_m3>volResBase*1.20);
+  if(anoRes20){
+    sistemas.push({tipo:anoRes20-anoAtual<=8?'crit':'warn',icon:'🏗️',titulo:'Reservatório — Ampliação necessária',
+      texto:`Volume de regularização atual: ${volResBase.toFixed(0)} m³. Necessita ampliação em ${anoRes20} (${anoRes20-anoAtual} anos). Volume no horizonte: ${volResH.toFixed(0)} m³.`,
+      detalhe:'Método: 12h × Q·K1 (NBR 12.218)'});
+  } else {
+    sistemas.push({tipo:'ok',icon:'🏗️',titulo:'Reservatório — Adequado no horizonte',
+      texto:`Reservatório atual (${volResBase.toFixed(0)} m³) suporta crescimento projetado sem ampliação de 20%.`,detalhe:''});
+  }
+
+  // ETE
+  const volEteBase=vBase.vol_ete_m3;
+  const anoEte20=acharAno(pop=>calcInfra(pop,p).vol_ete_m3>volEteBase*1.20);
+  if(anoEte20){
+    sistemas.push({tipo:anoEte20-anoAtual<=8?'crit':'warn',icon:'♻️',titulo:'ETE — Lagoa facultativa: ampliação necessária',
+      texto:`Volume útil atual da lagoa: ${(volEteBase/1000).toFixed(1)} mil m³ (TDH 20d). Capacidade excedida em ${anoEte20} (${anoEte20-anoAtual} anos). Considerar novo módulo ou tecnologia complementar.`,
+      detalhe:`Qesg em ${anoEte20}: ${calcInfra(state.projData.find(r=>r.ano===anoEte20)?.pop||popH,p).Qesg.toFixed(2)} L/s`});
+  } else {
+    sistemas.push({tipo:'ok',icon:'♻️',titulo:'ETE — Lagoa facultativa atende o horizonte',
+      texto:`Capacidade atual (${(volEteBase/1000).toFixed(1)} mil m³) não exige ampliação de 20% no horizonte selecionado.`,detalhe:''});
+  }
+
+  // Resíduos sólidos
+  const resBase=vBase.res_td;
+  const anoRes=acharAno(pop=>calcInfra(pop,p).res_td>resBase*1.25);
+  if(anoRes){
+    sistemas.push({tipo:anoRes-anoAtual<=8?'warn':'info',icon:'🗑️',titulo:'Resíduos sólidos — Planejar expansão',
+      texto:`Geração atual: ${resBase.toFixed(1)} ton/dia. Capacidade de 25% excedida em ${anoRes} (${anoRes-anoAtual} anos). Geração em ${horizonte}: ${calcInfra(popH,p).res_td.toFixed(1)} ton/dia.`,detalhe:''});
+  } else {
+    sistemas.push({tipo:'ok',icon:'🗑️',titulo:'Resíduos sólidos — Adequado no horizonte',
+      texto:`Geração em ${horizonte}: ${calcInfra(popH,p).res_td.toFixed(1)} ton/dia (+${crescPct}%). Sistema atual suporta o crescimento projetado.`,detalhe:''});
+  }
+
+  // Cronograma de intervenção
+  const intervencoes=[];
+  if(anoAmpl20)intervencoes.push({ano:anoAmpl20,acao:'Iniciar projeto de ampliação SAA',urgencia:anoAmpl20-anoAtual<=5?'crit':'warn'});
+  if(anoRes20)intervencoes.push({ano:anoRes20,acao:'Ampliar reservatório de distribuição',urgencia:anoRes20-anoAtual<=8?'crit':'warn'});
+  if(anoEte20)intervencoes.push({ano:anoEte20,acao:'Ampliar ETE (novo módulo de lagoa)',urgencia:anoEte20-anoAtual<=8?'crit':'warn'});
+  if(anoRes)intervencoes.push({ano:anoRes,acao:'Ampliar capacidade de destinação de RSU',urgencia:'warn'});
+  intervencoes.sort((a,b)=>a.ano-b.ano);
+
+  if(intervencoes.length){
+    sistemas.push({tipo:'info',icon:'📅',titulo:'Cronograma indicativo de intervenções',
+      texto:intervencoes.map(i=>`${i.ano}: ${i.acao}`).join(' · '),detalhe:''});
+  }
+
+  document.getElementById('dp-cenarios-items').innerHTML=sistemas.map(s=>`
+    <div class="decision-item ${s.tipo}">
+      <span class="decision-icon">${s.icon}</span>
+      <div class="decision-text"><strong>${s.titulo}</strong>${s.texto}${s.detalhe?`<span class="decision-year"> | ${s.detalhe}</span>`:''}</div>
+    </div>`).join('');
+
+  // ── JANELA DE CONFIANÇA ──
+  const ciH=calcCI(popH,rmseModel,dtH);
+  document.getElementById('dp-confianca').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+      <div class="metric-card"><div class="metric-label">Confiança horizonte</div><div class="metric-value" style="font-size:15px;">${confiancaTexto.split(' ')[0]}</div><div class="metric-sub">${confiancaTexto}</div></div>
+      <div class="metric-card accent"><div class="metric-label">IC 95% em ${horizonte}</div><div class="metric-value" style="font-size:13px;">[${Math.max(0,ciH.lower).toLocaleString('pt-BR')}–${ciH.upper.toLocaleString('pt-BR')}]</div><div class="metric-sub">±${(ciH.margin/popH*100).toFixed(1)}% da projeção central</div></div>
+      <div class="metric-card"><div class="metric-label">RMSE ajuste histórico</div><div class="metric-value" style="font-size:15px;">${rmseModel.toFixed(0)}</div><div class="metric-sub">hab · Modelo: ${modelLabel[modelo]}</div></div>
+    </div>
+    <div class="alert alert-info" style="margin-bottom:0;font-family:var(--mono);font-size:12px;">
+      <strong>Como interpretar:</strong> O IC 95% indica que, mantidas as tendências históricas, a população real em ${horizonte} estará entre 
+      ${Math.max(0,ciH.lower).toLocaleString('pt-BR')} e ${ciH.upper.toLocaleString('pt-BR')} hab com 95% de probabilidade estatística. 
+      ${extrapRatio>1.5?`⚠️ Projeção é ${extrapRatio.toFixed(1)}× maior que a série histórica — o IC real pode ser mais amplo.`:'A série histórica é adequada para este horizonte.'}
+    </div>`;
+
+  // ── SCORE COMPARATIVO ──
+  const scores=state.scores||{};
+  document.getElementById('dp-score-modelos').innerHTML=`
+    <div style="margin-bottom:10px;font-size:11px;font-family:var(--mono);color:var(--text3);">Score composto = R²×60% + (1−LOO_RMSE/μ)×40%. Modelo recomendado destacado.</div>
+    ${['aritmetico','geometrico','logistico','holt'].map(m=>{
+      const score=scores[m]||0;
+      const r2=(state.r2[m]*100);
+      const loo=state.loo[m];
+      const looScore=loo!==null?Math.max(0,(1-loo)*100):null;
+      const isBest=m===state.bestModel;
+      return `<div class="score-row" style="${isBest?'background:var(--bg2);border-radius:var(--radius);padding-left:8px;':''}">
+        <span class="score-name" style="${isBest?'font-weight:700;color:var(--accent);':''}">
+          ${isBest?'★ ':''}${modelLabel[m]}
+        </span>
+        <div class="score-bars">
+          <div class="score-bar-wrap"><span class="score-bar-label">R²</span><div class="score-bar-track"><div class="score-bar-fill" style="width:${r2.toFixed(0)}%;background:${modelColors[m]};"></div></div><span style="font-size:10px;font-family:var(--mono);color:var(--text2);min-width:38px;">${r2.toFixed(1)}%</span></div>
+          ${looScore!==null?`<div class="score-bar-wrap"><span class="score-bar-label">LOO</span><div class="score-bar-track"><div class="score-bar-fill" style="width:${looScore.toFixed(0)}%;background:${modelColors[m]};opacity:.5;"></div></div><span style="font-size:10px;font-family:var(--mono);color:var(--text2);min-width:38px;">${looScore.toFixed(1)}%</span></div>`:''}
+        </div>
+        <span class="score-chip ${score>=0.90?'a':score>=0.75?'b':'c'}">${(score*100).toFixed(0)}pts</span>
+        ${isBest?'<span class="rec-badge">Selecionado</span>':''}
+      </div>`;
+    }).join('')}`;
+}
+
+// ══════════════════════════════════════════
+// AUDITORIA
+// ══════════════════════════════════════════
+function addAudit(action){
+  const time=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  state.auditLog.push({time,action});
+  if(state.auditLog.length>100)state.auditLog.shift();
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+renderCensusRows();
+addEvento();
+document.getElementById('infra-anos').innerHTML=state.infraAnos.map((a,i)=>`<button class="btn btn-sm ${i===0?'btn-primary':''}" onclick="setInfraAno(${i},this)">${a}</button>`).join('');
+renderDimensionamento();
+addAudit('Aplicação iniciada (v5.0)');
+</script>
+</body>
+</html>
