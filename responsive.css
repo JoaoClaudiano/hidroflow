@@ -1,0 +1,109 @@
+/* ═══════════════════════════════════════════════
+   HidroFlow — Responsive / Mobile-Friendly Styles
+   ═══════════════════════════════════════════════ */
+
+/* ── Small phones (≤ 480px) ── */
+@media (max-width: 480px) {
+  .app { padding: 0.75rem 0.6rem 3rem; }
+
+  .topbar { flex-direction: column; gap: 0.6rem; margin-bottom: 1rem; }
+  .topbar-left h1 { font-size: 16px; }
+  .topbar-left p  { font-size: 10px; }
+  .topbar-right   { flex-wrap: wrap; gap: 6px; }
+  .topbar-right .btn { font-size: 11px; padding: 5px 9px; }
+  .topbar-right .version-badge { font-size: 10px; }
+
+  .tabs { gap: 0; padding-bottom: 2px; }
+  .tab  { font-size: 11px; padding: 8px 9px; }
+
+  .card { padding: 0.75rem 0.85rem; }
+  .card-title { font-size: 12px; }
+
+  .grid-2, .grid-3, .grid-4,
+  .infra-grid, .infra-grid-4,
+  .compare-grid { grid-template-columns: 1fr; }
+
+  .metric-value { font-size: 17px; }
+  .infra-value  { font-size: 21px; }
+  .dim-result   { font-size: 18px; }
+  .hyd-value    { font-size: 18px; }
+
+  .slider-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .slider-row > label { min-width: unset; width: 100%; }
+  .slider-row input[type=range] { width: 100%; }
+  .slider-val { min-width: unset; text-align: left; }
+
+  .sidra-search { flex-direction: column; }
+  .mun-search-wrap { min-width: unset; width: 100%; }
+
+  .event-row   { grid-template-columns: 65px 1fr 32px; gap: 6px; }
+  .census-row  { grid-template-columns: 80px 1fr 32px; }
+
+  .tbl { font-size: 11px; }
+  .tbl th, .tbl td { padding: 5px 7px; }
+
+  .modal-box { padding: 1rem; width: 96%; }
+
+  .chart-wrap    { height: 240px; }
+  .chart-wrap-lg { height: 300px; }
+
+  #mapa-municipio { height: 260px; }
+
+  .decision-item { padding: 9px 10px; font-size: 11px; }
+  .decision-text strong { font-size: 12px; }
+
+  .rippl-table th, .rippl-table td { padding: 4px 5px; font-size: 10px; }
+
+  .score-name { width: 80px; font-size: 11px; }
+  .model-name { width: 80px; font-size: 12px; }
+
+  .dim-card { padding: 10px 12px; }
+}
+
+/* ── Medium phones (481px – 700px) ── */
+@media (min-width: 481px) and (max-width: 700px) {
+  .app { padding: 1rem 0.75rem 3.5rem; }
+
+  .topbar-left h1 { font-size: 17px; }
+  .topbar { gap: 0.75rem; }
+
+  .grid-2, .grid-3, .grid-4,
+  .infra-grid, .infra-grid-4,
+  .compare-grid { grid-template-columns: 1fr; }
+
+  .event-row { grid-template-columns: 70px 1fr 36px; }
+
+  .slider-row > label { min-width: 130px; }
+  .slider-val { min-width: 100px; }
+
+  .chart-wrap    { height: 260px; }
+  .chart-wrap-lg { height: 340px; }
+
+  #mapa-municipio { height: 300px; }
+}
+
+/* ── Tablet (701px – 900px) — keep two columns for most grids ── */
+@media (min-width: 701px) and (max-width: 900px) {
+  .grid-3, .grid-4, .infra-grid, .infra-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .app { padding: 1.25rem 1rem 4rem; }
+}
+
+/* ── Tab bar: always scrollable on narrow screens ── */
+@media (max-width: 900px) {
+  .tabs {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;          /* Firefox */
+  }
+  .tabs::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+}
+
+/* ── Touch-friendly hit targets ── */
+@media (hover: none) and (pointer: coarse) {
+  .btn           { min-height: 40px; }
+  .tab           { min-height: 40px; }
+  .mun-result-item { min-height: 44px; }
+  input[type=number],
+  input[type=text],
+  select,
+  textarea       { font-size: 16px; } /* prevents iOS auto-zoom */
+}
