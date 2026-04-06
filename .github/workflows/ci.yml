@@ -52,6 +52,17 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Generate PNG icons from SVG
+        run: |
+          sudo apt-get install -y --no-install-recommends librsvg2-bin
+          rsvg-convert -w 192 -h 192 icons/icon.svg -o icons/icon-192.png
+          rsvg-convert -w 512 -h 512 icons/icon.svg -o icons/icon-512.png
+
+      - name: Inject service worker version
+        run: |
+          SW_VERSION="${GITHUB_SHA:0:7}"
+          sed -i "s/__SW_VERSION__/${SW_VERSION}/g" sw.js
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
