@@ -30,7 +30,7 @@ function calcSaturacao(){
   document.getElementById('sat-k').textContent=K.toLocaleString('pt-BR');
   addAudit(`Saturação K = ${K.toLocaleString('pt-BR')} hab`);
   if(state.censosRaw){
-    calcBestFit();
+    calcularBestFit();
     document.getElementById('sat-alert').textContent=`K = ${K.toLocaleString('pt-BR')} hab aplicado — Best Fit recalculado automaticamente.`;
   } else {
     document.getElementById('sat-alert').textContent=`K = ${K.toLocaleString('pt-BR')} hab. Retorne a "Dados & Best Fit" e calcule para aplicar.`;
