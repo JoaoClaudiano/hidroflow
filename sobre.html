@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sobre — HidroFlow</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/footer.css">
+<script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+  .inst-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .inst-topbar-left { display: flex; align-items: center; gap: 12px; }
+  .inst-topbar-left a {
+    display: flex; align-items: center; gap: 8px;
+    text-decoration: none; color: var(--text);
+    font-size: 18px; font-weight: 600; letter-spacing: -0.02em;
+  }
+  .inst-topbar-left a:hover { color: var(--accent); }
+  .inst-breadcrumb {
+    font-family: var(--mono); font-size: 11px; color: var(--text3);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .inst-breadcrumb a { color: var(--text3); text-decoration: none; transition: color .15s; }
+  .inst-breadcrumb a:hover { color: var(--accent); }
+  .inst-body { max-width: 720px; }
+  .inst-body h1 {
+    font-size: 1.5rem; font-weight: 600; color: var(--text);
+    letter-spacing: -0.03em; margin-bottom: 0.3rem;
+  }
+  .inst-body .inst-lead {
+    font-size: 0.9rem; color: var(--text3); font-family: var(--mono);
+    margin-bottom: 2rem; display: flex; align-items: center; gap: 8px;
+  }
+  .inst-body h2 {
+    font-size: 0.95rem; font-weight: 600; color: var(--accent);
+    border-bottom: 2px solid var(--accent); padding-bottom: 0.35rem;
+    margin: 2rem 0 0.9rem; letter-spacing: -0.01em;
+  }
+  .inst-body p, .inst-body li {
+    font-size: 0.86rem; color: var(--text2); line-height: 1.75;
+  }
+  .inst-body ul, .inst-body ol {
+    margin-left: 1.4rem; margin-bottom: 0.8rem;
+  }
+  .inst-body ul li, .inst-body ol li { margin-bottom: 0.3rem; }
+  .inst-body strong { color: var(--text); }
+  .inst-body a { color: var(--accent); text-decoration: none; }
+  .inst-body a:hover { text-decoration: underline; }
+  .inst-highlight {
+    background: var(--accent-bg);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.1rem;
+    margin: 1.5rem 0;
+    font-size: 0.86rem;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+  .inst-highlight strong { color: var(--accent); }
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 1rem 0 1.5rem;
+  }
+  .feature-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .feature-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .feature-text { font-size: 0.82rem; color: var(--text2); line-height: 1.5; }
+  .feature-text strong { color: var(--text); font-size: 0.84rem; display: block; margin-bottom: 2px; }
+  @media (max-width: 600px) {
+    .feature-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="inst-topbar">
+    <div class="inst-topbar-left">
+      <a href="index.html">💧 HidroFlow</a>
+    </div>
+    <nav class="inst-breadcrumb" aria-label="Navegação">
+      <a href="index.html">Início</a>
+      <span>›</span>
+      <span>Sobre</span>
+    </nav>
+  </div>
+
+  <div class="inst-body">
+    <h1>Sobre o HidroFlow</h1>
+    <p class="inst-lead">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Projeto acadêmico de código aberto — UFC / Engenharia Civil
+    </p>
+
+    <div class="inst-highlight">
+      <strong>Origem do projeto:</strong> O HidroFlow nasceu como iniciativa acadêmica de um estudante de Engenharia Civil da
+      Universidade Federal do Ceará (UFC), com a proposta de construir uma ferramenta de análise integrada para sistemas de
+      abastecimento de água urbanos — indo além das abordagens isoladas e reunindo, em um só ambiente, os principais fatores
+      que influenciam o planejamento e o dimensionamento desses sistemas.
+    </div>
+
+    <h2>Motivação e Visão</h2>
+    <p>
+      A análise de sistemas de abastecimento de água no Brasil frequentemente ocorre de forma fragmentada: projeções
+      populacionais são feitas separadamente do dimensionamento hidráulico, a demanda de consumo é estimada sem
+      considerar o crescimento urbano, e a infraestrutura de saneamento raramente é avaliada em conjunto com a
+      de energia ou com a gestão de resíduos sólidos.
+    </p>
+    <p>
+      O HidroFlow propõe justamente romper com essa fragmentação. A ideia central é oferecer uma <strong>ferramenta de
+      análise unificada</strong> que permita ao engenheiro ou planejador enxergar o sistema de abastecimento de água
+      de forma <strong>integrada</strong> — conectando projeção populacional, demanda de consumo, dimensionamento de
+      infraestrutura, energia, gestão de resíduos e análise de capacidade de sistemas distribuidores.
+    </p>
+
+    <h2>O que o HidroFlow faz hoje</h2>
+    <div class="feature-grid">
+      <div class="feature-item">
+        <span class="feature-icon">📊</span>
+        <div class="feature-text">
+          <strong>Projeção Populacional</strong>
+          Modelos aritmético, geométrico, logístico e Holt, com envelope de confiança e seleção automática via métricas de ajuste (R², RMSE, LOO-RMSE).
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🔧</span>
+        <div class="feature-text">
+          <strong>Dimensionamento</strong>
+          Cálculo de vazões de projeto, volumes de reservação e diâmetros de adução seguindo normas NBR 12211 e FUNASA.
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">💧</span>
+        <div class="feature-text">
+          <strong>Hidráulica</strong>
+          Equações de Hazen-Williams, Bresse, Golpe de Aríete (Joukowsky) e método de Rippl para reservatórios de regularização.
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🕸️</span>
+        <div class="feature-text">
+          <strong>Rede de Distribuição</strong>
+          Editor de rede interativo com cálculo iterativo pelo método de Hardy-Cross e compatibilidade com arquivos EPANET (.INP).
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🗺️</span>
+        <div class="feature-text">
+          <strong>Dados Reais</strong>
+          Integração com IBGE/SIDRA para censos de 1991 a 2022 e geolocalização via OpenStreetMap/Nominatim.
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🤖</span>
+        <div class="feature-text">
+          <strong>Motor de Decisão</strong>
+          Diagnóstico automatizado que avalia qualidade dos dados, adequação dos modelos e consistência do dimensionamento.
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">📄</span>
+        <div class="feature-text">
+          <strong>Relatórios</strong>
+          Exportação de memorial de cálculo em PDF e planilhas Excel/CSV com todos os dados e resultados do projeto.
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🌙</span>
+        <div class="feature-text">
+          <strong>100% Client-side</strong>
+          Todos os cálculos ocorrem no navegador do usuário, sem envio de dados a servidores externos.
+        </div>
+      </div>
+    </div>
+
+    <h2>Próximos Passos</h2>
+    <p>A visão de longo prazo do projeto inclui expandir a análise integrada para contemplar:</p>
+    <ul>
+      <li>Integração com consumo energético das estações elevatórias e ETAs;</li>
+      <li>Balanço hídrico com variáveis climáticas e de disponibilidade de mananciais;</li>
+      <li>Interface com sistemas de gestão de resíduos sólidos e aterros sanitários;</li>
+      <li>Microsimulação hidráulica dinâmica ao estilo EPANET, integrada à interface;</li>
+      <li>Análise de demanda por setores (doméstico, industrial, comercial, perdas);</li>
+      <li>Suporte a cenários de mudança climática e crescimento urbano não-linear.</li>
+    </ul>
+
+    <h2>Tecnologias</h2>
+    <p>O HidroFlow é desenvolvido inteiramente em tecnologias web abertas, sem dependência de back-end ou licenças proprietárias:</p>
+    <ul>
+      <li><strong>HTML5, CSS3 e JavaScript</strong> — interface e lógica de cálculo;</li>
+      <li><strong>Chart.js</strong> — gráficos e visualizações;</li>
+      <li><strong>Leaflet.js</strong> — mapas interativos;</li>
+      <li><strong>SheetJS (xlsx)</strong> — exportação de planilhas;</li>
+      <li><strong>IBM Plex Sans / Mono</strong> — tipografia;</li>
+      <li><strong>APIs públicas:</strong> IBGE SIDRA (dados censitários) e OpenStreetMap/Nominatim (geocodificação).</li>
+    </ul>
+
+    <h2>Contribuição e Licença</h2>
+    <p>
+      O HidroFlow é um projeto de código aberto hospedado no
+      <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener">GitHub</a>.
+      Contribuições são bem-vindas — seja reportando bugs, sugerindo funcionalidades ou enviando pull requests.
+      Consulte o arquivo
+      <a href="https://github.com/JoaoClaudiano/hidroflow/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">CONTRIBUTING.md</a>
+      para saber como participar.
+    </p>
+
+    <div style="margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--border); display:flex; gap:10px; flex-wrap:wrap;">
+      <a href="index.html" class="btn btn-primary btn-sm">← Ir para a Aplicação</a>
+      <a href="metodologia.html" target="_blank" class="btn btn-sm">Ver Metodologia</a>
+      <a href="contato.html" class="btn btn-sm">Contato</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer" role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="footer-logo">
+        <span>💧</span>
+        <span class="footer-logo-name">HidroFlow</span>
+      </a>
+      <p class="footer-desc">
+        Ferramenta de suporte à análise e dimensionamento de sistemas de abastecimento de água, integrando projeção populacional, demanda, infraestrutura e simulação hidráulica.
+      </p>
+      <div class="footer-badge-row">
+        <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener" class="footer-badge">GitHub</a>
+        <span class="footer-badge">Client-side</span>
+        <span class="footer-badge">Open Source</span>
+      </div>
+    </div>
+
+    <nav class="footer-nav-group" aria-label="Páginas">
+      <h4>Páginas</h4>
+      <ul>
+        <li><a href="index.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Aplicação</a></li>
+        <li><a href="metodologia.html" target="_blank"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Metodologia</a></li>
+        <li><a href="sobre.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Sobre</a></li>
+        <li><a href="contato.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Contato</a></li>
+      </ul>
+    </nav>
+
+    <nav class="footer-nav-group" aria-label="Legal">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="privacidade.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Privacidade</a></li>
+        <li><a href="termos.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Termos de Uso</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-copy">
+      &copy; <span id="footer-year"></span>
+      <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener">HidroFlow</a>
+      — Universidade Federal do Ceará (UFC) &mdash; Engenharia Civil
+    </p>
+    <p class="footer-disclaimer">Dados via IBGE/SIDRA &amp; OpenStreetMap. Uso acadêmico.</p>
+  </div>
+</footer>
+<script>
+document.getElementById('footer-year').textContent = new Date().getFullYear();
+function toggleTheme() {
+  var root = document.documentElement;
+  var current = root.getAttribute('data-theme');
+  var isDark = current === 'dark' || (!current && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  var next = isDark ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+</script>
+</body>
+</html>
