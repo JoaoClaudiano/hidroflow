@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termos de Uso — HidroFlow</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/footer.css">
+<script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+  .inst-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;
+  }
+  .inst-topbar-left { display: flex; align-items: center; gap: 12px; }
+  .inst-topbar-left a {
+    display: flex; align-items: center; gap: 8px;
+    text-decoration: none; color: var(--text);
+    font-size: 18px; font-weight: 600; letter-spacing: -0.02em;
+  }
+  .inst-topbar-left a:hover { color: var(--accent); }
+  .inst-breadcrumb {
+    font-family: var(--mono); font-size: 11px; color: var(--text3);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .inst-breadcrumb a { color: var(--text3); text-decoration: none; transition: color .15s; }
+  .inst-breadcrumb a:hover { color: var(--accent); }
+  .inst-body { max-width: 720px; }
+  .inst-body h1 {
+    font-size: 1.5rem; font-weight: 600; color: var(--text);
+    letter-spacing: -0.03em; margin-bottom: 0.3rem;
+  }
+  .inst-body .inst-lead {
+    font-size: 0.9rem; color: var(--text3); font-family: var(--mono);
+    margin-bottom: 2rem; display: flex; align-items: center; gap: 8px;
+  }
+  .inst-body h2 {
+    font-size: 0.95rem; font-weight: 600; color: var(--accent);
+    border-bottom: 2px solid var(--accent); padding-bottom: 0.35rem;
+    margin: 2rem 0 0.9rem; letter-spacing: -0.01em;
+  }
+  .inst-body p, .inst-body li {
+    font-size: 0.86rem; color: var(--text2); line-height: 1.75;
+  }
+  .inst-body ul, .inst-body ol {
+    margin-left: 1.4rem; margin-bottom: 0.8rem;
+  }
+  .inst-body ul li, .inst-body ol li { margin-bottom: 0.3rem; }
+  .inst-body strong { color: var(--text); }
+  .inst-body a { color: var(--accent); text-decoration: none; }
+  .inst-body a:hover { text-decoration: underline; }
+  .inst-warning {
+    background: var(--amber-bg);
+    border-left: 4px solid var(--amber);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.1rem;
+    margin: 1.5rem 0;
+    font-size: 0.86rem;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+  .inst-warning strong { color: var(--amber); }
+  .inst-info {
+    background: var(--accent-bg);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.1rem;
+    margin: 1.5rem 0;
+    font-size: 0.86rem;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+  .inst-info strong { color: var(--accent); }
+  .toc {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.2rem;
+    margin-bottom: 2rem;
+  }
+  .toc p {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text3); font-family: var(--mono);
+    margin-bottom: 0.5rem;
+  }
+  .toc ol {
+    margin-left: 1.2rem; margin-bottom: 0;
+  }
+  .toc ol li { margin-bottom: 0.2rem; }
+  .toc ol li a { font-size: 0.83rem; color: var(--text2); text-decoration: none; transition: color .15s; }
+  .toc ol li a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="inst-topbar">
+    <div class="inst-topbar-left">
+      <a href="index.html">💧 HidroFlow</a>
+    </div>
+    <nav class="inst-breadcrumb" aria-label="Navegação">
+      <a href="index.html">Início</a>
+      <span>›</span>
+      <span>Termos de Uso</span>
+    </nav>
+  </div>
+
+  <div class="inst-body">
+    <h1>Termos de Uso</h1>
+    <p class="inst-lead">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Última atualização: <span id="update-date"></span>
+    </p>
+
+    <div class="inst-warning">
+      <strong>⚠ Ferramenta de apoio acadêmico:</strong> O HidroFlow é um instrumento de suporte ao estudo e análise de sistemas de abastecimento de água. Os resultados gerados <strong>não substituem</strong> laudos técnicos elaborados por profissional habilitado e registrado no CREA/CFT.
+    </div>
+
+    <nav class="toc" aria-label="Índice">
+      <p>Sumário</p>
+      <ol>
+        <li><a href="#sec1">Aceitação dos Termos</a></li>
+        <li><a href="#sec2">Descrição do Serviço</a></li>
+        <li><a href="#sec3">Uso Permitido</a></li>
+        <li><a href="#sec4">Uso Proibido</a></li>
+        <li><a href="#sec5">Responsabilidade Técnica</a></li>
+        <li><a href="#sec6">Propriedade Intelectual</a></li>
+        <li><a href="#sec7">Disponibilidade</a></li>
+        <li><a href="#sec8">Dados e Privacidade</a></li>
+        <li><a href="#sec9">Limitação de Responsabilidade</a></li>
+        <li><a href="#sec10">Alterações</a></li>
+        <li><a href="#sec11">Legislação Aplicável</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="sec1">1. Aceitação dos Termos</h2>
+    <p>
+      Ao acessar e utilizar o HidroFlow, você declara ter lido, compreendido e concordado com estes Termos de Uso.
+      Caso não concorde com qualquer disposição, interrompa imediatamente o uso da ferramenta.
+    </p>
+
+    <h2 id="sec2">2. Descrição do Serviço</h2>
+    <p>
+      O HidroFlow é uma aplicação web gratuita e de código aberto voltada ao suporte acadêmico e técnico para análise
+      e dimensionamento de sistemas de abastecimento de água. A ferramenta opera inteiramente no navegador do usuário
+      (<em>client-side</em>), sem servidores próprios de processamento.
+    </p>
+    <p>Os recursos incluem, sem limitação:</p>
+    <ul>
+      <li>Projeção populacional com múltiplos modelos matemáticos;</li>
+      <li>Dimensionamento de infraestrutura hídrica (reservatórios, adutoras, elevatórias);</li>
+      <li>Cálculo hidráulico de redes de distribuição (Hardy-Cross);</li>
+      <li>Integração com dados censitários do IBGE/SIDRA;</li>
+      <li>Geração de relatórios em PDF, Excel e CSV.</li>
+    </ul>
+
+    <h2 id="sec3">3. Uso Permitido</h2>
+    <p>O HidroFlow pode ser utilizado livremente para:</p>
+    <ul>
+      <li>Fins acadêmicos, de pesquisa e ensino;</li>
+      <li>Estudos preliminares e análises exploratórias de engenharia;</li>
+      <li>Elaboração de trabalhos de conclusão de curso, dissertações e teses;</li>
+      <li>Desenvolvimento de projetos pessoais não-comerciais;</li>
+      <li>Contribuição ao código-fonte, conforme o <a href="https://github.com/JoaoClaudiano/hidroflow/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">guia de contribuição</a>.</li>
+    </ul>
+
+    <h2 id="sec4">4. Uso Proibido</h2>
+    <p>É vedada a utilização do HidroFlow para:</p>
+    <ul>
+      <li>Emissão de laudos, pareceres ou projetos executivos sem revisão por engenheiro habilitado;</li>
+      <li>Atividades que violem leis, regulamentos ou normas técnicas brasileiras (especialmente ABNT NBR);</li>
+      <li>Engenharia reversa, descompilação ou modificação visando redistribuição sob outra licença incompatível;</li>
+      <li>Qualquer uso que possa induzir terceiros a acreditar que os resultados possuem validade legal sem a devida responsabilidade técnica.</li>
+    </ul>
+
+    <h2 id="sec5">5. Responsabilidade Técnica</h2>
+    <div class="inst-warning">
+      <strong>Importante:</strong> O HidroFlow é uma ferramenta de <em>suporte</em>. A responsabilidade técnica por qualquer projeto, obra ou intervenção em sistemas de abastecimento de água é, exclusiva e integralmente, do <strong>profissional habilitado</strong> que assina o documento técnico, nos termos da Lei nº 5.194/1966 e resoluções do CONFEA/CREA.
+    </div>
+    <p>
+      Os modelos matemáticos implementados seguem referências bibliográficas reconhecidas (FUNASA, ABNT, literatura
+      científica), porém nenhum software substitui o julgamento técnico e a experiência profissional.
+    </p>
+
+    <h2 id="sec6">6. Propriedade Intelectual</h2>
+    <p>
+      O código-fonte do HidroFlow é disponibilizado como software de código aberto no repositório
+      <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener">github.com/JoaoClaudiano/hidroflow</a>.
+      Os termos da licença aplicável encontram-se no arquivo <code>LICENSE</code> do repositório.
+    </p>
+    <p>
+      Os dados censitários exibidos são de propriedade do <strong>IBGE</strong> e os dados cartográficos do
+      <strong>OpenStreetMap</strong>, sujeitos às suas respectivas licenças.
+    </p>
+
+    <h2 id="sec7">7. Disponibilidade</h2>
+    <p>
+      O HidroFlow é disponibilizado no estado em que se encontra (<em>as-is</em>), sem garantias de disponibilidade
+      contínua, ausência de erros ou adequação a finalidade específica. O desenvolvedor pode alterar, suspender ou
+      descontinuar o serviço a qualquer momento sem aviso prévio.
+    </p>
+
+    <h2 id="sec8">8. Dados e Privacidade</h2>
+    <p>
+      O tratamento de dados é regido pela <a href="privacidade.html">Política de Privacidade</a>. Em resumo: nenhum
+      dado pessoal é coletado ou transmitido a terceiros.
+    </p>
+
+    <h2 id="sec9">9. Limitação de Responsabilidade</h2>
+    <p>
+      O desenvolvedor do HidroFlow não se responsabiliza por danos diretos, indiretos, incidentais ou consequentes
+      decorrentes do uso ou da impossibilidade de uso da ferramenta, incluindo, sem limitação: erros de cálculo,
+      falhas na importação/exportação de dados, indisponibilidade das APIs de terceiros ou perda de projetos salvos
+      no localStorage.
+    </p>
+
+    <h2 id="sec10">10. Alterações nos Termos</h2>
+    <p>
+      Estes Termos podem ser modificados a qualquer momento. A data de "Última atualização" no topo desta página
+      indica a versão vigente. O uso continuado da ferramenta após alterações constitui aceitação dos novos termos.
+    </p>
+
+    <h2 id="sec11">11. Legislação Aplicável</h2>
+    <p>
+      Estes Termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca de
+      Fortaleza/CE para dirimir quaisquer controvérsias.
+    </p>
+
+    <div style="margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--border); display:flex; gap:10px; flex-wrap:wrap;">
+      <a href="index.html" class="btn btn-primary btn-sm">← Ir para a Aplicação</a>
+      <a href="privacidade.html" class="btn btn-sm">Privacidade</a>
+      <a href="contato.html" class="btn btn-sm">Contato</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer" role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="footer-logo">
+        <span>💧</span>
+        <span class="footer-logo-name">HidroFlow</span>
+      </a>
+      <p class="footer-desc">
+        Ferramenta de suporte à análise e dimensionamento de sistemas de abastecimento de água, integrando projeção populacional, demanda, infraestrutura e simulação hidráulica.
+      </p>
+      <div class="footer-badge-row">
+        <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener" class="footer-badge">GitHub</a>
+        <span class="footer-badge">Client-side</span>
+        <span class="footer-badge">Open Source</span>
+      </div>
+    </div>
+    <nav class="footer-nav-group" aria-label="Páginas">
+      <h4>Páginas</h4>
+      <ul>
+        <li><a href="index.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Aplicação</a></li>
+        <li><a href="metodologia.html" target="_blank"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Metodologia</a></li>
+        <li><a href="sobre.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Sobre</a></li>
+        <li><a href="contato.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Contato</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-nav-group" aria-label="Legal">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="privacidade.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Privacidade</a></li>
+        <li><a href="termos.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Termos de Uso</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">
+      &copy; <span id="footer-year"></span>
+      <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener">HidroFlow</a>
+      — Universidade Federal do Ceará (UFC) &mdash; Engenharia Civil
+    </p>
+    <p class="footer-disclaimer">Dados via IBGE/SIDRA &amp; OpenStreetMap. Uso acadêmico.</p>
+  </div>
+</footer>
+<script>
+document.getElementById('footer-year').textContent = new Date().getFullYear();
+var d = new Date();
+document.getElementById('update-date').textContent = d.toLocaleDateString('pt-BR', {year:'numeric',month:'long',day:'numeric'});
+</script>
+</body>
+</html>

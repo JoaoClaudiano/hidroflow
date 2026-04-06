@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contato — HidroFlow</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/footer.css">
+<script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+  .inst-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;
+  }
+  .inst-topbar-left { display: flex; align-items: center; gap: 12px; }
+  .inst-topbar-left a {
+    display: flex; align-items: center; gap: 8px;
+    text-decoration: none; color: var(--text);
+    font-size: 18px; font-weight: 600; letter-spacing: -0.02em;
+  }
+  .inst-topbar-left a:hover { color: var(--accent); }
+  .inst-breadcrumb {
+    font-family: var(--mono); font-size: 11px; color: var(--text3);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .inst-breadcrumb a { color: var(--text3); text-decoration: none; transition: color .15s; }
+  .inst-breadcrumb a:hover { color: var(--accent); }
+  .inst-body { max-width: 720px; }
+  .inst-body h1 {
+    font-size: 1.5rem; font-weight: 600; color: var(--text);
+    letter-spacing: -0.03em; margin-bottom: 0.3rem;
+  }
+  .inst-body .inst-lead {
+    font-size: 0.9rem; color: var(--text3); font-family: var(--mono);
+    margin-bottom: 2rem; display: flex; align-items: center; gap: 8px;
+  }
+  .inst-body h2 {
+    font-size: 0.95rem; font-weight: 600; color: var(--accent);
+    border-bottom: 2px solid var(--accent); padding-bottom: 0.35rem;
+    margin: 2rem 0 0.9rem; letter-spacing: -0.01em;
+  }
+  .inst-body p, .inst-body li {
+    font-size: 0.86rem; color: var(--text2); line-height: 1.75;
+  }
+  .inst-body ul { margin-left: 1.4rem; margin-bottom: 0.8rem; }
+  .inst-body ul li { margin-bottom: 0.3rem; }
+  .inst-body strong { color: var(--text); }
+  .inst-body a { color: var(--accent); text-decoration: none; }
+  .inst-body a:hover { text-decoration: underline; }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 1.5rem 0;
+  }
+  .contact-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color .15s;
+  }
+  .contact-card:hover { border-color: var(--accent); }
+  .contact-card-icon {
+    font-size: 22px; margin-bottom: 2px;
+  }
+  .contact-card-title {
+    font-size: 13px; font-weight: 600; color: var(--text);
+  }
+  .contact-card-desc {
+    font-size: 12px; color: var(--text3); line-height: 1.5;
+    margin-bottom: 4px;
+  }
+  .contact-card a {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-family: var(--mono);
+    color: var(--accent); text-decoration: none; transition: opacity .15s;
+  }
+  .contact-card a:hover { opacity: 0.75; text-decoration: none; }
+
+  .contact-form-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .contact-form-wrap h3 {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+  }
+  .contact-form-wrap h3::before {
+    content: ''; display: inline-block; width: 3px; height: 14px;
+    background: var(--accent); border-radius: 2px; flex-shrink: 0;
+  }
+  .form-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .form-group label {
+    font-size: 11px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--text3); font-family: var(--mono);
+  }
+  .form-group select,
+  .form-group input,
+  .form-group textarea {
+    width: 100%; padding: 8px 10px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    transition: border-color .15s, box-shadow .15s;
+    resize: vertical;
+  }
+  .form-group textarea { min-height: 110px; }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-bg);
+  }
+  .form-note {
+    font-size: 11px; color: var(--text3); font-family: var(--mono);
+    margin-top: 0.75rem; line-height: 1.5;
+  }
+  #contact-success {
+    display: none;
+    background: var(--green-bg);
+    border: 1px solid var(--green);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.1rem;
+    font-size: 0.86rem;
+    color: var(--green);
+    margin-top: 1rem;
+  }
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 0.9rem 0;
+  }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-q {
+    font-size: 0.88rem; font-weight: 600; color: var(--text);
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: space-between; gap: 8px;
+    user-select: none; list-style: none;
+  }
+  .faq-q::-webkit-details-marker { display: none; }
+  .faq-q::after {
+    content: '›'; font-size: 16px; color: var(--text3); transition: transform .2s;
+    flex-shrink: 0;
+  }
+  details[open] .faq-q::after { transform: rotate(90deg); }
+  .faq-a {
+    font-size: 0.84rem; color: var(--text2); line-height: 1.7;
+    padding-top: 0.6rem; padding-right: 1rem;
+  }
+  .faq-a a { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .contact-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="inst-topbar">
+    <div class="inst-topbar-left">
+      <a href="index.html">💧 HidroFlow</a>
+    </div>
+    <nav class="inst-breadcrumb" aria-label="Navegação">
+      <a href="index.html">Início</a>
+      <span>›</span>
+      <span>Contato</span>
+    </nav>
+  </div>
+
+  <div class="inst-body">
+    <h1>Contato</h1>
+    <p class="inst-lead">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Sugestões, bugs, colaborações e dúvidas técnicas
+    </p>
+
+    <h2>Canais de Comunicação</h2>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="contact-card-icon">🐛</div>
+        <div class="contact-card-title">Reportar Bug</div>
+        <div class="contact-card-desc">Encontrou um erro ou comportamento inesperado? Abra uma issue no GitHub.</div>
+        <a href="https://github.com/JoaoClaudiano/hidroflow/issues/new?template=bug_report.md" target="_blank" rel="noopener">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Abrir Bug Report
+        </a>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-card-icon">💡</div>
+        <div class="contact-card-title">Sugerir Funcionalidade</div>
+        <div class="contact-card-desc">Tem uma ideia para melhorar o HidroFlow? Compartilhe pelo GitHub Issues.</div>
+        <a href="https://github.com/JoaoClaudiano/hidroflow/issues/new?template=feature_request.md" target="_blank" rel="noopener">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Sugerir no GitHub
+        </a>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-card-icon">🤝</div>
+        <div class="contact-card-title">Contribuir com Código</div>
+        <div class="contact-card-desc">Quer contribuir com desenvolvimento? Veja como participar do projeto.</div>
+        <a href="https://github.com/JoaoClaudiano/hidroflow/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Guia de Contribuição
+        </a>
+      </div>
+
+      <div class="contact-card">
+        <div class="contact-card-icon">💬</div>
+        <div class="contact-card-title">Discussões Gerais</div>
+        <div class="contact-card-desc">Dúvidas técnicas, metodológicas ou sobre uso da ferramenta.</div>
+        <a href="https://github.com/JoaoClaudiano/hidroflow/discussions" target="_blank" rel="noopener">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          GitHub Discussions
+        </a>
+      </div>
+    </div>
+
+    <h2>Enviar Mensagem</h2>
+    <p>
+      Para assuntos que não se enquadram nas categorias acima — como colaborações acadêmicas, uso institucional
+      ou feedback detalhado — use o formulário abaixo. As mensagens são enviadas diretamente por e-mail.
+    </p>
+
+    <div class="contact-form-wrap">
+      <h3>Formulário de Contato</h3>
+      <form id="contact-form" action="https://formsubmit.co/joao.claudiano@alu.ufc.br" method="POST" novalidate>
+        <input type="hidden" name="_subject" value="[HidroFlow] Mensagem via site">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="contact-name">Nome *</label>
+            <input type="text" id="contact-name" name="nome" placeholder="Seu nome completo" required>
+          </div>
+          <div class="form-group">
+            <label for="contact-email">E-mail *</label>
+            <input type="email" id="contact-email" name="email" placeholder="seu@email.com" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="contact-subject">Assunto *</label>
+          <select id="contact-subject" name="assunto" required>
+            <option value="" disabled selected>Selecione o assunto</option>
+            <option value="Bug / Erro">Bug / Erro</option>
+            <option value="Sugestão de funcionalidade">Sugestão de funcionalidade</option>
+            <option value="Dúvida técnica / metodológica">Dúvida técnica / metodológica</option>
+            <option value="Colaboração acadêmica">Colaboração acadêmica</option>
+            <option value="Uso institucional / profissional">Uso institucional / profissional</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="contact-msg">Mensagem *</label>
+          <textarea id="contact-msg" name="mensagem" placeholder="Descreva sua dúvida, sugestão ou mensagem..." required></textarea>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <button type="submit" class="btn btn-primary">
+            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Enviar mensagem
+          </button>
+          <button type="reset" class="btn btn-sm">Limpar</button>
+        </div>
+        <p class="form-note">
+          * Campos obrigatórios. Ao enviar, você concorda com os <a href="termos.html">Termos de Uso</a> e a <a href="privacidade.html">Política de Privacidade</a>.<br>
+          Alternativamente, abra uma <a href="https://github.com/JoaoClaudiano/hidroflow/issues" target="_blank" rel="noopener">issue no GitHub</a>.
+        </p>
+      </form>
+    </div>
+
+    <h2>Perguntas Frequentes</h2>
+    <div>
+      <details class="faq-item">
+        <summary class="faq-q">O HidroFlow substitui o EPANET?</summary>
+        <p class="faq-a">
+          Não. O HidroFlow importa e exporta arquivos no formato <code>.INP</code> (compatível com EPANET) e realiza
+          cálculos estáticos pelo método de Hardy-Cross, mas não replica a simulação dinâmica completa do EPANET.
+          A ferramenta é complementar e focada na fase de concepção e pré-dimensionamento.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Os resultados têm validade técnica para projetos executivos?</summary>
+        <p class="faq-a">
+          Os resultados são baseados em métodos normativos reconhecidos (ABNT, FUNASA), mas qualquer projeto
+          executivo deve ser revisado e assinado por engenheiro civil ou sanitarista habilitado no CREA.
+          Veja os <a href="termos.html">Termos de Uso</a> para mais detalhes.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Posso usar o HidroFlow para meu TCC ou dissertação?</summary>
+        <p class="faq-a">
+          Sim! O HidroFlow foi desenvolvido com esse propósito. Ao citar a ferramenta, recomendamos utilizar a
+          referência disponível no <a href="metodologia.html" target="_blank">Memorial de Cálculo</a> ou o repositório
+          GitHub como fonte.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Meus dados estão seguros?</summary>
+        <p class="faq-a">
+          Sim. O HidroFlow não possui servidor próprio. Todos os projetos ficam no <code>localStorage</code> do
+          seu navegador e nunca são transmitidos a terceiros. Veja a <a href="privacidade.html">Política de Privacidade</a>
+          para detalhes completos.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Como posso contribuir com o projeto?</summary>
+        <p class="faq-a">
+          Acesse o <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener">repositório no GitHub</a>
+          e siga as instruções do arquivo
+          <a href="https://github.com/JoaoClaudiano/hidroflow/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">CONTRIBUTING.md</a>.
+          Contribuições de código, documentação, testes e relatos de bugs são bem-vindas.
+        </p>
+      </details>
+    </div>
+
+    <div style="margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--border); display:flex; gap:10px; flex-wrap:wrap;">
+      <a href="index.html" class="btn btn-primary btn-sm">← Ir para a Aplicação</a>
+      <a href="sobre.html" class="btn btn-sm">Sobre o Projeto</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer" role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="footer-logo">
+        <span>💧</span>
+        <span class="footer-logo-name">HidroFlow</span>
+      </a>
+      <p class="footer-desc">
+        Ferramenta de suporte à análise e dimensionamento de sistemas de abastecimento de água, integrando projeção populacional, demanda, infraestrutura e simulação hidráulica.
+      </p>
+      <div class="footer-badge-row">
+        <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener" class="footer-badge">GitHub</a>
+        <span class="footer-badge">Client-side</span>
+        <span class="footer-badge">Open Source</span>
+      </div>
+    </div>
+    <nav class="footer-nav-group" aria-label="Páginas">
+      <h4>Páginas</h4>
+      <ul>
+        <li><a href="index.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Aplicação</a></li>
+        <li><a href="metodologia.html" target="_blank"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Metodologia</a></li>
+        <li><a href="sobre.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Sobre</a></li>
+        <li><a href="contato.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Contato</a></li>
+      </ul>
+    </nav>
+    <nav class="footer-nav-group" aria-label="Legal">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="privacidade.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Privacidade</a></li>
+        <li><a href="termos.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Termos de Uso</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">
+      &copy; <span id="footer-year"></span>
+      <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener">HidroFlow</a>
+      — Universidade Federal do Ceará (UFC) &mdash; Engenharia Civil
+    </p>
+    <p class="footer-disclaimer">Dados via IBGE/SIDRA &amp; OpenStreetMap. Uso acadêmico.</p>
+  </div>
+</footer>
+<script>
+document.getElementById('footer-year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
