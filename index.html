@@ -289,6 +289,51 @@
           <span>Usar Fórmula de Harmon para vazão de ponta de esgoto — K_Harmon = (14 + sqrt(P)) / (4 + sqrt(P))</span>
         </label>
         <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;">O coeficiente de Harmon varia com a população (P em mil hab) e tende a ser mais preciso do que K1 fixo para redes reais.</div>
+        <!-- Manning + Infiltração -->
+        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">
+          <div style="font-size:11px;font-weight:600;font-family:var(--mono);color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Dimensionamento de Coletores — Equação de Manning</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex-wrap:wrap;">
+            <div>
+              <label style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;">n Manning</label>
+              <select id="ses-n-mann" onchange="renderDimensionamento()" style="width:100%;padding:5px;font-size:11px;font-family:var(--mono);border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);">
+                <option value="0.009">0,009 — PVC / PEAD</option>
+                <option value="0.011">0,011 — Cerâmica grés</option>
+                <option value="0.013" selected>0,013 — Ferro fundido / FCD</option>
+                <option value="0.014">0,014 — Concreto liso</option>
+                <option value="0.016">0,016 — Concreto rugoso</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;">Declividade S (%)</label>
+              <input type="number" id="ses-decl" value="0.5" min="0.1" max="100" step="0.1" oninput="renderDimensionamento()" style="width:100%;">
+            </div>
+            <div>
+              <label style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;">DN coletor (mm)</label>
+              <select id="ses-dn-coletor" onchange="renderDimensionamento()" style="width:100%;padding:5px;font-size:11px;font-family:var(--mono);border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);">
+                <option value="100">DN 100</option>
+                <option value="150">DN 150</option>
+                <option value="200" selected>DN 200</option>
+                <option value="250">DN 250</option>
+                <option value="300">DN 300</option>
+                <option value="400">DN 400</option>
+                <option value="500">DN 500</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;">Lâmina d'água (% DN)</label>
+              <input type="number" id="ses-lamina" value="65" min="20" max="85" step="5" oninput="renderDimensionamento()" style="width:100%;">
+            </div>
+            <div>
+              <label style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;">Taxa infiltração (L/s·km)</label>
+              <input type="number" id="ses-taxa-infiltracao" value="0.1" min="0.01" max="2" step="0.01" oninput="renderDimensionamento()" style="width:100%;">
+              <div style="font-size:9px;color:var(--text3);">Típico: 0,05–0,5 L/s·km</div>
+            </div>
+            <div>
+              <label style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;">Extensão rede (km)</label>
+              <input type="number" id="ses-ext-rede" value="5" min="0.1" max="500" step="0.5" oninput="renderDimensionamento()" style="width:100%;">
+            </div>
+          </div>
+        </div>
       </div>
     </details>
   </div>
@@ -349,16 +394,20 @@
         <input type="number" id="ad-comp" value="3500" step="10" oninput="calcAducao()">
       </div>
       <div>
-        <label>Material / Coef. Hazen-Williams C</label>
-        <select id="ad-chw" onchange="calcAducao()">
-          <option value="150">150 — PVC / PEAD (novo)</option>
-          <option value="140" selected>140 — PVC / PEAD (uso)</option>
-          <option value="130">130 — Ferro fundido dúctil (FFD)</option>
-          <option value="120">120 — Ferro fundido cinzento (FFC)</option>
-          <option value="110">110 — Concreto liso</option>
-          <option value="100">100 — Concreto rugoso / Amianto</option>
-          <option value="90">90 — Aço sem revestimento</option>
+        <label>Material da tubulação (biblioteca)</label>
+        <select id="ad-material" onchange="applyMaterialAducao(this.value)">
+          <option value="pvc_novo">150 — PVC / PEAD (novo)</option>
+          <option value="pvc_uso" selected>140 — PVC / PEAD (uso)</option>
+          <option value="pead">140 — PEAD (DN ≥ 200 mm)</option>
+          <option value="ffd">130 — Ferro Fundido Dúctil (FFD)</option>
+          <option value="ffc">120 — Ferro Fundido Cinzento (FFC)</option>
+          <option value="concreto_l">110 — Concreto liso</option>
+          <option value="concreto_r">100 — Concreto rugoso / Amianto</option>
+          <option value="aco">90 — Aço sem revestimento</option>
         </select>
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:3px;">Preenche automaticamente C (H-W), n (Manning) e E (módulo elasticidade)</div>
+        <!-- Campo C numérico mantido para uso interno (lido por calcAducao) -->
+        <input type="hidden" id="ad-chw" value="140">
       </div>
       <div>
         <label>Horas de bombeamento N (h/dia)</label>
@@ -406,6 +455,57 @@
     <details class="advanced-opts">
       <summary>⚙ Opções Avançadas</summary>
       <div class="advanced-opts-body">
+        <!-- C futuro — envelhecimento da tubulação -->
+        <div style="margin-bottom:10px;">
+          <label style="text-transform:none;letter-spacing:0;font-size:12px;color:var(--text2);">C futuro (envelhecimento em 20 anos) — Hazen-Williams</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
+            <div>
+              <span style="font-size:10px;color:var(--text3);font-family:var(--mono);">C atual (ano base)</span>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px;">Lido do material selecionado acima</div>
+            </div>
+            <div>
+              <span style="font-size:10px;color:var(--text3);font-family:var(--mono);">C futuro (20 anos)</span>
+              <input type="number" id="ad-chw-futuro" placeholder="Ex: 100 (0 = desabilitado)" min="50" max="160" step="5" oninput="calcAducao()" style="width:100%;margin-top:2px;">
+              <div style="font-size:10px;color:var(--text3);">PVC: 150→110 | FFD: 130→100 | FFC: 120→90</div>
+            </div>
+          </div>
+        </div>
+        <!-- Método hidráulico: H-W vs Darcy-Weisbach -->
+        <div style="margin-bottom:10px;">
+          <label style="text-transform:none;letter-spacing:0;font-size:12px;color:var(--text2);">Método de perda de carga</label>
+          <div style="display:flex;gap:16px;margin-top:4px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2);text-transform:none;letter-spacing:0;font-weight:normal;">
+              <input type="radio" name="metodo-hidra" id="metodo-hw" value="hw" checked onchange="calcAducao()"> Hazen-Williams (padrão CAGECE/NBR)
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text2);text-transform:none;letter-spacing:0;font-weight:normal;">
+              <input type="radio" name="metodo-hidra" id="metodo-dw" value="dw" onchange="calcAducao()"> Darcy-Weisbach + Swamee-Jain (universal)
+            </label>
+          </div>
+          <div id="dw-fields" style="display:none;margin-top:6px;display:none;">
+            <label style="font-size:10px;color:var(--text3);font-family:var(--mono);">Rugosidade absoluta ε (mm)</label>
+            <input type="number" id="ad-rugosidade" value="0.1" min="0.001" max="5" step="0.01" oninput="calcAducao()" style="width:120px;">
+            <span style="font-size:10px;color:var(--text3);margin-left:6px;">PVC≈0,007 · FFD≈0,1 · FFC≈0,26 · Concreto≈0,3–3,0</span>
+          </div>
+        </div>
+        <!-- NPSH -->
+        <div style="margin-bottom:10px;">
+          <label style="text-transform:none;letter-spacing:0;font-size:12px;color:var(--text2);">Verificação NPSH (anti-cavitação)</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px;">
+            <div>
+              <span style="font-size:10px;color:var(--text3);font-family:var(--mono);">Altura de sucção Hs (m)</span>
+              <input type="number" id="ad-npsh-hs" value="3" min="-10" max="10" step="0.1" oninput="calcAducao()" style="width:100%;margin-top:2px;">
+            </div>
+            <div>
+              <span style="font-size:10px;color:var(--text3);font-family:var(--mono);">NPSH requerido NPSHr (m)</span>
+              <input type="number" id="ad-npsh-req" value="4" min="0" max="20" step="0.1" oninput="calcAducao()" style="width:100%;margin-top:2px;">
+            </div>
+            <div>
+              <span style="font-size:10px;color:var(--text3);font-family:var(--mono);">Temperatura da água (°C)</span>
+              <input type="number" id="ad-npsh-temp" value="25" min="0" max="90" step="1" oninput="calcAducao()" style="width:100%;margin-top:2px;">
+            </div>
+          </div>
+          <div id="ad-npsh-result" style="margin-top:6px;font-family:var(--mono);font-size:11px;"></div>
+        </div>
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text2);">
           <input type="checkbox" id="ad-fator-servico" onchange="calcAducao()">
           Aplicar fator de serviço de catálogo ao motor (+50% até 2 cv · +20% até 5 cv · +15% até 20 cv · +10% acima)
@@ -473,6 +573,12 @@
       <div class="card-title">Memorial de cálculo hidráulico — para anexar ao projeto</div>
       <div id="ad-memorial"></div>
     </div>
+
+    <!-- LCC — Análise de Ciclo de Vida -->
+    <div class="card">
+      <div class="card-title">Análise de Ciclo de Vida (LCC) — Comparação de cenários de diâmetro · Tarifa ANEEL estática</div>
+      <div id="ad-lcc-display"><div class="alert alert-info" style="font-size:12px;">LCC calculado automaticamente após dimensionamento.</div></div>
+    </div>
   </div>
 
   <div id="ad-empty" class="alert alert-info">Execute a <strong>Projeção + Envelope</strong> para habilitar o módulo de infraestrutura hidráulica.</div>
@@ -498,6 +604,9 @@
           </button>
           <button class="btn btn-sm" id="tool-select" onclick="setTool('select',this)" title="Selecionar/editar">
             <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7 19 3-6 6 3L3 3z"/></svg> Editar
+          </button>
+          <button class="btn btn-sm" id="tool-measure" onclick="setTool('measure',this)" title="Medir distância entre dois pontos e consultar altimetria (Open-Elevation)">
+            <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><polyline points="10 4 4 4 4 10"/><polyline points="14 20 20 20 20 14"/></svg> Medir
           </button>
           <div style="width:1px;height:20px;background:var(--border2);margin:0 4px;"></div>
           <button class="btn btn-sm btn-danger" onclick="deleteSelected()" title="Apagar selecionado">

@@ -94,10 +94,18 @@ function _holtState(pops,anos,alpha,beta){
 
 function holtProject(L,T,anoBase,anoTarget){return Math.round(L+T*(anoTarget-anoBase));}
 
+// Retorna true quando a série tem crescimento negativo (decrescente em algum ponto)
+function hasNegativeGrowth(pops){
+  for(let i=1;i<pops.length;i++){if(pops[i]<pops[i-1])return true;}
+  return false;
+}
+
 // Geométrico por regressão log-linear (OLS em ln(P) vs t)
+// Guard: populações ≤ 0 tornam ln indefinido; são substituídas pelo valor anterior.
 function calcGeoLogLinear(anos,pops){
   const n=anos.length;
-  const lnP=pops.map(p=>Math.log(p));
+  const safePops=pops.map((p,i)=>p>0?p:(i>0?pops[i-1]:1));
+  const lnP=safePops.map(p=>Math.log(p));
   let sX=0,sY=0,sXX=0,sXY=0;
   for(let i=0;i<n;i++){sX+=anos[i];sY+=lnP[i];sXX+=anos[i]*anos[i];sXY+=anos[i]*lnP[i];}
   const den=n*sXX-sX*sX;
@@ -127,6 +135,18 @@ function calcularBestFit(){
   const n=d.length,anos=d.map(x=>x.ano),pops=d.map(x=>x.pop);
   const dt=anos[n-1]-anos[0],P0=pops[0],Pn=pops[n-1];
 
+  // ── Alerta de crescimento negativo ────────────────────────────────────────
+  if(hasNegativeGrowth(pops)){
+    // Encontra todos os intervalos decrescentes para informar o usuário
+    const decr=[];
+    for(let i=1;i<d.length;i++){
+      if(d[i].pop<d[i-1].pop)decr.push(`${d[i-1].ano}→${d[i].ano} (${d[i-1].pop.toLocaleString('pt-BR')}→${d[i].pop.toLocaleString('pt-BR')} hab)`);
+    }
+    const msgDecr=`⚠ Crescimento negativo detectado:\n${decr.join('\n')}\n\nO modelo Geométrico (log) e o Logístico podem produzir resultados distorcidos com populações decrescentes. O Aritmético e o Holt são mais robustos neste caso.\n\nDeseja continuar mesmo assim?`;
+    const ok=confirm(msgDecr);
+    if(!ok)return;
+  }
+
   // Aritmético — OLS
   let sX=0,sY=0,sXX=0,sXY=0;
   for(let i=0;i<n;i++){sX+=anos[i];sY+=pops[i];sXX+=anos[i]*anos[i];sXY+=anos[i]*pops[i];}
@@ -144,7 +164,11 @@ function calcularBestFit(){
   state.coefs.i_geo=i_geo;state.coefs.a_geo=a_geo;state.coefs.b_geo=b_geo;state.coefs.P0_geo=geoReg.P0_geo;
 
   // Logístico
-  const K=state.K||Pn*2.5;
+  // Guard: K deve ser maior que Pn para que o modelo seja válido
+  const K=state.K&&state.K>Pn?state.K:Pn*2.5;
+  if(state.K&&state.K<=Pn){
+    console.warn(`Saturação K=${state.K} ≤ Pn=${Pn}. Usando K=${Pn*2.5} (padrão 2,5×Pn).`);
+  }
   let k_log=0.02;
   try{const v=(Pn*(K-P0))/(P0*(K-Pn));if(v>0)k_log=(1/dt)*Math.log(v);if(!isFinite(k_log)||k_log<=0)k_log=0.02;}catch(_){}
   const predLog=anos.map(a=>Math.round(K/(1+((K-P0)/P0)*Math.exp(-k_log*(a-anos[0])))));

@@ -30,6 +30,9 @@ function initRede(){
 function setTool(tool, btn){
   redeState.tool = tool;
   redeState.pipeStart = null;
+  redeState._measurePt1 = null; // reset measure state
+  if(redeState._tempLine){ redeState._tempLine.remove(); redeState._tempLine = null; }
+  if(redeState._measureMarker){ redeState._measureMarker.remove(); redeState._measureMarker = null; }
   document.querySelectorAll('.rede-toolbar .btn').forEach(b=>b.classList.remove('active-tool'));
   if(btn) btn.classList.add('active-tool');
   const cursor = tool==='pan'?'':'crosshair';
@@ -38,7 +41,14 @@ function setTool(tool, btn){
     if(tool==='pan') redeState.map.dragging.enable();
     else redeState.map.dragging.disable();
   }
-  updateRedeStatus(tool==='pan'?'Pan ativo — arraste o mapa':tool==='node'?'Clique no mapa para adicionar um nó':tool==='pipe'?'Clique no nó de origem do trecho':tool==='select'?'Clique num nó ou trecho para editar':'');
+  const statusMsgs={
+    pan:'Pan ativo — arraste o mapa',
+    node:'Clique no mapa para adicionar um nó',
+    pipe:'Clique no nó de origem do trecho',
+    select:'Clique num nó ou trecho para editar',
+    measure:'🔺 Clique no ponto 1 (origem) — distância Haversine + altimetria Open-Elevation'
+  };
+  updateRedeStatus(statusMsgs[tool]||'');
 }
 
 function setNodeType(type, btn){
@@ -54,7 +64,7 @@ function onMapClick(e){
   else if(tool === 'select'){
     const nearest = findNearestNode(e.latlng, 30);
     if(!nearest) showRedeToast('Clique diretamente sobre um nó ou trecho para selecionar.');
-  }
+  } else if(tool === 'measure') handleMeasureClick(e.latlng);
 }
 
 function onMapMove(e){
@@ -913,4 +923,65 @@ function showRedeToast(msg){
   toast.classList.add('rede-toast-visible');
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(()=>toast.classList.remove('rede-toast-visible'), 2500);
+}
+
+// ── FERRAMENTA DE MEDIÇÃO DE DISTÂNCIA + ALTIMETRIA ─────────────────────────
+
+// Haversine — distância em metros entre dois pontos lat/lng
+function haversineDistance(lat1, lng1, lat2, lng2){
+  const R=6371000; // raio médio da Terra (m)
+  const phi1=lat1*Math.PI/180, phi2=lat2*Math.PI/180;
+  const dphi=(lat2-lat1)*Math.PI/180, dlam=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dphi/2)**2+Math.cos(phi1)*Math.cos(phi2)*Math.sin(dlam/2)**2;
+  return 2*R*Math.asin(Math.sqrt(a));
+}
+
+function handleMeasureClick(latlng){
+  if(!redeState._measurePt1){
+    // Primeiro clique — marca ponto 1
+    redeState._measurePt1 = latlng;
+    if(redeState._measureMarker) redeState._measureMarker.remove();
+    redeState._measureMarker = L.circleMarker([latlng.lat,latlng.lng],{radius:6,color:'#f59e0b',fillColor:'#f59e0b',fillOpacity:0.8}).addTo(redeState.map);
+    updateRedeStatus('📍 Ponto 1 marcado. Clique no ponto 2 (destino).');
+  } else {
+    // Segundo clique — calcula distância e busca altimetria
+    const p1=redeState._measurePt1, p2=latlng;
+    const dist_m=haversineDistance(p1.lat,p1.lng,p2.lat,p2.lng);
+    // Desenha linha de medição
+    if(redeState._tempLine) redeState._tempLine.remove();
+    redeState._tempLine = L.polyline([[p1.lat,p1.lng],[p2.lat,p2.lng]],
+      {color:'#f59e0b',weight:3,dashArray:'8,4',opacity:0.9}).addTo(redeState.map);
+    // Preenche campo de comprimento na aba de adução
+    const adComp=document.getElementById('ad-comp');
+    if(adComp){adComp.value=Math.round(dist_m);if(typeof calcAducao==='function')calcAducao();}
+    updateRedeStatus(`📏 Distância: ${(dist_m/1000).toFixed(3)} km (${Math.round(dist_m)} m) → preenchido em Comprimento da adutora. Buscando altimetria...`);
+    redeState._measurePt1 = null;
+    if(redeState._measureMarker){ redeState._measureMarker.remove(); redeState._measureMarker=null; }
+    // Consulta Open-Elevation (SRTM-90, NASA)
+    _fetchOpenElevation(p1.lat,p1.lng,p2.lat,p2.lng);
+  }
+}
+
+async function _fetchOpenElevation(lat1,lng1,lat2,lng2){
+  try{
+    const url=`https://api.open-elevation.com/api/v1/lookup?locations=${lat1},${lng1}|${lat2},${lng2}`;
+    const resp=await fetch(url,{signal:AbortSignal.timeout(8000)});
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    const data=await resp.json();
+    const elev=data.results;
+    if(!elev||elev.length<2){updateRedeStatus('⚠️ Altimetria indisponível (sem dados SRTM para esta região).'); return;}
+    const z1=elev[0].elevation, z2=elev[1].elevation;
+    const dz=z2-z1;
+    // Preenche cotas na aba de adução
+    const cap=document.getElementById('ad-cota-cap'),res=document.getElementById('ad-cota-res');
+    if(cap)cap.value=z1.toFixed(1);
+    if(res)res.value=z2.toFixed(1);
+    if(typeof calcAducao==='function')calcAducao();
+    updateRedeStatus(`⛰️ Altimetria SRTM: Z₁=${z1.toFixed(1)} m, Z₂=${z2.toFixed(1)} m, ΔZ=${dz.toFixed(1)} m → cotas preenchidas.`);
+    showRedeToast(`Cotas atualizadas: Z₁=${z1.toFixed(0)} m, Z₂=${z2.toFixed(0)} m`);
+    addAudit(`Medição de distância: ${haversineDistance(lat1,lng1,lat2,lng2).toFixed(0)} m · Cotas SRTM: ${z1.toFixed(1)}→${z2.toFixed(1)} m`);
+  }catch(err){
+    // Graceful degradation — a API pode estar indisponível
+    updateRedeStatus(`📏 Distância OK. Altimetria não disponível (${err.message}). Preencha as cotas manualmente.`);
+  }
 }

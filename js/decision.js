@@ -161,13 +161,15 @@ function renderDecisao(){
 
   const scores=state.scores||{};
   document.getElementById('dp-score-modelos').innerHTML=`
-    <div style="margin-bottom:10px;font-size:11px;font-family:var(--mono);color:var(--text3);">Score composto = R²×60% + (1−LOO_RMSE/μ)×40%. Modelo recomendado destacado.</div>
+    <div style="margin-bottom:10px;font-size:11px;font-family:var(--mono);color:var(--text3);">Score composto = R²×60% + (1−LOO_RMSE/μ)×40%. Modelo recomendado destacado. Clique em "Usar" para substituir manualmente.</div>
     ${['aritmetico','geometrico','logistico','holt'].map(m=>{
       const score=scores[m]||0;
       const r2=(state.r2[m]*100);
+      const rmse_m=state.rmse&&state.rmse[m]?state.rmse[m]:null;
       const loo=state.loo[m];
       const looScore=loo!==null?Math.max(0,(1-loo)*100):null;
       const isBest=m===state.bestModel;
+      const isOverride=state.bestModelOverride===m;
       return `<div class="score-row" style="${isBest?'background:var(--bg2);border-radius:var(--radius);padding-left:8px;':''}">
         <span class="score-name" style="${isBest?'font-weight:700;color:var(--accent);':''}">
           ${isBest?'★ ':''}${modelLabel[m]}
@@ -175,9 +177,17 @@ function renderDecisao(){
         <div class="score-bars">
           <div class="score-bar-wrap"><span class="score-bar-label">R²</span><div class="score-bar-track"><div class="score-bar-fill" style="width:${r2.toFixed(0)}%;background:${modelColors[m]};"></div></div><span style="font-size:10px;font-family:var(--mono);color:var(--text2);min-width:38px;">${r2.toFixed(1)}%</span></div>
           ${looScore!==null?`<div class="score-bar-wrap"><span class="score-bar-label">LOO</span><div class="score-bar-track"><div class="score-bar-fill" style="width:${looScore.toFixed(0)}%;background:${modelColors[m]};opacity:.5;"></div></div><span style="font-size:10px;font-family:var(--mono);color:var(--text2);min-width:38px;">${looScore.toFixed(1)}%</span></div>`:''}
+          ${rmse_m!==null?`<div class="score-bar-wrap"><span class="score-bar-label" style="width:34px;">RMSE</span><span style="font-size:10px;font-family:var(--mono);color:var(--text2);">${rmse_m.toFixed(0)} hab</span></div>`:''}
         </div>
         <span class="score-chip ${score>=0.90?'a':score>=0.75?'b':'c'}">${(score*100).toFixed(0)}pts</span>
-        ${isBest?'<span class="rec-badge">Selecionado</span>':''}
+        ${isBest?'<span class="rec-badge">Selecionado</span>':'<button class="btn btn-sm" style="font-size:10px;padding:2px 8px;" onclick="overrideModel(\''+m+'\')">Usar</button>'}
       </div>`;
     }).join('')}`;
+}
+
+function overrideModel(m){
+  state.bestModel=m;
+  state.bestModelOverride=m;
+  addAudit(`Modelo overridden manualmente: ${modelLabel[m]}`);
+  renderDecisao();
 }
