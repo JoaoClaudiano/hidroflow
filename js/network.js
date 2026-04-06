@@ -10,7 +10,13 @@ const redeState = {
 };
 
 function initRede(){
-  if(redeState.map){redeState.map.invalidateSize();return;}
+  if(redeState.map){
+    redeState.map.invalidateSize();
+    if(state.municipioLat&&state.municipioLon){
+      redeState.map.setView([state.municipioLat,state.municipioLon],14);
+    }
+    return;
+  }
   const center = state.municipioLat&&state.municipioLon
     ? [state.municipioLat, state.municipioLon] : [-3.7172, -38.5433]; // Fortaleza default
   redeState.map = L.map('rede-map', {zoomControl:true}).setView(center, 14);

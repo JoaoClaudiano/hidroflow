@@ -24,10 +24,16 @@ function calcSaturacao(){
   const pct=pctRaw/100;
   const aUrban=area*pct,hect=aUrban*100,bruta=hect*dens,K=Math.round(bruta*coef);
   state.K=K;
+  if(state.coefs)state.coefs.K=K;
   document.getElementById('sat-area').textContent=aUrban.toFixed(1);
   document.getElementById('sat-bruta').textContent=bruta.toLocaleString('pt-BR');
   document.getElementById('sat-k').textContent=K.toLocaleString('pt-BR');
-  document.getElementById('sat-alert').textContent=`K = ${K.toLocaleString('pt-BR')} hab. Retorne a "Dados & Best Fit" e recalcule para aplicar.`;
-  document.getElementById('sat-result').style.display='block';
   addAudit(`Saturação K = ${K.toLocaleString('pt-BR')} hab`);
+  if(state.censosRaw){
+    calcBestFit();
+    document.getElementById('sat-alert').textContent=`K = ${K.toLocaleString('pt-BR')} hab aplicado — Best Fit recalculado automaticamente.`;
+  } else {
+    document.getElementById('sat-alert').textContent=`K = ${K.toLocaleString('pt-BR')} hab. Retorne a "Dados & Best Fit" e calcule para aplicar.`;
+  }
+  document.getElementById('sat-result').style.display='block';
 }
