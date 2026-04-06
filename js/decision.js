@@ -188,6 +188,6 @@ function renderDecisao(){
 function overrideModel(m){
   state.bestModel=m;
   state.bestModelOverride=m;
-  addAudit(`Modelo overridden manualmente: ${modelLabel[m]}`);
+  addAudit(`Modelo substituído manualmente: ${modelLabel[m]}`);
   renderDecisao();
 }

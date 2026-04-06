@@ -8,7 +8,7 @@
 // Retorna { v_m_s, v_min_ok, D_m, area_m2, Rh_m }
 function calcManning(n_mann, D_m, S, laminaFrac){
   // laminaFrac = fração de lâmina d'água (0,5–0,75 típico para SES)
-  const frac=Math.min(Math.max(laminaFrac||0.65,0.1),0.9);
+  const frac=Math.min(Math.max(laminaFrac??0.65,0.1),0.9);
   const theta=2*Math.acos(1-2*frac); // ângulo central em radianos
   const area=((theta-Math.sin(theta))/8)*D_m**2;
   const perimeter=(theta/2)*D_m;

@@ -90,7 +90,7 @@ function calcAducao(){
   }
 
   const p=getParams();
-  const adAnoIdx=state.adAnoIdx||0;
+  const adAnoIdx=state.adAnoIdx??0;
   const ano=state.infraAnos[adAnoIdx]||state.infraAnos[0];
   const pop=getPopForAno(ano);
   const Qmed=pop*p.agua/86400;
@@ -214,7 +214,7 @@ function calcAducao(){
   const npshHs=+document.getElementById('ad-npsh-hs')?.value||3;
   const npshReq=+document.getElementById('ad-npsh-req')?.value||4;
   const npshTemp=+document.getElementById('ad-npsh-temp')?.value||25;
-  const hf_suc=Hf*0.05; // estimativa: 5% Hf como perda na linha de sucção
+    const hf_suc=Hf*0.05; // estimativa: 5% Hf como perda na linha de sucção
   const NPSH_d=calcNPSH(npshHs,hf_suc,npshTemp);
   const npshMargem=0.5; // margem de segurança mínima
   const npshOk=NPSH_d>=(npshReq+npshMargem);
@@ -232,7 +232,7 @@ function calcAducao(){
   const matKeyC=state._materialKey;
   const matC=matKeyC&&typeof MATERIAIS_HIDRO!=='undefined'?MATERIAIS_HIDRO[matKeyC]:null;
   if(matC){
-    const rho_mat=matKeyC.startsWith('pvc')||matKeyC==='pead'?1400:(matKeyC.startsWith('ff')?7200:(matKeyC==='aco'?7850:2400));
+    const rho_mat=matC.rho_kg_m3||1400;
     const peso_tubo=Math.PI*D_real*(e_mm/1000)*rho_mat*L; // kg
     co2_pipe=peso_tubo*matC.co2_kg_per_kg/1000; // ton CO₂e
     const Pot_kw_real=(1000*(Qb/1000)*Hman)/(75*eta)*0.7355;

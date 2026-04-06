@@ -75,11 +75,12 @@ describe('calcManning', () => {
     expect(r.area_m2).toBeGreaterThan(0);
   });
 
-  test('Rh_m is positive and < D/4 for partial flow', () => {
+  test('Rh_m is positive for partial flow conditions', () => {
     const r = infra.calcManning(0.013, 0.2, 0.005, 0.65);
-    // Rh for full circle = D/4; partial flow can be near this
+    // Rh is positive and less than the full-pipe maximum (D/4 ≈ 0.05 m)
+    // Note: at laminaFrac > 0.81 Rh can exceed D/4; at 65% fill it's slightly above D/4
     expect(r.Rh_m).toBeGreaterThan(0);
-    expect(r.Rh_m).toBeLessThan(0.2); // Must be less than diameter
+    expect(r.Rh_m).toBeLessThan(0.2); // Must be less than pipe diameter
   });
 
   test('higher slope gives higher velocity', () => {

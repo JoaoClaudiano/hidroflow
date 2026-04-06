@@ -36,21 +36,21 @@ function ic(svg,cls=''){return svg.replace('class="infra-icon"',`class="infra-ic
 //   co2_kg_per_kg = Pegada de carbono (kg CO₂e / kg de material)
 // var (não const) para ser acessível em testes via vm.runInContext
 var MATERIAIS_HIDRO = {
-  pvc_novo:   { label:'PVC / PEAD (novo)',            chw:150, n_mann:0.009, E_mpa:2800,   co2_kg_per_kg:2.7  },
-  pvc_uso:    { label:'PVC / PEAD (uso)',             chw:140, n_mann:0.010, E_mpa:2800,   co2_kg_per_kg:2.7  },
-  pead:       { label:'PEAD (DN ≥ 200 mm)',           chw:140, n_mann:0.009, E_mpa:1000,   co2_kg_per_kg:2.5  },
-  ffd:        { label:'Ferro Fundido Dúctil (FFD)',   chw:130, n_mann:0.012, E_mpa:170000, co2_kg_per_kg:2.1  },
-  ffc:        { label:'Ferro Fundido Cinzento (FFC)', chw:120, n_mann:0.013, E_mpa:110000, co2_kg_per_kg:2.1  },
-  concreto_l: { label:'Concreto liso',                chw:110, n_mann:0.012, E_mpa:30000,  co2_kg_per_kg:0.35 },
-  concreto_r: { label:'Concreto rugoso / Amianto',   chw:100, n_mann:0.014, E_mpa:30000,  co2_kg_per_kg:0.35 },
-  aco:        { label:'Aço sem revestimento',         chw:90,  n_mann:0.011, E_mpa:210000, co2_kg_per_kg:1.85 },
+  pvc_novo:   { label:'PVC / PEAD (novo)',            chw:150, n_mann:0.009, E_mpa:2800,   co2_kg_per_kg:2.7,  rho_kg_m3:1400 },
+  pvc_uso:    { label:'PVC / PEAD (uso)',             chw:140, n_mann:0.010, E_mpa:2800,   co2_kg_per_kg:2.7,  rho_kg_m3:1400 },
+  pead:       { label:'PEAD (DN ≥ 200 mm)',           chw:140, n_mann:0.009, E_mpa:1000,   co2_kg_per_kg:2.5,  rho_kg_m3:950  },
+  ffd:        { label:'Ferro Fundido Dúctil (FFD)',   chw:130, n_mann:0.012, E_mpa:170000, co2_kg_per_kg:2.1,  rho_kg_m3:7200 },
+  ffc:        { label:'Ferro Fundido Cinzento (FFC)', chw:120, n_mann:0.013, E_mpa:110000, co2_kg_per_kg:2.1,  rho_kg_m3:7200 },
+  concreto_l: { label:'Concreto liso',                chw:110, n_mann:0.012, E_mpa:30000,  co2_kg_per_kg:0.35, rho_kg_m3:2400 },
+  concreto_r: { label:'Concreto rugoso / Amianto',   chw:100, n_mann:0.014, E_mpa:30000,  co2_kg_per_kg:0.35, rho_kg_m3:2400 },
+  aco:        { label:'Aço sem revestimento',         chw:90,  n_mann:0.011, E_mpa:210000, co2_kg_per_kg:1.85, rho_kg_m3:7850 },
 };
 
 /** Preenche automaticamente os campos de material no módulo de adução */
 function applyMaterialAducao(key){
   const mat=MATERIAIS_HIDRO[key];
   if(!mat)return;
-  // Actualiza o campo oculto que calcAducao() lê
+  // Atualiza o campo oculto que calcAducao() lê
   const chwEl=document.getElementById('ad-chw');
   if(chwEl){chwEl.value=mat.chw;}
   const eTubo=document.getElementById('ad-e-tubo');

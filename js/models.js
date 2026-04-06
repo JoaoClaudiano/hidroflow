@@ -101,10 +101,14 @@ function hasNegativeGrowth(pops){
 }
 
 // Geométrico por regressão log-linear (OLS em ln(P) vs t)
-// Guard: populações ≤ 0 tornam ln indefinido; são substituídas pelo valor anterior.
+// Guard: populações ≤ 0 tornam ln indefinido; são substituídas pelo valor válido anterior.
 function calcGeoLogLinear(anos,pops){
   const n=anos.length;
-  const safePops=pops.map((p,i)=>p>0?p:(i>0?pops[i-1]:1));
+  const safePops=[];
+  for(let i=0;i<pops.length;i++){
+    if(pops[i]>0){safePops.push(pops[i]);}
+    else{safePops.push(safePops.length>0&&safePops[safePops.length-1]>0?safePops[safePops.length-1]:1);}
+  }
   const lnP=safePops.map(p=>Math.log(p));
   let sX=0,sY=0,sXX=0,sXY=0;
   for(let i=0;i<n;i++){sX+=anos[i];sY+=lnP[i];sXX+=anos[i]*anos[i];sXY+=anos[i]*lnP[i];}
