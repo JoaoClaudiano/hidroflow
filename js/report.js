@@ -13,19 +13,22 @@ function gerarRelatorio(){
   document.getElementById('print-meta').textContent=`${state.config.empresa||''} · Resp.: ${state.config.responsavel||'—'} · ${state.config.revisao} · ${dataGer} ${hora}`;
   document.getElementById('print-footer').textContent=`ProjeçãoPop v5.0 · ${state.config.responsavel||'—'} · ${state.config.empresa||'—'} · ${state.config.revisao} · ${dataGer}`;
 
+  const sNome=safeHtml(state.municipioNome),sUF=safeHtml(state.municipioUF),sCod=safeHtml(state.municipioCod||'—');
+  const sResp=safeHtml(state.config.responsavel||'—'),sEmp=safeHtml(state.config.empresa||''),sRev=safeHtml(state.config.revisao);
+  const sObs=safeHtml(state.config.obs||'');
   document.getElementById('relatorio-content').innerHTML=`
     <div class="report-section">
       <div class="report-title">1. Identificação</div>
       <table class="tbl"><tbody>
-        <tr><td style="color:var(--text3);width:180px;">Município</td><td><strong>${state.municipioNome}</strong>${state.municipioUF?' — '+state.municipioUF:''}</td></tr>
-        <tr><td style="color:var(--text3);">Código IBGE</td><td>${state.municipioCod||'—'}</td></tr>
-        <tr><td style="color:var(--text3);">Responsável técnico</td><td>${state.config.responsavel||'—'}</td></tr>
-        <tr><td style="color:var(--text3);">Empresa/órgão</td><td>${state.config.empresa||'—'}</td></tr>
-        <tr><td style="color:var(--text3);">Revisão</td><td>${state.config.revisao}</td></tr>
-        <tr><td style="color:var(--text3);">Data de geração</td><td>${dataGer} ${hora}</td></tr>
-        <tr><td style="color:var(--text3);">Horizonte de projeto</td><td>${horizonte}</td></tr>
-        ${popH?`<tr><td style="color:var(--text3);">Pop. projetada (${horizonte})</td><td><strong>${popH.toLocaleString('pt-BR')} hab</strong></td></tr>`:''}
-        ${state.config.obs?`<tr><td style="color:var(--text3);">Observações</td><td>${state.config.obs}</td></tr>`:''}
+        <tr><td style="color:var(--text3);width:180px;">Município</td><td><strong>${sNome}</strong>${sUF?' — '+sUF:''}</td></tr>
+        <tr><td style="color:var(--text3);">Código IBGE</td><td>${sCod}</td></tr>
+        <tr><td style="color:var(--text3);">Responsável técnico</td><td>${sResp}</td></tr>
+        <tr><td style="color:var(--text3);">Empresa/órgão</td><td>${sEmp||'—'}</td></tr>
+        <tr><td style="color:var(--text3);">Revisão</td><td>${sRev}</td></tr>
+        <tr><td style="color:var(--text3);">Data de geração</td><td>${safeHtml(dataGer)} ${safeHtml(hora)}</td></tr>
+        <tr><td style="color:var(--text3);">Horizonte de projeto</td><td>${safeHtml(horizonte)}</td></tr>
+        ${popH?`<tr><td style="color:var(--text3);">Pop. projetada (${safeHtml(horizonte)})</td><td><strong>${popH.toLocaleString('pt-BR')} hab</strong></td></tr>`:''}
+        ${sObs?`<tr><td style="color:var(--text3);">Observações</td><td>${sObs}</td></tr>`:''}
         ${p.custom?`<tr><td style="color:var(--text3);">Parâmetros</td><td>Customizados (fora intervalo padrão)</td></tr>`:''}
       </tbody></table>
     </div>
@@ -86,9 +89,9 @@ function imprimirRelatorio(){gerarRelatorio();setTimeout(()=>window.print(),200)
 function copiarRelatorio(){navigator.clipboard.writeText(document.getElementById('relatorio-content').innerText).then(()=>alert('Texto copiado!'));}
 function exportarCSV(){
   if(!state.projData.length){alert('Calcule e projete a população primeiro.');return;}
-  const cenosAnos=state.censosRaw?state.censosRaw.map(x=>x.ano):[];
+  const censosAnos=state.censosRaw?state.censosRaw.map(x=>x.ano):[];
   const linhas=['Ano,Populacao_hab,Tipo,Municipio'];
-  state.projData.forEach(r=>linhas.push(`${r.ano},${r.pop},${cenosAnos.includes(r.ano)?'historico':'projetado'},${state.municipioNome}`));
+  state.projData.forEach(r=>linhas.push(`${r.ano},${r.pop},${censosAnos.includes(r.ano)?'historico':'projetado'},${state.municipioNome}`));
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([linhas.join('\n')],{type:'text/csv;charset=utf-8;'}));
   a.download=`projecao_${(state.municipioNome||'municipio').replace(/\s+/g,'_')}_${new Date().getFullYear()}.csv`;

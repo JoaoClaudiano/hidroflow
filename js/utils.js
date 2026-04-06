@@ -8,7 +8,10 @@ function addAudit(action){
 }
 
 function removeAcentos(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
-function escHtml(s){return s.replace(/'/g,"\\'");}
+// escHtml escapes characters used in inline HTML event attribute strings (onclick="...('value')")
+function escHtml(s){return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+// safeHtml escapes HTML meta-characters for safe insertion into innerHTML
+function safeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function setStatus(el,msg,cls){el.textContent=msg;el.className='sidra-status'+(cls?' '+cls:'');}
 
 // ── SVG ICONS ────────────────────────────────────────────────────────────────

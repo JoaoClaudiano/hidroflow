@@ -13,10 +13,11 @@ function renderProjetosSalvos(){
   if(!keys.length){container.innerHTML='<div class="alert alert-info">Nenhum projeto salvo ainda.</div>';return;}
   container.innerHTML='<div class="proj-list">'+keys.map(k=>{
     let p;try{p=JSON.parse(localStorage.getItem(k));}catch(e){return '';}
-    return `<div class="proj-item"><div><div class="proj-item-name">${p.nome||p.municipioNome}</div><div class="proj-item-meta">${new Date(p.ts).toLocaleString('pt-BR')} · ${p.censosData?.length||0} censos · ${modelLabel[p.bestModel]||p.bestModel}</div></div><button class="btn btn-sm btn-primary" onclick="carregarProjeto('${k}')">Carregar</button><button class="btn btn-sm btn-danger" onclick="excluirProjeto('${k}')">✕</button></div>`;
+    return `<div class="proj-item"><div><div class="proj-item-name">${safeHtml(p.nome||p.municipioNome)}</div><div class="proj-item-meta">${safeHtml(new Date(p.ts).toLocaleString('pt-BR'))} · ${p.censosData?.length||0} censos · ${safeHtml(modelLabel[p.bestModel]||p.bestModel)}</div></div><button class="btn btn-sm btn-primary" onclick="carregarProjeto('${escHtml(k)}')">Carregar</button><button class="btn btn-sm btn-danger" onclick="excluirProjeto('${escHtml(k)}')">✕</button></div>`;
   }).join('')+'</div>';
   const auditEl=document.getElementById('audit-log');
-  auditEl.innerHTML=state.auditLog.length?state.auditLog.slice().reverse().map(l=>`<div class="audit-row"><span class="audit-time">${l.time}</span><span class="audit-action">${l.action}</span><span class="audit-user">${state.config.responsavel?.split(' ')[0]||'—'}</span></div>`).join(''):'<div style="font-size:12px;color:var(--text3);font-family:var(--mono);">Nenhuma ação registrada.</div>';
+  const userShort=safeHtml(state.config.responsavel?.split(' ')[0]||'—');
+  auditEl.innerHTML=state.auditLog.length?state.auditLog.slice().reverse().map(l=>`<div class="audit-row"><span class="audit-time">${safeHtml(l.time)}</span><span class="audit-action">${safeHtml(l.action)}</span><span class="audit-user">${userShort}</span></div>`).join(''):'<div style="font-size:12px;color:var(--text3);font-family:var(--mono);">Nenhuma ação registrada.</div>';
 }
 
 function carregarProjeto(key){
