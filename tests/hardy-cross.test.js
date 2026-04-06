@@ -138,6 +138,31 @@ describe('findLoops', () => {
       expect(Math.abs(entry.dir)).toBe(1);
     });
   });
+
+  test('spanning-tree approach: grid (4 nodes, 5 pipes, 2 loops = E-V+1)', () => {
+    // Square with a diagonal: 4 nodes, 5 pipes → 5-4+1 = 2 loops
+    const nodes = [{ id: 'A' }, { id: 'B' }, { id: 'C' }, { id: 'D' }];
+    const pipes = [
+      { id: 'p1', from: 'A', to: 'B', dn: 100, length: 100, c: 140 },
+      { id: 'p2', from: 'B', to: 'C', dn: 100, length: 100, c: 140 },
+      { id: 'p3', from: 'C', to: 'D', dn: 100, length: 100, c: 140 },
+      { id: 'p4', from: 'D', to: 'A', dn: 100, length: 100, c: 140 },
+      { id: 'p5', from: 'A', to: 'C', dn: 100, length: 100, c: 140 }, // diagonal
+    ];
+    expect(findLoops(nodes, pipes)).toHaveLength(2);
+  });
+
+  test('no duplicate loops in a simple mesh', () => {
+    // A ring of 4 nodes (1 loop) — DFS could find duplicates, spanning-tree won't
+    const nodes = [{ id: 'A' }, { id: 'B' }, { id: 'C' }, { id: 'D' }];
+    const pipes = [
+      { id: 'p1', from: 'A', to: 'B', dn: 100, length: 100, c: 140 },
+      { id: 'p2', from: 'B', to: 'C', dn: 100, length: 100, c: 140 },
+      { id: 'p3', from: 'C', to: 'D', dn: 100, length: 100, c: 140 },
+      { id: 'p4', from: 'D', to: 'A', dn: 100, length: 100, c: 140 },
+    ];
+    expect(findLoops(nodes, pipes)).toHaveLength(1);
+  });
 });
 
 // ── initFlows ─────────────────────────────────────────────────────────────────
@@ -150,6 +175,46 @@ describe('initFlows', () => {
     const pipes = [
       { id: 'p1', from: 'R', to: 'A', dn: 100, length: 200, c: 140, flow: 0 },
       { id: 'p2', from: 'A', to: 'B', dn: 100, length: 150, c: 140, flow: 0 },
+    ];
+
+    initFlows(nodes, pipes, source);
+
+    pipes.forEach(p => {
+      expect(Math.abs(p.flow)).toBeGreaterThan(0);
+    });
+  });
+
+  test('tree-edge flow equals downstream demand sum', () => {
+    // R → A → B, demands: A=1, B=2
+    // p1 (R→A) should carry demand of A + demand of B = 3
+    // p2 (A→B) should carry demand of B = 2
+    const source = { id: 'R', type: 'reservoir', demand: 0, elevation: 20 };
+    const nodeA  = { id: 'A', type: 'junction',  demand: 1.0, elevation: 0 };
+    const nodeB  = { id: 'B', type: 'junction',  demand: 2.0, elevation: 0 };
+    const nodes = [source, nodeA, nodeB];
+    const pipes = [
+      { id: 'p1', from: 'R', to: 'A', dn: 100, length: 200, c: 140, flow: 0 },
+      { id: 'p2', from: 'A', to: 'B', dn: 100, length: 150, c: 140, flow: 0 },
+    ];
+
+    initFlows(nodes, pipes, source);
+
+    // p2 carries downstream demand of B = 2.0 (direction R→A→B so positive)
+    expect(pipes[1].flow).toBeCloseTo(2.0, 4);
+    // p1 carries demand of A + demand of B = 3.0
+    expect(pipes[0].flow).toBeCloseTo(3.0, 4);
+  });
+
+  test('looped network: all pipe flows non-zero after initFlows', () => {
+    // Triangle (looped): R→A, A→B, B→R (co-tree edge gets 0.001)
+    const source = { id: 'R', type: 'reservoir', demand: 0, elevation: 20 };
+    const nodeA  = { id: 'A', type: 'junction',  demand: 1.0, elevation: 0 };
+    const nodeB  = { id: 'B', type: 'junction',  demand: 1.0, elevation: 0 };
+    const nodes = [source, nodeA, nodeB];
+    const pipes = [
+      { id: 'p1', from: 'R', to: 'A', dn: 100, length: 200, c: 140, flow: 0 },
+      { id: 'p2', from: 'A', to: 'B', dn: 100, length: 150, c: 140, flow: 0 },
+      { id: 'p3', from: 'B', to: 'R', dn: 100, length: 150, c: 140, flow: 0 }, // co-tree edge
     ];
 
     initFlows(nodes, pipes, source);

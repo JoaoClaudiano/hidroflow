@@ -1,12 +1,69 @@
 /* PRINT STYLES */
 @media print {
-  .topbar-right,.tabs,.btn,.no-print,.rede-toolbar{display:none!important;}
+  /* Hide all UI chrome */
+  .topbar-right,.tabs,.btn,.no-print,.rede-toolbar,
+  #modal-config,#mun-results,.topbar-left p{display:none!important;}
+
+  /* Page setup */
+  @page{margin:18mm 15mm 20mm 15mm;}
+
+  /* Reset layout to single column */
   .app{padding:0;}
   .section{display:block!important;}
-  .card{break-inside:avoid;box-shadow:none;border-color:#ccc;}
-  .print-header{display:block;text-align:center;border-bottom:2px solid #000;padding-bottom:1rem;margin-bottom:1rem;}
-  .print-footer{display:block;text-align:center;font-size:10px;color:#666;border-top:1px solid #ccc;padding-top:8px;margin-top:1rem;}
-  canvas{max-width:100%!important;}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr 1fr;}
+
+  /* Section page-breaks */
+  .report-section{
+    page-break-inside:avoid;
+    break-inside:avoid;
+    margin-bottom:14pt;
+  }
+  .report-section+.report-section{
+    page-break-before:auto;
+  }
+
+  /* Cards */
+  .card{
+    break-inside:avoid;
+    box-shadow:none!important;
+    border:1px solid #ccc!important;
+    border-radius:0!important;
+    margin-bottom:12pt;
+    padding:10pt!important;
+  }
+
+  /* Tables */
+  .tbl,.rede-results-table{
+    width:100%!important;
+    table-layout:fixed;
+    border-collapse:collapse;
+    font-size:9pt;
+    page-break-inside:auto;
+  }
+  .tbl th,.tbl td,
+  .rede-results-table th,.rede-results-table td{
+    border:1px solid #ccc!important;
+    padding:4pt 6pt;
+    word-wrap:break-word;
+  }
+  tr{page-break-inside:avoid;break-inside:avoid;}
+  thead{display:table-header-group;}
+
+  /* Report header/footer */
+  .print-header{
+    display:block;text-align:center;
+    border-bottom:2px solid #000;
+    padding-bottom:8pt;margin-bottom:10pt;
+  }
+  .print-footer{
+    display:block;text-align:center;
+    font-size:8pt;color:#666;
+    border-top:1px solid #ccc;
+    padding-top:6pt;margin-top:10pt;
+    position:running(footer);
+  }
+  canvas{max-width:100%!important;page-break-inside:avoid;}
+  .chart-wrap{page-break-inside:avoid;}
 }
 
 /* MOBILE */

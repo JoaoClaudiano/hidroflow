@@ -51,6 +51,10 @@ function onMapClick(e){
   const tool = redeState.tool;
   if(tool === 'node') addNode(e.latlng);
   else if(tool === 'pipe') handlePipeClick(e.latlng);
+  else if(tool === 'select'){
+    const nearest = findNearestNode(e.latlng, 30);
+    if(!nearest) showRedeToast('Clique diretamente sobre um nó ou trecho para selecionar.');
+  }
 }
 
 function onMapMove(e){
@@ -66,11 +70,13 @@ function onMapMove(e){
 let _redeIdCounter = 1;
 function uid(prefix){ return prefix + '_' + (_redeIdCounter++); }
 
-function nodeIcon(type, color){
+function nodeIcon(type, color, selected){
   const colors = {reservoir:'#1a4fd6', tank:'#0e7490', junction:color||'#5a5a54'};
   const c = colors[type]||'#5a5a54';
+  const border = selected ? '3px solid #f59e0b' : '2px solid #fff';
+  const shadow = selected ? '0 0 0 2px #f59e0b, 0 2px 6px rgba(0,0,0,.5)' : '0 1px 4px rgba(0,0,0,.4)';
   return L.divIcon({
-    html:`<div style="width:18px;height:18px;background:${c};border:2px solid #fff;border-radius:${type==='junction'?'50%':'3px'};box-shadow:0 1px 4px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700;">${type==='reservoir'?'R':type==='tank'?'T':''}</div>`,
+    html:`<div style="width:18px;height:18px;background:${c};border:${border};border-radius:${type==='junction'?'50%':'3px'};box-shadow:${shadow};display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700;">${type==='reservoir'?'R':type==='tank'?'T':''}</div>`,
     iconSize:[18,18], iconAnchor:[9,9], className:''
   });
 }
@@ -94,8 +100,9 @@ function renderNode(node){
   const color = node.calculated
     ? (node.pressure < 10 || node.pressure > 50 ? '#ef4444' : node.pressure > 40 ? '#f59e0b' : '#22c55e')
     : (node.type==='reservoir'?'#1a4fd6':node.type==='tank'?'#0e7490':'#5a5a54');
+  const selected = redeState.selectedId?.type==='node' && redeState.selectedId?.id===node.id;
   const marker = L.marker([node.lat, node.lng], {
-    icon: nodeIcon(node.type, color), draggable: redeState.tool==='select'
+    icon: nodeIcon(node.type, color, selected), draggable: redeState.tool==='select'
   }).addTo(redeState.map);
 
   const popupContent = `<div style="font-family:monospace;font-size:11px;min-width:160px;">
@@ -181,6 +188,14 @@ function renderPipe(pipe){
   if(!nA||!nB) return;
   const weight = pipe.dn<=100?3:pipe.dn<=200?4:5;
   const color = pipeColor(pipe);
+  const selected = redeState.selectedId?.type==='pipe' && redeState.selectedId?.id===pipe.id;
+  const lineOpts = selected
+    ? {color:'#f59e0b', weight:weight+4, opacity:0.5}
+    : null;
+  // Draw selection halo first (below the main line)
+  if(selected){
+    L.polyline([[nA.lat,nA.lng],[nB.lat,nB.lng]], lineOpts).addTo(redeState.map);
+  }
   const line = L.polyline([[nA.lat,nA.lng],[nB.lat,nB.lng]],
     {color, weight, opacity:0.85}).addTo(redeState.map);
   const popupContent = `<div style="font-family:monospace;font-size:11px;min-width:180px;">
@@ -208,7 +223,17 @@ function rerenderPipesForNode(nodeId){
 }
 
 function selectElement(type, id){
+  const prev = redeState.selectedId;
   redeState.selectedId = {type, id};
+  // Re-render previously selected element to remove highlight
+  if(prev){
+    if(prev.type==='node'){const n=redeState.nodes.find(x=>x.id===prev.id);if(n)renderNode(n);}
+    else{const p=redeState.pipes.find(x=>x.id===prev.id);if(p)renderPipe(p);}
+  }
+  // Re-render newly selected element to show highlight
+  if(type==='node'){const n=redeState.nodes.find(x=>x.id===id);if(n)renderNode(n);}
+  else{const p=redeState.pipes.find(x=>x.id===id);if(p)renderPipe(p);}
+
   const panel = document.getElementById('rede-edit-panel');
   const title = document.getElementById('rede-edit-title');
   const fields = document.getElementById('rede-edit-fields');
@@ -216,7 +241,13 @@ function selectElement(type, id){
   if(type==='node'){
     const n = redeState.nodes.find(x=>x.id===id);
     title.textContent = `Nó ${id} (${n.type})`;
-    fields.innerHTML = `
+    const miniCard = `<table class="rede-mini-card"><tbody>
+      <tr><td>Cota</td><td>${n.elevation} m</td></tr>
+      <tr><td>Demanda</td><td>${n.demand.toFixed(3)} L/s</td></tr>
+      ${n.type==='reservoir'?`<tr><td>Nível</td><td>${n.head||50} m</td></tr>`:''}
+      ${n.calculated?`<tr><td>Pressão</td><td>${n.pressure.toFixed(1)} mca</td></tr>`:''}
+    </tbody></table>`;
+    fields.innerHTML = miniCard + `
       <div style="margin-bottom:8px;"><label style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;">Cota (m)</label>
       <input type="number" id="edit-elevation" value="${n.elevation}" step="0.1" style="width:100%;padding:6px 8px;font-size:12px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);"></div>
       <div style="margin-bottom:8px;"><label style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;">Demanda base (L/s)</label>
@@ -227,7 +258,16 @@ function selectElement(type, id){
   } else {
     const p = redeState.pipes.find(x=>x.id===id);
     title.textContent = `Trecho ${id}`;
-    fields.innerHTML = `
+    const bresseD = Math.sqrt(p.flow/1000)*1.5*1000; // mm, Bresse formula
+    const miniCard = `<table class="rede-mini-card"><tbody>
+      <tr><td>De → Para</td><td>${p.from} → ${p.to}</td></tr>
+      <tr><td>DN</td><td>${p.dn} mm</td></tr>
+      <tr><td>Comprimento</td><td>${p.length.toFixed(0)} m</td></tr>
+      ${p.calculated?`<tr><td>Vazão</td><td>${p.flow.toFixed(3)} L/s</td></tr>`:''}
+      ${p.calculated?`<tr><td>Velocidade</td><td>${p.velocity.toFixed(3)} m/s</td></tr>`:''}
+      ${p.calculated?`<tr><td>DN Bresse</td><td>${bresseD.toFixed(0)} mm</td></tr>`:''}
+    </tbody></table>`;
+    fields.innerHTML = miniCard + `
       <div style="margin-bottom:8px;"><label style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;">DN (mm)</label>
       <select id="edit-dn" style="width:100%;padding:6px 8px;font-size:12px;font-family:var(--mono);border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);">
         ${[50,75,100,125,150,200,250,300,350,400].map(d=>`<option value="${d}" ${p.dn===d?'selected':''}>${d} mm</option>`).join('')}
@@ -265,6 +305,7 @@ function applyEdit(){
 function deleteSelected(){
   if(!redeState.selectedId) return;
   const {type, id} = redeState.selectedId;
+  redeState.selectedId = null;
   if(type==='node'){
     redeState.pipes.filter(p=>p.from===id||p.to===id).forEach(p=>{
       if(redeState.layers.pipes[p.id]) redeState.layers.pipes[p.id].remove();
@@ -378,67 +419,142 @@ function runHardyCross(){
 }
 
 function initFlows(nodes, pipes, source){
-  const visited = new Set([source.id]);
-  const queue = [source.id];
-  pipes.forEach(p=>p.flow=0);
-
-  while(queue.length){
-    const curr = queue.shift();
-    const connected = pipes.filter(p=>p.from===curr||p.to===curr);
-    connected.forEach(p=>{
-      const next = p.from===curr ? p.to : p.from;
-      if(!visited.has(next)){
-        visited.add(next);
-        queue.push(next);
-        const downstreamDemand = nodes.find(n=>n.id===next)?.demand || 0.001;
-        p.flow = downstreamDemand + 0.001;
-        if(p.to===curr) p.flow = -p.flow;
-      }
-    });
-  }
-
-  pipes.forEach(p=>{ if(Math.abs(p.flow)<0.0005) p.flow = 0.001; });
-}
-
-function findLoops(nodes, pipes){
-  const loops = [];
-  const visited = new Set();
-
+  // Build undirected adjacency
   const adj = {};
   nodes.forEach(n=>{ adj[n.id]=[]; });
   pipes.forEach(p=>{
-    adj[p.from].push({to:p.to, pipe:p});
-    adj[p.to].push({to:p.from, pipe:p});
+    if(adj[p.from]) adj[p.from].push({to:p.to, pipe:p});
+    if(adj[p.to])   adj[p.to].push({to:p.from, pipe:p});
   });
 
-  const dfs = (node, parentId, path, pathPipes) => {
-    visited.add(node);
-    for(const {to, pipe} of adj[node]||[]){
-      if(to === parentId) continue;
-      if(visited.has(to)){
-        const loopStart = path.indexOf(to);
-        if(loopStart >= 0){
-          const loopNodes = path.slice(loopStart);
-          const loopPipes = pathPipes.slice(loopStart);
-          const loop = loopPipes.map((lp,i)=>{
-            const nA = loopNodes[i], nB = loopNodes[(i+1)%loopNodes.length];
-            return {pipe:lp, dir: lp.from===nA ? 1 : -1};
-          });
-          const closingDir = pipe.from === loopNodes[loopNodes.length-1] ? 1 : -1;
-          loop.push({pipe, dir: closingDir});
-          loops.push(loop);
-        }
-      } else {
-        path.push(to);
-        pathPipes.push(pipe);
-        dfs(to, node, path, pathPipes);
-        path.pop();
-        pathPipes.pop();
+  // BFS spanning tree from source
+  const pred = {}; // child -> { parent: id, pipe }
+  const visited = new Set([source.id]);
+  const bfsOrder = [source.id];
+  const queue = [source.id];
+  const treeEdgeIds = new Set();
+
+  while(queue.length){
+    const u = queue.shift();
+    for(const {to:v, pipe} of (adj[u]||[])){
+      if(!visited.has(v)){
+        visited.add(v);
+        pred[v] = {parent:u, pipe};
+        treeEdgeIds.add(pipe.id);
+        bfsOrder.push(v);
+        queue.push(v);
       }
     }
-  };
+  }
 
-  nodes.forEach(n=>{ if(!visited.has(n.id)) dfs(n.id, null, [n.id], []); });
+  // Initialise all flows to minimum
+  pipes.forEach(p=>{ p.flow = 0.001; });
+
+  // Accumulate downstream demand (leaves → source) and set tree-edge flows
+  const demand = {};
+  nodes.forEach(n=>{ demand[n.id] = n.demand || 0; });
+
+  for(let i = bfsOrder.length - 1; i >= 1; i--){
+    const v = bfsOrder[i];
+    const {parent:u, pipe} = pred[v];
+    const flow = Math.max(demand[v], 0.001);
+    // Positive direction = from parent toward child.
+    // pipe.flow unit is L/s throughout the network solver.
+    pipe.flow = pipe.from === u ? flow : -flow;
+    demand[u] = (demand[u]||0) + demand[v];
+  }
+  // Non-tree edges keep the small initial flow (0.001) set above
+}
+
+function findLoops(nodes, pipes){
+  if(!nodes.length || !pipes.length) return [];
+
+  // Build undirected adjacency list
+  const adj = {};
+  nodes.forEach(n=>{ adj[n.id]=[]; });
+  pipes.forEach(p=>{
+    if(adj[p.from]) adj[p.from].push({to:p.to, pipe:p});
+    if(adj[p.to])   adj[p.to].push({to:p.from, pipe:p});
+  });
+
+  const loops = [];
+  const globalVisited = new Set();
+
+  for(const startNode of nodes){
+    if(globalVisited.has(startNode.id)) continue;
+
+    // BFS spanning tree for this connected component
+    const pred = {}; // child -> { parent: id, pipe }
+    const visited = new Set([startNode.id]);
+    const queue = [startNode.id];
+    const treeEdgeIds = new Set();
+
+    while(queue.length){
+      const u = queue.shift();
+      for(const {to:v, pipe} of (adj[u]||[])){
+        if(!visited.has(v)){
+          visited.add(v);
+          pred[v] = {parent:u, pipe};
+          treeEdgeIds.add(pipe.id);
+          queue.push(v);
+        }
+      }
+    }
+    visited.forEach(id=>globalVisited.add(id));
+
+    // Helper: path from a node to the BFS-tree root as an array of node IDs
+    const pathToRoot = nodeId => {
+      const path = [nodeId];
+      let cur = nodeId;
+      while(pred[cur]){ cur = pred[cur].parent; path.push(cur); }
+      return path; // [nodeId, ..., root]
+    };
+
+    // Each non-tree (co-tree) edge defines one fundamental cycle
+    for(const p of pipes){
+      if(treeEdgeIds.has(p.id)) continue;
+      if(!visited.has(p.from) || !visited.has(p.to)) continue;
+
+      // Find LCA of p.from and p.to in the spanning tree
+      const ancestorsA = pathToRoot(p.from); // [p.from, …, root]
+      const setA = new Map(ancestorsA.map((n,i)=>[n,i]));
+
+      const ancestorsB = [];
+      for(const n of pathToRoot(p.to)){
+        ancestorsB.push(n);
+        if(setA.has(n)) break;
+      }
+      const lca = ancestorsB[ancestorsB.length-1];
+      if(!setA.has(lca)) continue;
+
+      const lcaIdxA = setA.get(lca); // # of nodes in segA before LCA
+
+      // cycleNodes: p.from → (up tree) → LCA → (down tree) → p.to
+      const segA = ancestorsA.slice(0, lcaIdxA);          // [p.from, …, node just before LCA]
+      const segB = ancestorsB.slice(0, -1).reverse();      // [node just after LCA, …, p.to]
+      const cycleNodes = [...segA, lca, ...segB];
+
+      if(cycleNodes[cycleNodes.length-1] !== p.to) continue;
+
+      const loop = [];
+
+      // Tree-path edges
+      for(let i = 0; i < cycleNodes.length-1; i++){
+        const nA = cycleNodes[i], nB = cycleNodes[i+1];
+        let tp = null;
+        if(pred[nB] && pred[nB].parent === nA) tp = pred[nB].pipe;
+        else if(pred[nA] && pred[nA].parent === nB) tp = pred[nA].pipe;
+        if(!tp) continue;
+        loop.push({pipe:tp, dir: tp.from===nA ? 1 : -1});
+      }
+
+      // Co-tree edge closes the cycle (p.to → p.from = reverse of p)
+      loop.push({pipe:p, dir:-1});
+
+      loops.push(loop);
+    }
+  }
+
   return loops;
 }
 
@@ -489,17 +605,20 @@ function renderRedeResults(iters, nLoops){
       <div>Iterações H-C: <strong>${iters}</strong> | Anéis: <strong>${nLoops}</strong></div>
       <div>Nós OK (10–40 mca): <span class="status-ok">${okP}</span> | Atenção: <span class="status-warn">${warnP}</span> | Crítico: <span class="status-crit">${critP}</span></div>
       <div>Trechos v OK: <span class="status-ok">${okV}</span> | Fora NBR: <span class="status-crit">${critV}</span></div>
-    </div>`;
+    </div>
+    <button class="btn btn-sm" style="margin-top:6px;width:100%;" onclick="aplicarBresse()" title="Aplica D = 1,5 × √Q (Bresse) como DN sugerido">⚙ Aplicar DN Econômico (Bresse)</button>`;
 
   document.getElementById('rede-results-full').style.display='block';
   document.getElementById('rede-pipe-table').innerHTML=`<table class="rede-results-table">
-    <thead><tr><th>ID</th><th>De→Para</th><th>DN (mm)</th><th>L (m)</th><th>Q (L/s)</th><th>v (m/s)</th><th>Hf (m)</th><th>Status</th></tr></thead>
+    <thead><tr><th>ID</th><th>De→Para</th><th>DN (mm)</th><th>DN Bresse</th><th>L (m)</th><th>Q (L/s)</th><th>v (m/s)</th><th>Hf (m)</th><th>Status</th></tr></thead>
     <tbody>${pipes.map(p=>{
       const vCls = p.velocity<0.6||p.velocity>3?'status-crit':p.velocity>1.5?'status-warn':'status-ok';
       const vLabel = p.velocity<0.6?'⚠ deposição':p.velocity>3?'⚠ erosão':'✅ OK';
+      const bresseD = (Math.sqrt(Math.abs(p.flow)/1000)*1.5*1000).toFixed(0); // Bresse: D(m)=1.5√Q(m³/s), Q_m³/s = Q_L/s / 1000
       return `<tr>
         <td>${p.id}</td><td style="font-size:10px;">${p.from}→${p.to}</td>
-        <td>${p.dn}</td><td>${p.length.toFixed(0)}</td>
+        <td>${p.dn}</td><td style="color:var(--text3)">${bresseD}</td>
+        <td>${p.length.toFixed(0)}</td>
         <td>${p.flow.toFixed(3)}</td>
         <td class="${vCls}">${p.velocity.toFixed(3)}</td>
         <td>${p.headloss.toFixed(4)}</td>
@@ -533,6 +652,115 @@ function renderRedeResults(iters, nLoops){
   document.getElementById('rede-nbr-check').innerHTML = nbrIssues.length === 0
     ? '<div class="alert alert-success" style="margin:0;">✅ Todos os nós e trechos dentro dos limites da NBR 12218.</div>'
     : `<div class="decision-items">${nbrIssues.map(msg=>`<div class="decision-item ${msg.startsWith('🔴')?'crit':'warn'}" style="padding:8px 12px;">${msg}</div>`).join('')}</div>`;
+}
+
+// ── BRESSE ECONOMIC DIAMETERS ────────────────────────────────────────────────────
+const _bresseDNs = [50,75,100,125,150,200,250,300,350,400];
+function aplicarBresse(){
+  if(!redeState.calculated){ alert('Calcule a rede primeiro.'); return; }
+  let count = 0;
+  redeState.pipes.forEach(p=>{
+    const D_mm = Math.sqrt(Math.abs(p.flow)/1000)*1.5*1000; // Bresse: D(m)=1.5√Q(m³/s), Q_m³/s=Q_L/s/1000
+    // Round up to nearest standard DN
+    const dn = _bresseDNs.find(d=>d>=D_mm) || _bresseDNs[_bresseDNs.length-1];
+    if(dn !== p.dn){ p.dn = dn; p.calculated = false; count++; }
+  });
+  redeState.calculated = false;
+  redeState.pipes.forEach(renderPipe);
+  updateRedeStatus(`DN Bresse aplicado a ${count} trecho(s). Clique em Calcular para recalcular.`);
+  addAudit(`DN Bresse aplicado — ${count} trechos alterados`);
+}
+
+// ── IMPORT .INP ──────────────────────────────────────────────────────────────────
+function triggerImportINP(){
+  document.getElementById('inp-file-input').click();
+}
+
+function importINP(fileInput){
+  const file = fileInput.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => _parseAndLoadINP(e.target.result);
+  reader.readAsText(file);
+  fileInput.value = ''; // reset so same file can be re-imported
+}
+
+function _parseAndLoadINP(text){
+  const lines = text.split(/\r?\n/);
+  let section = '';
+  const junctions = {}, reservoirs = {}, tanks = {}, pipes = [], coords = {};
+
+  for(const raw of lines){
+    const line = raw.trim();
+    if(!line || line.startsWith(';')) continue;
+    if(line.startsWith('[')){
+      section = line.replace(/[\[\]]/g,'').toUpperCase();
+      continue;
+    }
+    const parts = line.split(/\s+/);
+    if(section==='JUNCTIONS' && parts.length>=2){
+      junctions[parts[0]] = {elevation:+parts[1], demand:+(parts[2]||0)};
+    } else if(section==='RESERVOIRS' && parts.length>=2){
+      reservoirs[parts[0]] = {head:+parts[1]};
+    } else if(section==='TANKS' && parts.length>=2){
+      tanks[parts[0]] = {elevation:+parts[1]};
+    } else if(section==='PIPES' && parts.length>=5){
+      pipes.push({id:parts[0], from:parts[1], to:parts[2],
+        length:+parts[3], dn:Math.round(+parts[4]), c:+(parts[5]||140)});
+    } else if(section==='COORDINATES' && parts.length>=3){
+      coords[parts[0]] = {x:+parts[1], y:+parts[2]};
+    }
+  }
+
+  // Build node list
+  const nodes = [];
+  const addN = (id, type, elev, demand, head) => {
+    const c = coords[id];
+    if(!c){ console.warn('INP import: sem coordenadas para', id); return; }
+    // HidroFlow's exportINP writes coordinates as lat/lng × 10000, so we divide by 10000
+    // to recover geographic coordinates. Files exported by the EPANET desktop app use
+    // projected coordinates; those networks may need manual repositioning after import.
+    const lat = c.y / 10000, lng = c.x / 10000;
+    nodes.push({id, type, lat, lng, elevation:elev, demand:demand||0, head:head||0, pressure:0, label:id});
+  };
+  Object.entries(junctions).forEach(([id,v])=>addN(id,'junction',v.elevation,v.demand,0));
+  Object.entries(reservoirs).forEach(([id,v])=>addN(id,'reservoir',0,0,v.head));
+  Object.entries(tanks).forEach(([id,v])=>addN(id,'tank',v.elevation,0,0));
+
+  if(!nodes.length){ alert('Não foi possível importar: nenhum nó com coordenadas encontrado no arquivo.'); return; }
+
+  if(redeState.map && nodes.length){
+    const lats = nodes.map(n=>n.lat), lngs = nodes.map(n=>n.lng);
+    const minLat=Math.min(...lats),maxLat=Math.max(...lats);
+    const minLng=Math.min(...lngs),maxLng=Math.max(...lngs);
+    if(maxLat-minLat < 10 && maxLng-minLng < 10){
+      // Coordinates look like real lat/lng
+      redeState.map.fitBounds([[minLat,minLng],[maxLat,maxLng]], {padding:[30,30]});
+    }
+  }
+
+  // Clear and reload
+  redeState.nodes.forEach(n=>{if(redeState.layers.nodes[n.id])redeState.layers.nodes[n.id].remove();});
+  redeState.pipes.forEach(p=>{if(redeState.layers.pipes[p.id])redeState.layers.pipes[p.id].remove();});
+  redeState.nodes=[]; redeState.pipes=[]; redeState.layers={nodes:{},pipes:{}};
+  redeState.calculated=false;
+  document.getElementById('rede-results-full').style.display='none';
+  document.getElementById('rede-results-panel').style.display='none';
+
+  nodes.forEach(n=>{ redeState.nodes.push(n); renderNode(n); });
+
+  const nodeIds = new Set(nodes.map(n=>n.id));
+  pipes.forEach(p=>{
+    if(!nodeIds.has(p.from)||!nodeIds.has(p.to)) return;
+    const pipe = {id:p.id||uid('P'), from:p.from, to:p.to,
+      length:p.length, dn:p.dn||100, c:p.c||140,
+      flow:0, velocity:0, headloss:0};
+    redeState.pipes.push(pipe);
+    renderPipe(pipe);
+  });
+
+  updateRedeStatus(`Importado: ${redeState.nodes.length} nós, ${redeState.pipes.length} trechos.`);
+  addAudit(`INP importado — ${redeState.nodes.length} nós, ${redeState.pipes.length} trechos`);
 }
 
 // ── EXPORT .INP ─────────────────────────────────────────────────────────────────
@@ -621,8 +849,21 @@ Links            All
 
 // ── EXAMPLE NETWORK ─────────────────────────────────────────────────────────────
 function loadExampleNet(){
-  if(!redeState.map){ initRede(); setTimeout(loadExampleNet, 500); return; }
-  clearRede();
+  if(!redeState.map) initRede();
+  if(!redeState.map) return;
+  // whenReady fires immediately if the map is already initialised, or after
+  // the first 'load' event — avoiding the old fragile setTimeout approach.
+  redeState.map.whenReady(_buildExampleNet);
+}
+
+function _buildExampleNet(){
+  // Clear silently (no confirm dialog) before loading the example
+  redeState.nodes.forEach(n=>{if(redeState.layers.nodes[n.id])redeState.layers.nodes[n.id].remove();});
+  redeState.pipes.forEach(p=>{if(redeState.layers.pipes[p.id])redeState.layers.pipes[p.id].remove();});
+  redeState.nodes=[]; redeState.pipes=[]; redeState.layers={nodes:{},pipes:{}};
+  redeState.calculated=false;
+  document.getElementById('rede-results-full').style.display='none';
+  document.getElementById('rede-results-panel').style.display='none';
   const center = redeState.map.getCenter();
   const lat = center.lat, lng = center.lng;
   const d = 0.003;
@@ -657,4 +898,19 @@ function loadExampleNet(){
 function updateRedeStatus(msg){
   const el = document.getElementById('rede-status');
   if(el) el.textContent = msg;
+}
+
+let _toastTimer = null;
+function showRedeToast(msg){
+  let toast = document.getElementById('rede-toast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = 'rede-toast';
+    toast.className = 'rede-toast';
+    document.getElementById('rede-map')?.parentNode?.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('rede-toast-visible');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(()=>toast.classList.remove('rede-toast-visible'), 2500);
 }
