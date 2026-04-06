@@ -10,7 +10,7 @@ function calcSaturacao(){
   // ── Validation ──────────────────────────────────────────────────────────────
   const errors=[];
   if(!area||area<=0)errors.push('Área total deve ser maior que zero.');
-  if(isNaN(pctRaw)||pctRaw<=0||pctRaw>100)errors.push('Taxa de urbanização deve ser entre 1 e 100%.');
+  if(isNaN(pctRaw)||pctRaw<=0||pctRaw>100)errors.push('Taxa de urbanização deve ser maior que 0 e até 100%.');
   if(!dens||dens<=0)errors.push('Densidade habitacional deve ser maior que zero.');
   if(!coef||coef<=0||coef>1)errors.push('Coeficiente de aproveitamento deve estar entre 0 e 1.');
 

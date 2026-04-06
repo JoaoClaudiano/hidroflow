@@ -64,7 +64,7 @@ function renderProjetosSalvos(){
     });
     let html='<div class="proj-list">'+items.join('')+'</div>';
     if(corrupt.length){
-      html+=`<div class="alert alert-warning" style="margin-top:8px;font-size:12px;">⚠ ${corrupt.length} projeto(s) corrompido(s) encontrado(s) e ignorado(s). <button class="btn btn-sm" onclick="limparProjetosCorretos()">Remover corrompidos</button></div>`;
+      html+=`<div class="alert alert-warning" style="margin-top:8px;font-size:12px;">⚠ ${corrupt.length} projeto(s) corrompido(s) encontrado(s) e ignorado(s). <button class="btn btn-sm" onclick="limparProjetosCorrompidos()">Remover corrompidos</button></div>`;
       // Store corrupt keys on the container for the cleanup handler
       container.dataset.corrupt=JSON.stringify(corrupt);
     }
@@ -82,7 +82,7 @@ function renderProjetosSalvos(){
 }
 
 /** Remove corrupted project entries detected during the last renderProjetosSalvos(). */
-function limparProjetosCorretos(){
+function limparProjetosCorrompidos(){
   const container=document.getElementById('proj-list-container');
   let corrupt=[];
   try{corrupt=JSON.parse(container.dataset.corrupt||'[]');}catch(_){}
