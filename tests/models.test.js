@@ -54,23 +54,58 @@ describe('calcRMSE', () => {
   });
 });
 
-// ── calcCI ────────────────────────────────────────────────────────────────────
+// ── tQuantile95 & calcCI ──────────────────────────────────────────────────────
+describe('tQuantile95', () => {
+  test('df >= 30 returns z = 1.96', () => {
+    expect(m.tQuantile95(32)).toBe(1.96); // n=32 → df=30
+  });
+
+  test('n = 30 (df=28) returns t-value > 1.96', () => {
+    const t = m.tQuantile95(30);
+    expect(t).toBeGreaterThan(1.96);
+  });
+
+  test('n = 4 (df=2) returns ~4.303', () => {
+    expect(m.tQuantile95(4)).toBeCloseTo(4.303, 2);
+  });
+
+  test('n = 3 (df=1) returns ~12.706', () => {
+    expect(m.tQuantile95(3)).toBeCloseTo(12.706, 2);
+  });
+
+  test('n <= 2 (df clamped to 1) returns ~12.706', () => {
+    expect(m.tQuantile95(2)).toBeCloseTo(12.706, 2);
+  });
+});
+
 describe('calcCI', () => {
-  test('dtExtrap = 1 → margin = 1.96 * rmse', () => {
-    const ci = m.calcCI(1000, 50, 1);
+  test('n >= 32 (df=30) uses z = 1.96', () => {
+    const ci = m.calcCI(1000, 50, 1, 32);
     expect(ci.margin).toBeCloseTo(1.96 * 50, 1);
+    expect(ci.z).toBeCloseTo(1.96, 2);
     expect(ci.upper).toBe(Math.round(1000 + ci.margin));
     expect(ci.lower).toBe(Math.round(1000 - ci.margin));
   });
 
+  test('n = 4 uses t-distribution (wider margin than z=1.96)', () => {
+    const ciNormal = m.calcCI(1000, 50, 1, 32);
+    const ciSmall  = m.calcCI(1000, 50, 1, 4);
+    expect(ciSmall.margin).toBeGreaterThan(ciNormal.margin);
+  });
+
+  test('n omitted defaults to large sample (z = 1.96)', () => {
+    const ci = m.calcCI(1000, 50, 1);
+    expect(ci.z).toBeCloseTo(1.96, 2);
+  });
+
   test('margin grows with extrapolation distance', () => {
-    const ci1 = m.calcCI(1000, 50, 1);
-    const ci9 = m.calcCI(1000, 50, 9);
+    const ci1 = m.calcCI(1000, 50, 1, 32);
+    const ci9 = m.calcCI(1000, 50, 9, 32);
     expect(ci9.margin).toBeGreaterThan(ci1.margin);
   });
 
   test('zero RMSE gives zero margin', () => {
-    const ci = m.calcCI(5000, 0, 10);
+    const ci = m.calcCI(5000, 0, 10, 32);
     expect(ci.margin).toBe(0);
     expect(ci.lower).toBe(5000);
     expect(ci.upper).toBe(5000);

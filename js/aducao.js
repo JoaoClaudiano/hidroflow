@@ -89,7 +89,20 @@ function calcAducao(){
   const Pot_motor_kw=potMotor.find(pw=>pw>=Pot_kw)||potMotor[potMotor.length-1];
   const Pot_motor_cv=Math.round(Pot_motor_kw/0.7355);
 
-  // Golpe de Aríete — Joukowsky
+  // Fator de serviço de catálogo (opcional)
+  const useFatorServico=document.getElementById('ad-fator-servico')&&document.getElementById('ad-fator-servico').checked;
+  let Pot_motor_kw_fs=Pot_motor_kw,Pot_motor_cv_fs=Pot_motor_cv,fatorServico=1;
+  if(useFatorServico){
+    if(Pot_cv<=2)fatorServico=1.50;
+    else if(Pot_cv<=5)fatorServico=1.20;
+    else if(Pot_cv<=20)fatorServico=1.15;
+    else fatorServico=1.10;
+    const Pot_kw_fs=Pot_kw*fatorServico;
+    Pot_motor_kw_fs=potMotor.find(pw=>pw>=Pot_kw_fs)||potMotor[potMotor.length-1];
+    Pot_motor_cv_fs=Math.round(Pot_motor_kw_fs/0.7355);
+  }
+
+  // Golpe de Aríete — Joukowsky ou Michaud (se T_c fornecido)
   let E_tubo=2800;
   const C_val=+document.getElementById('ad-chw').value||140;
   if(C_val>=130&&C_val<140)E_tubo=170000;
@@ -104,7 +117,20 @@ function calcAducao(){
   const e_m=e_mm/1000;
   const a_celer=Math.sqrt((E_agua*1e6/rho)/(1+(D_real*E_agua)/(e_m*E_tubo)));
   const g=9.81;
-  const delta_H=(a_celer*v_real)/g;
+  // T_c — tempo de fechamento da válvula (opcional)
+  const tcInput=document.getElementById('ad-tc');
+  const T_c=tcInput&&tcInput.value.trim()?+tcInput.value:0;
+  const T_critico=2*L/a_celer; // 2L/a — limiar de fechamento lento
+  let delta_H,formulaAriete;
+  if(T_c>0&&T_c>T_critico){
+    delta_H=(2*L*v_real)/(g*T_c); // Michaud
+    formulaAriete=`Michaud (T_c=${T_c}s > 2L/a=${T_critico.toFixed(1)}s) · ΔH = 2L·v/(g·T_c)`;
+  }else{
+    delta_H=(a_celer*v_real)/g; // Joukowsky
+    formulaAriete=T_c>0&&T_c<=T_critico
+      ?`Joukowsky (T_c=${T_c}s ≤ 2L/a=${T_critico.toFixed(1)}s — fechamento rápido) · ΔH = a·v/g`
+      :'Joukowsky (fechamento instantâneo) · ΔH = a·v/g';
+  }
   const P_max=Hman+delta_H;
   const pn_series=[60,80,100,125,160,200,250,315];
   const PN_rec=pn_series.find(pn=>pn>=P_max*1.2)||pn_series[pn_series.length-1];
@@ -171,8 +197,9 @@ function calcAducao(){
     <div class="hyd-step" style="margin-top:8px;"><div class="hyd-label">Vazão de recalque Qb</div><div class="hyd-value">${Qb.toFixed(2)}</div><div class="hyd-unit">L/s · Q·K1×24/N</div></div>
     <div class="hyd-step amber" style="margin-top:8px;"><div class="hyd-label">Hman total</div><div class="hyd-value">${Hman.toFixed(1)}</div><div class="hyd-unit">m.c.a.</div></div>
     <div class="hyd-step teal" style="margin-top:8px;"><div class="hyd-label">Potência calculada</div><div class="hyd-value">${Pot_cv.toFixed(1)}</div><div class="hyd-unit">cv · ${Pot_kw.toFixed(1)} kW · η=${(eta*100).toFixed(0)}%</div></div>
-    <div class="hyd-step green" style="margin-top:8px;"><div class="hyd-label">Motor NBR 17094</div><div class="hyd-value">${Pot_motor_cv}</div><div class="hyd-unit">cv · ${Pot_motor_kw} kW</div></div>
-    <div class="hyd-formula" style="margin-top:10px;font-size:10px;">Pot = γ·Qb·Hman/(75·η) = 1000×${(Qb/1000).toFixed(4)}×${Hman.toFixed(1)}/(75×${eta.toFixed(2)}) = <strong>${Pot_cv.toFixed(2)} cv</strong><br>Hman = ${Hgeo.toFixed(1)} + ${Hf.toFixed(2)} + ${Hloc.toFixed(2)} = ${Hman.toFixed(2)} m.c.a.</div>`;
+    <div class="hyd-step green" style="margin-top:8px;"><div class="hyd-label">Motor NBR 17094</div><div class="hyd-value">${useFatorServico?Pot_motor_cv_fs:Pot_motor_cv}</div><div class="hyd-unit">cv · ${useFatorServico?Pot_motor_kw_fs:Pot_motor_kw} kW${useFatorServico?` · fs=×${fatorServico.toFixed(2)}`:''}</div></div>
+    ${useFatorServico?`<div class="hyd-step amber" style="margin-top:8px;"><div class="hyd-label">Margem calculada (sem fs)</div><div class="hyd-value">${Pot_motor_cv}</div><div class="hyd-unit">cv · ${Pot_motor_kw} kW</div></div>`:''}
+    <div class="hyd-formula" style="margin-top:10px;font-size:10px;">Pot = γ·Qb·Hman/(75·η) = 1000×${(Qb/1000).toFixed(4)}×${Hman.toFixed(1)}/(75×${eta.toFixed(2)}) = <strong>${Pot_cv.toFixed(2)} cv</strong><br>Hman = ${Hgeo.toFixed(1)} + ${Hf.toFixed(2)} + ${Hloc.toFixed(2)} = ${Hman.toFixed(2)} m.c.a.${useFatorServico?`<br>Fator de serviço: ×${fatorServico.toFixed(2)} → ${(Pot_kw*fatorServico).toFixed(1)} kW → <strong>Motor ${Pot_motor_kw_fs} kW</strong>`:''}</div>`;
 
   document.getElementById('ad-col-adutora').innerHTML=`
     <div class="hyd-step ${vColor}"><div class="hyd-label">DN adutora (Bresse)</div><div class="hyd-value">${DN}</div><div class="hyd-unit">mm · D_calc=${D_mm_calc.toFixed(0)} mm</div></div>
@@ -192,12 +219,12 @@ function calcAducao(){
   document.getElementById('ad-ariete-display').innerHTML=`
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;">
       <div class="hyd-step"><div class="hyd-label">Celeridade onda a</div><div class="hyd-value">${a_celer.toFixed(0)}</div><div class="hyd-unit">m/s</div></div>
-      <div class="hyd-step ${risco_ariete==='crit'?'red':risco_ariete==='warn'?'amber':'green'}"><div class="hyd-label">Sobrepressão ΔH</div><div class="hyd-value">${delta_H.toFixed(1)}</div><div class="hyd-unit">m · a·v/g</div></div>
+      <div class="hyd-step ${risco_ariete==='crit'?'red':risco_ariete==='warn'?'amber':'green'}"><div class="hyd-label">Sobrepressão ΔH</div><div class="hyd-value">${delta_H.toFixed(1)}</div><div class="hyd-unit">m</div></div>
       <div class="hyd-step ${risco_ariete==='crit'?'red':risco_ariete==='warn'?'amber':'green'}"><div class="hyd-label">Pressão máxima</div><div class="hyd-value">${P_max.toFixed(1)}</div><div class="hyd-unit">m.c.a.</div></div>
       <div class="hyd-step green"><div class="hyd-label">Classe de pressão</div><div class="hyd-value">PN ${PN_rec}</div><div class="hyd-unit">m.c.a. (fs=1,2)</div></div>
     </div>
     <div class="alert ${arieteCls}" style="font-family:var(--mono);font-size:12px;">${arieteMsg}</div>
-    <div class="hyd-formula" style="margin-top:8px;font-size:10px;">a = √(K_água/(ρ·(1+D·K_água/(e·E_tubo)))) = ${a_celer.toFixed(0)} m/s · ΔH = a·v/g = ${a_celer.toFixed(0)}×${v_real.toFixed(2)}/9,81 = <strong>${delta_H.toFixed(1)} m</strong><br><span style="color:var(--text3);">E_tubo = ${E_tubo.toLocaleString('pt-BR')} MPa (${eTuboSource})</span></div>`;
+    <div class="hyd-formula" style="margin-top:8px;font-size:10px;">Fórmula: <strong>${formulaAriete}</strong><br>a = √(K_água/(ρ·(1+D·K_água/(e·E_tubo)))) = ${a_celer.toFixed(0)} m/s · 2L/a = ${T_critico.toFixed(1)} s<br><span style="color:var(--text3);">E_tubo = ${E_tubo.toLocaleString('pt-BR')} MPa (${eTuboSource})</span></div>`;
 
   const ripplRows=horas_idx.map(h=>{
     const ligada=!horas_desligadas.has(h);
@@ -258,13 +285,13 @@ function calcAducao(){
       <tr><td style="color:var(--text3);">Hazen-Williams (C=${C})</td><td>J=${(J*1000).toFixed(4)} m/m · L=${L} m · Hf=${Hf.toFixed(2)} m · Hloc=${Hloc.toFixed(2)} m</td></tr>
       <tr><td style="color:var(--text3);">Topografia</td><td>Z_cap=${cotaCap} m · Z_res=${cotaRes} m · Hgeo=${Hgeo.toFixed(1)} m</td></tr>
       <tr><td style="color:var(--text3);">Altura manométrica total</td><td><strong>Hman = ${Hman.toFixed(2)} m.c.a.</strong> = ${Hgeo.toFixed(1)}+${Hf.toFixed(2)}+${Hloc.toFixed(2)}</td></tr>
-      <tr><td style="color:var(--text3);">Potência da bomba</td><td>${Pot_cv.toFixed(1)} cv → Motor: <strong>${Pot_motor_cv} cv (${Pot_motor_kw} kW)</strong> — NBR 17094</td></tr>
+      <tr><td style="color:var(--text3);">Potência da bomba</td><td>${Pot_cv.toFixed(1)} cv → Motor: <strong>${useFatorServico?Pot_motor_cv_fs:Pot_motor_cv} cv (${useFatorServico?Pot_motor_kw_fs:Pot_motor_kw} kW)</strong>${useFatorServico?` · fs=×${fatorServico.toFixed(2)} (catálogo)`:' — NBR 17094'}</td></tr>
       <tr><td style="color:var(--text3);">Reservatório (Rippl+NBR)</td><td>V₁=${V1.toFixed(0)} + V₂=${V2.toFixed(0)} + V₃=${V3.toFixed(0)} → <strong>V = ${V_total} m³</strong></td></tr>
-      <tr><td style="color:var(--text3);">Golpe de aríete</td><td>a=${a_celer.toFixed(0)} m/s · ΔH=${delta_H.toFixed(1)} m · P_max=${P_max.toFixed(1)} mca → <strong>PN ${PN_rec}</strong> · E_tubo=${E_tubo.toLocaleString('pt-BR')} MPa (${eTuboSource})</td></tr>
+      <tr><td style="color:var(--text3);">Golpe de aríete</td><td>${formulaAriete} · a=${a_celer.toFixed(0)} m/s · ΔH=${delta_H.toFixed(1)} m · P_max=${P_max.toFixed(1)} mca → <strong>PN ${PN_rec}</strong> · 2L/a=${T_critico.toFixed(1)}s · E_tubo=${E_tubo.toLocaleString('pt-BR')} MPa (${eTuboSource})</td></tr>
       <tr><td style="color:var(--text3);">Verificação NBR</td><td>${nbrOk} conforme · ${nbrFail} não conforme — NBR 12211/12217/12218/5648/17094</td></tr>
     </tbody></table>`;
 
-  addAudit(`Hidráulica: DN${DN}mm · Hman=${Hman.toFixed(1)}m · ${Pot_motor_cv}cv · V=${V_total}m³ · PN${PN_rec}`);
+  addAudit(`Hidráulica: DN${DN}mm · Hman=${Hman.toFixed(1)}m · ${useFatorServico?Pot_motor_cv_fs:Pot_motor_cv}cv · V=${V_total}m³ · PN${PN_rec}`);
 }
 
 function setAdAno(idx,btn){

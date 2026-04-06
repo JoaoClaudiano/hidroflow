@@ -7,6 +7,12 @@ function toggleCustomParams(){
   renderDimensionamento();
 }
 
+// Coeficiente de ponta de esgoto pela Fórmula de Harmon (P em mil hab)
+function harmonPeakFactor(pop){
+  const P=pop/1000;
+  return(14+Math.sqrt(P))/(4+Math.sqrt(P));
+}
+
 function getParams(){
   const useCustom=document.getElementById('chk-custom').checked;
   const cp_agua=+document.getElementById('cp-agua').value;
@@ -23,16 +29,21 @@ function getParams(){
     K3:   +(document.getElementById('k3').value)||0.5,
     extra1Nome: document.getElementById('cp-extra1-nome').value,
     extra1Val:  +document.getElementById('cp-extra1-val').value||0,
-    custom: useCustom
+    custom: useCustom,
+    useHarmon: !!(document.getElementById('chk-harmon')&&document.getElementById('chk-harmon').checked)
   };
 }
 
 function calcInfra(pop,p){
   const Qmed=pop*p.agua/86400;
   const vol_res_m3=Qmed*p.K1*3600*12/1000;
+  const K_harmon=harmonPeakFactor(pop);
+  // Vazão de ponta de esgoto: K1 padrão ou Harmon (dependente da população)
+  const QesgPonta=p.useHarmon?(Qmed*p.ret*K_harmon):(Qmed*p.ret*p.K1);
   return{
     Qmed, QK1:Qmed*p.K1, QK2:Qmed*p.K1*p.K2, QK3:Qmed*p.K3,
-    Qesg:Qmed*p.ret, QesgK1:Qmed*p.ret*p.K1,
+    Qesg:Qmed*p.ret, QesgK1:QesgPonta,
+    K_harmon, useHarmon:p.useHarmon,
     res_td:pop*p.res/1000, en_mwh:pop*p.en/1000,
     m3dia:pop*p.agua/1000,
     vol_res_m3,
@@ -86,7 +97,7 @@ function renderDimensionamento(){
     <div class="infra-section-title">Sistema de esgotamento sanitário</div>
     <div class="infra-grid">
       <div class="infra-card teal">${ic(SVG_SEWER,'teal')}<div class="infra-title">Qesg médio</div><div class="infra-value">${v.Qesg.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-unit" style="margin-top:3px;">Ret. ${(p.ret*100).toFixed(0)}%</div></div>
-      <div class="infra-card teal">${ic(SVG_FLOW,'teal')}<div class="infra-title">Qesg hora de ponta</div><div class="infra-value">${v.QesgK1.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">K1 = ${p.K1.toFixed(2)}</div></div>
+      <div class="infra-card teal">${ic(SVG_FLOW,'teal')}<div class="infra-title">Qesg hora de ponta</div><div class="infra-value">${v.QesgK1.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">${v.useHarmon?`Harmon K=${v.K_harmon.toFixed(2)}`:`K1 = ${p.K1.toFixed(2)}`}</div></div>
       <div class="infra-card">${ic(SVG_FLOW)}<div class="infra-title">Q mínima noturna</div><div class="infra-value">${v.QK3.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">K3 = ${p.K3.toFixed(2)}</div></div>
     </div>
     <div class="infra-section-title">Resíduos e energia</div>

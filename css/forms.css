@@ -25,3 +25,11 @@ input[type=checkbox]{width:auto;accent-color:var(--accent);}
 .slider-val{font-size:12px;font-weight:500;min-width:140px;text-align:right;color:var(--text);font-family:var(--mono);}
 .custom-param{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-top:4px;}
 .custom-param-title{font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
+
+/* ADVANCED OPTIONS ACCORDION (Progressive Disclosure) */
+.advanced-opts{border:1px solid var(--border);border-radius:var(--radius);background:var(--bg2);margin-top:12px;}
+.advanced-opts>summary{padding:8px 12px;cursor:pointer;font-size:11px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;list-style:none;display:flex;align-items:center;gap:6px;user-select:none;}
+.advanced-opts>summary::before{content:'▶';font-size:9px;transition:transform .15s;}
+.advanced-opts[open]>summary::before{transform:rotate(90deg);}
+.advanced-opts>summary::-webkit-details-marker{display:none;}
+.advanced-opts-body{padding:10px 14px 12px;}
