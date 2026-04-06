@@ -247,10 +247,11 @@
 
     <div class="contact-form-wrap">
       <h3>Formulário de Contato</h3>
-      <form id="contact-form" action="https://formsubmit.co/joao.claudiano@alu.ufc.br" method="POST" novalidate>
-        <input type="hidden" name="_subject" value="[HidroFlow] Mensagem via site">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+      <form id="contact-form" action="https://api.staticforms.xyz/submit" method="POST" novalidate>
+        <input type="hidden" name="accessKey" value="YOUR_STATIC_FORMS_KEY">
+        <input type="hidden" name="subject" value="[HidroFlow] Mensagem via site">
+        <input type="hidden" name="redirectTo" value="https://joaoclaudiano.github.io/hidroflow/contato.html?enviado=1">
+        <input type="text" name="$honeypot" style="display:none" tabindex="-1" autocomplete="off">
 
         <div class="form-row">
           <div class="form-group">
@@ -293,6 +294,9 @@
           Alternativamente, abra uma <a href="https://github.com/JoaoClaudiano/hidroflow/issues" target="_blank" rel="noopener">issue no GitHub</a>.
         </p>
       </form>
+      <div id="form-success" style="display:none; margin-top:16px; padding:14px 18px; border-radius:8px; background:var(--color-success-bg, #d1fae5); color:var(--color-success-text, #065f46); font-size:.95rem;">
+        ✅ Mensagem enviada com sucesso! Entraremos em contato em breve.
+      </div>
     </div>
 
     <h2>Perguntas Frequentes</h2>
@@ -397,6 +401,10 @@
 </footer>
 <script>
 document.getElementById('footer-year').textContent = new Date().getFullYear();
+if (new URLSearchParams(location.search).get('enviado') === '1') {
+  const el = document.getElementById('form-success');
+  if (el) { el.style.display = 'block'; document.getElementById('contact-form').style.display = 'none'; }
+}
 </script>
 </body>
 </html>
