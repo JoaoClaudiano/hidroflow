@@ -189,7 +189,9 @@ async function buscarSIDRA(){
 async function fetchAreaMunicipio(cod){
   try{
     const r=await fetchWithRetry(
-      `https://servicodados.ibge.gov.br/api/v3/agregados/6579/periodos/2022/variaveis/606?localidades=N6[${cod}]`
+      `https://servicodados.ibge.gov.br/api/v3/agregados/6579/periodos/2022/variaveis/606?localidades=N6[${cod}]`,
+      {},
+      1
     );
     if(!r.ok) return 0;
     const data=await r.json();
