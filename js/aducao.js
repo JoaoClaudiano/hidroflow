@@ -95,6 +95,10 @@ function calcAducao(){
   if(C_val>=130&&C_val<140)E_tubo=170000;
   else if(C_val>=120&&C_val<130)E_tubo=170000;
   else if(C_val<120)E_tubo=30000;
+  const eTuboInput=document.getElementById('ad-e-tubo');
+  const eTuboUser=eTuboInput?+eTuboInput.value:0;
+  const eTuboSource=eTuboUser>0?'fabricante':'estimado pelo C H-W';
+  if(eTuboUser>0)E_tubo=eTuboUser;
   const E_agua=2100;
   const rho=1000;
   const e_m=e_mm/1000;
@@ -193,7 +197,7 @@ function calcAducao(){
       <div class="hyd-step green"><div class="hyd-label">Classe de pressão</div><div class="hyd-value">PN ${PN_rec}</div><div class="hyd-unit">m.c.a. (fs=1,2)</div></div>
     </div>
     <div class="alert ${arieteCls}" style="font-family:var(--mono);font-size:12px;">${arieteMsg}</div>
-    <div class="hyd-formula" style="margin-top:8px;font-size:10px;">a = √(K_água/(ρ·(1+D·K_água/(e·E_tubo)))) = ${a_celer.toFixed(0)} m/s · ΔH = a·v/g = ${a_celer.toFixed(0)}×${v_real.toFixed(2)}/9,81 = <strong>${delta_H.toFixed(1)} m</strong></div>`;
+    <div class="hyd-formula" style="margin-top:8px;font-size:10px;">a = √(K_água/(ρ·(1+D·K_água/(e·E_tubo)))) = ${a_celer.toFixed(0)} m/s · ΔH = a·v/g = ${a_celer.toFixed(0)}×${v_real.toFixed(2)}/9,81 = <strong>${delta_H.toFixed(1)} m</strong><br><span style="color:var(--text3);">E_tubo = ${E_tubo.toLocaleString('pt-BR')} MPa (${eTuboSource})</span></div>`;
 
   const ripplRows=horas_idx.map(h=>{
     const ligada=!horas_desligadas.has(h);
@@ -256,7 +260,7 @@ function calcAducao(){
       <tr><td style="color:var(--text3);">Altura manométrica total</td><td><strong>Hman = ${Hman.toFixed(2)} m.c.a.</strong> = ${Hgeo.toFixed(1)}+${Hf.toFixed(2)}+${Hloc.toFixed(2)}</td></tr>
       <tr><td style="color:var(--text3);">Potência da bomba</td><td>${Pot_cv.toFixed(1)} cv → Motor: <strong>${Pot_motor_cv} cv (${Pot_motor_kw} kW)</strong> — NBR 17094</td></tr>
       <tr><td style="color:var(--text3);">Reservatório (Rippl+NBR)</td><td>V₁=${V1.toFixed(0)} + V₂=${V2.toFixed(0)} + V₃=${V3.toFixed(0)} → <strong>V = ${V_total} m³</strong></td></tr>
-      <tr><td style="color:var(--text3);">Golpe de aríete</td><td>a=${a_celer.toFixed(0)} m/s · ΔH=${delta_H.toFixed(1)} m · P_max=${P_max.toFixed(1)} mca → <strong>PN ${PN_rec}</strong></td></tr>
+      <tr><td style="color:var(--text3);">Golpe de aríete</td><td>a=${a_celer.toFixed(0)} m/s · ΔH=${delta_H.toFixed(1)} m · P_max=${P_max.toFixed(1)} mca → <strong>PN ${PN_rec}</strong> · E_tubo=${E_tubo.toLocaleString('pt-BR')} MPa (${eTuboSource})</td></tr>
       <tr><td style="color:var(--text3);">Verificação NBR</td><td>${nbrOk} conforme · ${nbrFail} não conforme — NBR 12211/12217/12218/5648/17094</td></tr>
     </tbody></table>`;
 

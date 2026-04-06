@@ -40,7 +40,7 @@ function _lsSet(key, value) {
 
 function salvarProjeto(){
   const nome=state.municipioNome+' — '+new Date().toLocaleDateString('pt-BR');
-  const snap={nome,ts:Date.now(),municipioNome:state.municipioNome,municipioCod:state.municipioCod,municipioUF:state.municipioUF,municipioLat:state.municipioLat,municipioLon:state.municipioLon,censosData:state.censosData,bestModel:state.bestModel,r2:state.r2,loo:state.loo,coefs:state.coefs,projData:state.projData,censosRaw:state.censosRaw,K:state.K,config:state.config,infraAnos:state.infraAnos};
+  const snap={nome,ts:Date.now(),municipioNome:state.municipioNome,municipioCod:state.municipioCod,municipioUF:state.municipioUF,municipioLat:state.municipioLat,municipioLon:state.municipioLon,censosData:state.censosData,bestModel:state.bestModel,r2:state.r2,rmse:state.rmse,scores:state.scores,loo:state.loo,coefs:state.coefs,projData:state.projData,censosRaw:state.censosRaw,K:state.K,config:state.config,infraAnos:state.infraAnos};
   if(_lsSet(_PROJ_PREFIX+Date.now(),JSON.stringify(snap))){
     addAudit('Projeto salvo: '+nome);
     alert('Projeto salvo!');

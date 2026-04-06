@@ -48,6 +48,7 @@ function updateSlider(tipo){
   else if(tipo==='residuos')sv.textContent=(+sl.value).toFixed(2)+' kg/hab/dia';
   else if(tipo==='energia')sv.textContent=sl.value+' kWh/hab/mês';
   renderDimensionamento();
+  if(state.projData.length)calcAducao();
 }
 
 function setInfraAno(idx,btn){
@@ -107,25 +108,44 @@ function renderObras(pop,v,p,ano){
   const vol_ete=v.vol_ete_m3;
   const area_lagoa=vol_ete/(3.5);
 
+  // Reservação de incêndio (NBR 13714)
+  const V_incendio=Math.max(12,Math.min(108,pop*0.0008));
+  const vol_res_total=vol_res+V_incendio;
+
+  // Rede de distribuição — diâmetros por trecho típico
+  const series_dn_rede=[50,75,100,125,150,200,250,300,350,400];
+  const DN_rede=series_dn_rede.find(d=>d>=diam_rede)||series_dn_rede[series_dn_rede.length-1];
+  const DN_adut=Math.ceil(diam_adut/25)*25;
+  const v_rede_real=(v.QK2/1000)/(Math.PI*((DN_rede/1000)/2)**2);
+
   document.getElementById('dim-display').innerHTML=`
     <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:14px;">Dimensionamento de obras para <strong style="color:var(--text);">${pop.toLocaleString('pt-BR')} hab</strong> em <strong style="color:var(--text);">${ano}</strong></p>
 
     <div class="dim-card">
       <div class="dim-header">
         <div class="dim-title">${ic(SVG_TANK)} Reservatório de distribuição</div>
-        <div><div class="dim-result">${vol_res.toFixed(0)}</div><div class="dim-unit">m³</div></div>
+        <div><div class="dim-result">${vol_res_total.toFixed(0)}</div><div class="dim-unit">m³ (regularização + incêndio)</div></div>
       </div>
-      <div class="dim-detail">Volume de regularização para cobrir variação diária máxima (12h × Q·K1). Não usa K2 pois este é coeficiente de ponta horária — o reservatório regula a variação diária, não a instantânea. Ref: NBR 12.218 / FUNASA.</div>
-      <div class="dim-formula">V_res = Q·K1 × 3600 × 12 / 1000 = ${v.QK1.toFixed(2)} L/s × 43.200 s = ${vol_res.toFixed(0)} m³</div>
+      <div class="dim-detail">Volume de regularização (12h × Q·K1) + reserva de incêndio NBR 13714 (${V_incendio.toFixed(0)} m³). Ref: NBR 12.218 / FUNASA.</div>
+      <div class="dim-formula">V_reg = Q·K1 × 3600 × 12 / 1000 = ${vol_res.toFixed(0)} m³ · V_inc = ${V_incendio.toFixed(0)} m³ → <strong>V_total = ${vol_res_total.toFixed(0)} m³</strong></div>
     </div>
 
     <div class="dim-card">
       <div class="dim-header">
         <div class="dim-title">${ic(SVG_PIPE)} Adutora principal</div>
-        <div><div class="dim-result">${Math.ceil(diam_adut/25)*25}</div><div class="dim-unit">mm (DN nominal)</div></div>
+        <div><div class="dim-result">${DN_adut}</div><div class="dim-unit">mm (DN nominal)</div></div>
       </div>
       <div class="dim-detail">Diâmetro calculado para conduzir Q·K1 com velocidade de 1,5 m/s. DN nominal arredondado para cima (série ABNT).</div>
-      <div class="dim-formula">D = √(4·Q / π·v) = ${diam_adut.toFixed(0)} mm calc. → DN ${Math.ceil(diam_adut/25)*25} mm</div>
+      <div class="dim-formula">D = √(4·Q / π·v) = ${diam_adut.toFixed(0)} mm calc. → DN ${DN_adut} mm</div>
+    </div>
+
+    <div class="dim-card">
+      <div class="dim-header">
+        <div class="dim-title">${ic(SVG_PIPE)} Rede de distribuição — tronco principal</div>
+        <div><div class="dim-result">DN ${DN_rede}</div><div class="dim-unit">mm (tronco)</div></div>
+      </div>
+      <div class="dim-detail">Diâmetro para conduzir Q·K1·K2 (hora de ponta) com velocidade de 2,0 m/s no tronco. Derivações secundárias: DN 75–100 mm. Velocidade real no tronco: ${v_rede_real.toFixed(2)} m/s. NBR 12218.</div>
+      <div class="dim-formula">D_rede = √(4·Q·K1·K2 / (π·v)) = ${diam_rede.toFixed(0)} mm calc. → DN ${DN_rede} mm · v = ${v_rede_real.toFixed(2)} m/s</div>
     </div>
 
     <div class="dim-card">
