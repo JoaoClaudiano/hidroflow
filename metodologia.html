@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HidroFlow — Metodologia e Memorial de Cálculo</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/domain.css">
+<link rel="stylesheet" href="css/print.css">
+<link rel="stylesheet" href="responsive.css">
+<script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+  .met-section { margin-bottom: 2.5rem; }
+  .met-section h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 0.4rem;
+    margin-bottom: 1.2rem;
+    letter-spacing: -0.01em;
+  }
+  .met-section h3 {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 1.2rem 0 0.5rem;
+    letter-spacing: -0.01em;
+  }
+  .met-section p, .met-section li {
+    font-size: 0.84rem;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+  .met-section ul, .met-section ol {
+    margin-left: 1.4rem;
+    margin-bottom: 0.6rem;
+  }
+  .formula-block {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 0.8rem 1rem;
+    margin: 0.6rem 0 1rem;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--text);
+    white-space: pre-wrap;
+    overflow-x: auto;
+  }
+  .formula-block .comment {
+    color: var(--text3);
+    font-style: italic;
+  }
+  .param-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin: 0.6rem 0 1rem;
+  }
+  .param-table th {
+    background: var(--bg3);
+    color: var(--text2);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border2);
+  }
+  .param-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+  .param-table td:first-child {
+    font-family: var(--font);
+    font-weight: 500;
+    color: var(--text);
+  }
+  .param-table tr:last-child td { border-bottom: none; }
+  .ref-list { list-style: none; margin-left: 0; }
+  .ref-list li {
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.83rem;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .ref-list li:last-child { border-bottom: none; }
+  .ref-tag {
+    display: inline-block;
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-right: 6px;
+    font-family: var(--mono);
+  }
+  .alert-note {
+    background: var(--teal-bg);
+    border-left: 4px solid var(--teal);
+    border-radius: var(--radius);
+    padding: 0.65rem 0.9rem;
+    margin: 0.6rem 0;
+    font-size: 0.82rem;
+    color: var(--text2);
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+  }
+  .toc-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.55rem 0.85rem;
+    font-size: 0.81rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background 0.15s;
+  }
+  .toc-item:hover { background: var(--accent-bg); }
+  .toc-num {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text3);
+    min-width: 1.4rem;
+  }
+  .nbr-badge {
+    display: inline-block;
+    background: var(--green-bg);
+    color: var(--green);
+    font-size: 0.71rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 4px;
+    font-family: var(--mono);
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--accent);
+    font-size: 0.82rem;
+    text-decoration: none;
+    margin-bottom: 1rem;
+  }
+  .back-link:hover { text-decoration: underline; }
+  @media print {
+    .topbar-right, .back-link { display: none !important; }
+    .formula-block { break-inside: avoid; }
+    .met-section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>HidroFlow</h1>
+    <p>Metodologia e Memorial de Cálculo</p>
+  </div>
+  <div class="topbar-right">
+    <a href="index.html" class="btn btn-sm">
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+      Voltar ao HidroFlow
+    </a>
+    <button class="btn btn-sm btn-primary" onclick="window.print()">
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Imprimir / PDF
+    </button>
+    <button class="btn btn-sm btn-icon-only" id="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
+      <svg id="theme-icon-sun" class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg id="theme-icon-moon" class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div style="margin-top:1.5rem;">
+
+<!-- SUMÁRIO -->
+<div class="card" style="margin-bottom:1.5rem;">
+  <div class="card-title">Sumário</div>
+  <div class="toc-grid">
+    <a class="toc-item" href="#sec-projecao"><span class="toc-num">1</span>Projeção Populacional</a>
+    <a class="toc-item" href="#sec-validacao"><span class="toc-num">2</span>Métricas de Validação</a>
+    <a class="toc-item" href="#sec-infra"><span class="toc-num">3</span>Dimensionamento de Infraestrutura</a>
+    <a class="toc-item" href="#sec-aducao"><span class="toc-num">4</span>Adução e Elevatórias</a>
+    <a class="toc-item" href="#sec-aríete"><span class="toc-num">5</span>Golpe de Aríete</a>
+    <a class="toc-item" href="#sec-rippl"><span class="toc-num">6</span>Método de Rippl (Reservatório)</a>
+    <a class="toc-item" href="#sec-rede"><span class="toc-num">7</span>Rede de Distribuição (Hardy-Cross)</a>
+    <a class="toc-item" href="#sec-saturacao"><span class="toc-num">8</span>População de Saturação</a>
+    <a class="toc-item" href="#sec-decisao"><span class="toc-num">9</span>Motor de Decisão Automatizado</a>
+    <a class="toc-item" href="#sec-refs"><span class="toc-num">10</span>Referências Bibliográficas</a>
+  </div>
+</div>
+
+<!-- ============================
+     1. PROJEÇÃO POPULACIONAL
+     ============================ -->
+<div id="sec-projecao" class="met-section card">
+  <div class="card-title">1. Projeção Populacional</div>
+
+  <p>O HidroFlow ajusta automaticamente quatro modelos de crescimento demográfico aos dados censitários fornecidos, seleciona o melhor por score composto e projeta a população para os horizontes de projeto. Todos os modelos são ajustados por regressão de mínimos quadrados ordinários (OLS) ou por busca em grade (<em>grid search</em>).</p>
+
+  <h3>1.1 Modelo Aritmético</h3>
+  <p>Assume crescimento linear constante. Recomendado para municípios estagnados ou com série histórica curta.</p>
+  <div class="formula-block">P(t) = kₐ · t + b
+
+<span class="comment">Onde:
+  kₐ  = taxa aritmética anual [hab/ano]  — coef. angular do ajuste linear
+  b   = intercepto [hab]
+  t   = ano de projeção
+  
+Coeficientes por OLS:
+  kₐ = [Σ(t·P) − n·t̄·P̄] / [Σ(t²) − n·t̄²]
+  b  = P̄ − kₐ·t̄</span></div>
+
+  <h3>1.2 Modelo Geométrico</h3>
+  <p>Assume taxa de crescimento percentual constante. Indicado para municípios em crescimento acelerado ou com curta série histórica. O ajuste é feito por regressão log-linear (linearização).</p>
+  <div class="formula-block">P(t) = P₀ · (1 + i)^(t − t₀)
+
+<span class="comment">Linearização para OLS:
+  ln P(t) = a + b·t     onde a = ln P₀, b = ln(1 + i)
+
+Taxa geométrica anual:
+  i = e^b − 1
+
+Projeção direta:
+  P(t) = exp(a + b·t)</span></div>
+
+  <h3>1.3 Modelo Logístico (Verhulst)</h3>
+  <p>Assume que o crescimento desacelera ao se aproximar de uma capacidade de suporte <em>K</em> (população de saturação). Indicado quando há indícios de estabilização demográfica ou quando a população de saturação é conhecida.</p>
+  <div class="formula-block">P(t) = K / [1 + ((K − P₀)/P₀) · e^(−r·(t − t₀))]
+
+<span class="comment">Onde:
+  K   = capacidade de suporte / população de saturação [hab]
+  P₀  = população no ano de referência t₀ [hab]
+  r   = taxa intrínseca de crescimento [ano⁻¹]
+  
+K é estimado como 2× o maior valor histórico ou fornecido pelo usuário.
+r é obtido por OLS aplicado à forma linearizada:
+  ln[P/(K−P)] = ln[P₀/(K−P₀)] + r·(t − t₀)</span></div>
+
+  <h3>1.4 Modelo de Holt (Suavização Exponencial Dupla)</h3>
+  <p>Modelo de espaço-estado que captura nível e tendência com amortecimento. Parâmetros α e β são otimizados por busca em grade minimizando o RMSE de ajuste. Indicado para séries com tendência variável ou presença de quebras suaves.</p>
+  <div class="formula-block">Nível:    Lₜ = α · Pₜ + (1 − α) · (Lₜ₋₁ + Tₜ₋₁)
+Tendência: Tₜ = β · (Lₜ − Lₜ₋₁) + (1 − β) · Tₜ₋₁
+Previsão:  P̂(t+h) = Lₜ + h · Tₜ
+
+<span class="comment">Parâmetros otimizados por grid search:
+  α ∈ {0.1, 0.2, ..., 0.9}   — peso do nível
+  β ∈ {0.05, 0.10, ..., 0.50} — peso da tendência
+  
+Critério: minimizar RMSE de ajuste in-sample</span></div>
+
+  <h3>1.5 Intervalo de Confiança (IC 95%)</h3>
+  <p>O envelope de confiança cresce com o horizonte de extrapolação, refletindo a maior incerteza em horizontes distantes:</p>
+  <div class="formula-block">IC±(t) = P̂(t) ± 1,96 · RMSE · √(Δt)
+
+<span class="comment">Onde:
+  RMSE = erro-padrão do modelo no ajuste histórico [hab]
+  Δt   = anos de extrapolação além do último dado histórico
+  1,96 = quantil z para 95% de confiança (distribuição normal)</span></div>
+  <div class="alert-note">⚠️ O HidroFlow emite alerta quando a extrapolação ultrapassa o intervalo histórico disponível, pois nesse caso a incerteza cresce substancialmente.</div>
+</div>
+
+<!-- ============================
+     2. MÉTRICAS DE VALIDAÇÃO
+     ============================ -->
+<div id="sec-validacao" class="met-section card">
+  <div class="card-title">2. Métricas de Validação e Seleção de Modelo</div>
+
+  <h3>2.1 Coeficiente de Determinação (R²)</h3>
+  <div class="formula-block">R² = 1 − SS_res / SS_tot
+
+<span class="comment">SS_res = Σ(Pᵢ − P̂ᵢ)²     (soma dos quadrados dos resíduos)
+SS_tot = Σ(Pᵢ − P̄)²      (soma total dos quadrados)
+P̄      = média dos valores históricos
+
+Interpretação:
+  R² = 1,0  → ajuste perfeito
+  R² ≥ 0,95 → muito bom
+  R² ≥ 0,85 → bom
+  R² < 0,70 → baixo (modelo inadequado)</span></div>
+
+  <h3>2.2 Erro Quadrático Médio (RMSE)</h3>
+  <div class="formula-block">RMSE = √[ (1/n) · Σ(Pᵢ − P̂ᵢ)² ]
+
+<span class="comment">Expresso em habitantes.
+Quanto menor o RMSE, melhor o ajuste.</span></div>
+
+  <h3>2.3 Validação Cruzada Leave-One-Out (LOO-RMSE)</h3>
+  <p>Para cada ponto histórico, o modelo é reajustado sem aquele ponto e a previsão é comparada ao valor real. Isso avalia a capacidade preditiva (generalização), não apenas o ajuste.</p>
+  <div class="formula-block">LOO_RMSE = √[ (1/n) · Σᵢ (Pᵢ − P̂ᵢ,₋ᵢ)² ]
+
+<span class="comment">P̂ᵢ,₋ᵢ = previsão para o ano i, com o modelo ajustado sem o ponto i
+LOO normalizado = LOO_RMSE / P̄    (adimensional, em proporção da média)</span></div>
+
+  <h3>2.4 Score Composto para Seleção Automática</h3>
+  <p>O melhor modelo é selecionado pelo maior score composto, que pondera R² (ajuste) e LOO normalizado (generalização):</p>
+  <div class="formula-block">Score = 0,60 · R² + 0,40 · (1 − LOO_RMSE / P̄)
+
+<span class="comment">Pesos: 60% para ajuste (R²) e 40% para generalização (LOO)
+Score ∈ [0, 1] — quanto maior, melhor</span></div>
+
+  <h3>2.5 Classificação de Confiabilidade</h3>
+  <table class="param-table">
+    <thead><tr><th>Classificação</th><th>Critério</th></tr></thead>
+    <tbody>
+      <tr><td>Muito Alta</td><td>R² ≥ 0,97 e LOO_norm ≤ 0,03</td></tr>
+      <tr><td>Alta</td><td>R² ≥ 0,92 e LOO_norm ≤ 0,07</td></tr>
+      <tr><td>Média</td><td>R² ≥ 0,80 e LOO_norm ≤ 0,15</td></tr>
+      <tr><td>Baixa</td><td>Demais casos</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================
+     3. DIMENSIONAMENTO DE INFRAESTRUTURA
+     ============================ -->
+<div id="sec-infra" class="met-section card">
+  <div class="card-title">3. Dimensionamento de Infraestrutura <span class="nbr-badge">NBR 12.211 / FUNASA</span></div>
+
+  <h3>3.1 Sistema de Abastecimento de Água (SAA)</h3>
+  <p>O dimensionamento segue a NBR 12.211 (ABNT, 1992) e o Manual de Saneamento da FUNASA (2014).</p>
+  <div class="formula-block">Qmed  = Pop × q / 86400           <span class="comment">[L/s] — vazão média diária</span>
+QK₁   = Qmed × K₁                 <span class="comment">[L/s] — vazão no dia de maior consumo</span>
+QK₁K₂ = Qmed × K₁ × K₂           <span class="comment">[L/s] — vazão na hora de maior consumo</span>
+
+<span class="comment">Onde:
+  q   = per capita de água [L/(hab·dia)] — padrão: 150 L/(hab·dia)
+  K₁  = coef. do dia de maior consumo — típico: 1,20 (CAGECE/FUNASA)
+  K₂  = coef. da hora de maior consumo — típico: 1,50
+  K₃  = coef. de retorno (esgoto) — típico: 0,80</span></div>
+
+  <h3>3.2 Reservatório de Distribuição</h3>
+  <div class="formula-block">V_reg = QK₁ × 3600 × 12 / 1000     <span class="comment">[m³] — regularização de 12 h</span>
+V_inc = max(12 ; min(108 ; Pop × 0,0008))  <span class="comment">[m³] — reserva de incêndio</span>
+V_total = V_reg + V_inc
+
+<span class="comment">Referência: NBR 12.217 (ABNT, 1994) — vol. mínimo = 1/3 da demanda máxima diária
+         NBR 13.714 (ABNT, 2000) — reserva de incêndio: 12 a 108 m³</span></div>
+
+  <h3>3.3 Sistema de Esgotamento Sanitário (SES) e ETE</h3>
+  <div class="formula-block">Qesg = Qmed × K₃                   <span class="comment">[L/s] — coef. de retorno K₃ ≈ 0,80</span>
+
+Lagoa facultativa (Von Sperling, 2002):
+  TDH = 20 dias (clima tropical)
+  V_lagoa = Qesg × 86400 × 20 / 1000  <span class="comment">[m³]</span>
+  Prof.   = 3,5 m (recomendação tropical)
+  Área    = V_lagoa / Prof.            <span class="comment">[m²]</span>
+
+<span class="comment">Referência: Von Sperling (2002) — Lagoas de Estabilização</span></div>
+
+  <h3>3.4 Resíduos Sólidos Urbanos</h3>
+  <div class="formula-block">G_res = Pop × g_per_capita / 1000   <span class="comment">[ton/dia]</span>
+Vol_lixo = G_res × 1000 / ρ_res     <span class="comment">[m³/dia] — ρ padrão ≈ 230 kg/m³</span>
+
+<span class="comment">g_per_capita: geração per capita em kg/(hab·dia) — padrão: 0,8 kg/(hab·dia)
+Ref.: ABRELPE (2020), IBGE (2010)</span></div>
+
+  <h3>3.5 Seleção de DN da Tubulação</h3>
+  <p>O diâmetro nominal (DN) é selecionado pela série padronizada ABNT, adotando o menor DN que satisfaça a velocidade mínima de 0,6 m/s:</p>
+  <table class="param-table">
+    <thead><tr><th>Série DN [mm]</th><th>Critério de seleção</th></tr></thead>
+    <tbody>
+      <tr><td>50, 75, 100, 125, 150, 200, 250, 300, 350, 400, 500, 600</td><td>DN mínimo com V ≥ 0,6 m/s e V ≤ 3,0 m/s (NBR 12218)</td></tr>
+    </tbody>
+  </table>
+  <div class="formula-block">V = Q / A = Q / (π · (D/2)²)      <span class="comment">Q em m³/s, D em m → V em m/s</span></div>
+</div>
+
+<!-- ============================
+     4. ADUÇÃO E ELEVATÓRIAS
+     ============================ -->
+<div id="sec-aducao" class="met-section card">
+  <div class="card-title">4. Adução e Estações Elevatórias <span class="nbr-badge">NBR 12.218</span></div>
+
+  <h3>4.1 Diâmetro Econômico — Fórmula de Bresse</h3>
+  <p>A fórmula de Bresse fornece o diâmetro econômico da adutora, considerando o equilíbrio entre custo de energia (relacionado às perdas de carga) e custo de implantação (relacionado ao diâmetro):</p>
+  <div class="formula-block">D_Bresse = K_B · √(Q_b)
+
+<span class="comment">Q_b = QK₁ · (24 / N)             [m³/s] — vazão de bombeamento
+N   = horas de operação da bomba por dia
+
+K_B (adimensional):
+  • Auto-calculado: K_B = 1,3 · (N/24)^0,25
+  • Valores típicos: 0,7–1,3
+
+Referência: Bresse (1879) apud Azevedo Netto (1998)</span></div>
+
+  <h3>4.2 Perda de Carga — Equação de Hazen-Williams</h3>
+  <p>A equação de Hazen-Williams é amplamente utilizada no dimensionamento de adutoras de água, especialmente em regime turbulento pleno:</p>
+  <div class="formula-block">J = 10,643 · Q^1,852 / (C^1,852 · D^4,87)   <span class="comment">[m/m] — gradiente hidráulico</span>
+Hf = J · L                                    <span class="comment">[m] — perda de carga distribuída</span>
+
+<span class="comment">Onde:
+  Q = vazão [m³/s]
+  C = coeficiente de Hazen-Williams (adimensional)
+      C = 150 → PVC / PEAD novo
+      C = 120 → ferro fundido novo / aço
+      C = 100 → ferro fundido usado
+      C = 80  → ferro fundido muito usado / concreto envelhecido
+  D = diâmetro interno [m]
+  L = comprimento da tubulação [m]
+
+Perdas localizadas:
+  Hloc = Hf × 10%   (estimativa para conexões, registros, etc.)
+
+Altura manométrica total:
+  Hman = H_geo + Hf + Hloc
+
+Referência: Hazen & Williams (1920) apud ABNT NBR 12218</span></div>
+
+  <h3>4.3 Potência da Bomba</h3>
+  <div class="formula-block">P_cv = (1000 · Q_b · Hman) / (75 · η)     <span class="comment">[CV] — potência no eixo</span>
+P_kW = P_cv × 0,7355                       <span class="comment">[kW]</span>
+
+<span class="comment">η   = rendimento global da bomba [-] — típico: 0,65–0,80
+Q_b = vazão de bombeamento [m³/s]
+Hman = altura manométrica total [m.c.a.]
+
+Motor: potência comercial imediatamente superior à calculada
+  Série: 5,5 — 7,5 — 11 — 15 — 18,5 — 22 — 30 — 37 — 45 — 55 — 75 kW
+
+Referência: Azevedo Netto (1998), NBR 12218 (ABNT, 2017)</span></div>
+
+  <h3>4.4 Verificação de Velocidade e Pressão</h3>
+  <table class="param-table">
+    <thead><tr><th>Parâmetro</th><th>Limite Mínimo</th><th>Limite Máximo</th><th>Norma</th></tr></thead>
+    <tbody>
+      <tr><td>Velocidade na adutora</td><td>0,6 m/s</td><td>3,0 m/s</td><td>NBR 12218</td></tr>
+      <tr><td>Pressão na rede</td><td>10 m.c.a.</td><td>40–50 m.c.a.</td><td>NBR 12218</td></tr>
+      <tr><td>Horas de bombeamento</td><td>16 h/dia (rec.)</td><td>—</td><td>FUNASA</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================
+     5. GOLPE DE ARÍETE
+     ============================ -->
+<div id="sec-aríete" class="met-section card">
+  <div class="card-title">5. Golpe de Aríete (Transiente Hidráulico) <span class="nbr-badge">NBR 5648</span></div>
+
+  <p>O golpe de aríete é um fenômeno de transiente hidráulico causado pelo fechamento súbito de válvulas ou parada de bombas. A sobrепressão máxima é calculada pela equação de Joukowsky:</p>
+
+  <h3>5.1 Celeridade da Onda de Pressão</h3>
+  <div class="formula-block">a = √( (K_água/ρ) / (1 + D · K_água / (e · E_tubo)) )   <span class="comment">[m/s]</span>
+
+<span class="comment">Onde:
+  K_água  = módulo de compressibilidade da água = 2,07 × 10⁹ Pa
+  ρ       = massa específica da água = 1000 kg/m³
+  D       = diâmetro interno da tubulação [m]
+  e       = espessura da parede do tubo [m]
+  E_tubo  = módulo de elasticidade do material do tubo [Pa]:
+              PVC:  3,0 × 10⁹ Pa
+              PEAD: 0,9 × 10⁹ Pa
+              Aço:  210 × 10⁹ Pa
+              FFRD: 170 × 10⁹ Pa
+
+Referência: Joukowsky (1898) apud Wylie & Streeter (1993)</span></div>
+
+  <h3>5.2 Sobrepressão de Joukowsky</h3>
+  <div class="formula-block">ΔH = a · v / g                     <span class="comment">[m.c.a.] — sobrepressão máxima</span>
+P_max = Hman + ΔH               <span class="comment">[m.c.a.] — pressão máxima resultante</span>
+PN_rec = ⌈1,20 × P_max⌉        <span class="comment">[kPa] — pressão nominal com fs = 1,20</span>
+
+<span class="comment">v     = velocidade média no escoamento [m/s]
+g     = aceleração da gravidade = 9,81 m/s²
+
+Classificação do risco:
+  ΔH < 25% de Hman  → Baixo risco
+  ΔH = 25–50% Hman  → Atenção (recomenda-se volante de inércia)
+  ΔH > 50% de Hman  → Crítico (exige dispositivos anti-aríete)
+
+Referência: NBR 5648 (ABNT, 1999), Azevedo Netto (1998)</span></div>
+</div>
+
+<!-- ============================
+     6. MÉTODO DE RIPPL
+     ============================ -->
+<div id="sec-rippl" class="met-section card">
+  <div class="card-title">6. Volume do Reservatório — Método de Rippl</div>
+
+  <p>O Método de Rippl determina o volume de regularização do reservatório de distribuição a partir do diagrama de massa (curva integral do consumo horário), considerando o regime de funcionamento da bomba:</p>
+
+  <h3>6.1 Procedimento de Cálculo</h3>
+  <div class="formula-block"><span class="comment">Passo 1 — Curva de consumo horário normalizada (24 pontos)</span>
+  Consumo_hora(h) = f(h) · QK₁K₂_dia   <span class="comment">perfil típico horário</span>
+
+<span class="comment">Passo 2 — Acumulação e saldo</span>
+  Entrada(h) = Q_b × 3600              <span class="comment">[m³/h] — bomba ligada nas horas N</span>
+  Saída(h)   = Consumo_hora(h)
+  Saldo(h)   = Saldo(h-1) + Entrada(h) − Saída(h)
+
+<span class="comment">Passo 3 — Volumes de regularização</span>
+  V₁ = max(Saldo) − min(Saldo)        <span class="comment">[m³] — volume de regularização (Rippl)</span>
+  V₂ = max(50 ; Qmed × 3600 × 2)     <span class="comment">[m³] — reserva de emergência (2 h)</span>
+  V₃ = V_inc (NBR 13714)              <span class="comment">[m³] — reserva de incêndio</span>
+
+  V_total = V₁ + V₂ + V₃             <span class="comment">[m³] — volume total do reservatório</span>
+
+<span class="comment">Referência: Rippl (1883) apud Porto (1999), NBR 12217 (ABNT, 1994)</span></div>
+
+  <div class="alert-note">💡 O HidroFlow exibe o diagrama de massa interativo no módulo <strong>Adução & Elevatórias</strong>, permitindo visualizar graficamente o volume de regularização para diferentes regimes de bombeamento.</div>
+</div>
+
+<!-- ============================
+     7. REDE DE DISTRIBUIÇÃO
+     ============================ -->
+<div id="sec-rede" class="met-section card">
+  <div class="card-title">7. Rede de Distribuição — Método de Hardy-Cross <span class="nbr-badge">NBR 12218</span></div>
+
+  <p>O Método de Hardy-Cross é um processo iterativo de equilíbrio hidráulico para redes de distribuição com malhas fechadas. Garante simultaneamente o equilíbrio de nós (Kirchhoff 1: conservação de massa) e de malhas (Kirchhoff 2: conservação de energia).</p>
+
+  <h3>7.1 Perda de Carga por Trecho (Hazen-Williams)</h3>
+  <div class="formula-block">r_ij = 10,643 · L_ij / (C^1,852 · D_ij^4,87)   <span class="comment">[m·s^1,852/m^5,556]</span>
+h_f,ij = r_ij · |Q_ij|^1,852 · sign(Q_ij)    <span class="comment">[m.c.a.] — com sinal de sentido</span>
+
+<span class="comment">L_ij = comprimento do trecho i–j [m]
+Q_ij = vazão no trecho i–j [m³/s] — positivo no sentido horário</span></div>
+
+  <h3>7.2 Correção de Hardy-Cross por Malha</h3>
+  <div class="formula-block">ΔQ_k = −Σ h_f,ij / (1,852 · Σ |h_f,ij / Q_ij|)   <span class="comment">[m³/s]</span>
+
+<span class="comment">Para cada malha k a cada iteração:
+  • Σ h_f,ij = soma algébrica das perdas de carga na malha (sinal pelo sentido)
+  • Denominador = soma das derivadas (resistência incremental)
+
+Atualização:
+  Q_ij ← Q_ij + ΔQ_k    (para todos os trechos da malha k)
+  Trechos compartilhados entre malhas recebem correções de ambas.
+
+Convergência: |ΔQ_k| < 0,0001 m³/s  (típico 3–10 iterações)
+
+Referência: Hardy-Cross (1936)</span></div>
+
+  <h3>7.3 Pressões Nodais</h3>
+  <div class="formula-block">H_j = H_i − h_f,ij                   <span class="comment">[m.c.a.] — propagação nodal</span>
+
+<span class="comment">H_i = carga piezométrica no nó i (reservatório: H = nível da água)
+Pressão disponível = H_j − z_j  (z_j = cota do terreno no nó j)</span></div>
+
+  <h3>7.4 Verificação Normativa</h3>
+  <table class="param-table">
+    <thead><tr><th>Parâmetro</th><th>Limite</th><th>Norma</th></tr></thead>
+    <tbody>
+      <tr><td>Pressão mínima na rede</td><td>10 m.c.a.</td><td>NBR 12218 (Art. 6.2)</td></tr>
+      <tr><td>Pressão máxima na rede</td><td>50 m.c.a. (residencial)</td><td>NBR 12218 (Art. 6.3)</td></tr>
+      <tr><td>Velocidade mínima</td><td>0,6 m/s</td><td>NBR 12218 (Art. 6.4)</td></tr>
+      <tr><td>Velocidade máxima</td><td>3,0 m/s</td><td>NBR 12218 (Art. 6.5)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================
+     8. POPULAÇÃO DE SATURAÇÃO
+     ============================ -->
+<div id="sec-saturacao" class="met-section card">
+  <div class="card-title">8. Estimativa da População de Saturação</div>
+
+  <p>A população de saturação <em>K</em> representa o limite máximo que o município pode atingir dado seu uso do solo e parâmetros urbanísticos. É utilizada como parâmetro de capacidade de suporte no Modelo Logístico.</p>
+
+  <div class="formula-block">A_urban = A_total × f_urban / 100         <span class="comment">[ha] — área urbanizável</span>
+P_bruta = A_urban × dens_hab_ha          <span class="comment">[hab] — população bruta máxima</span>
+K       = P_bruta × coef_aproveit        <span class="comment">[hab] — população de saturação</span>
+
+<span class="comment">Onde:
+  A_total     = área total do município [ha]
+  f_urban     = fração urbanizável [%] — por lei de uso do solo ou plano diretor
+  dens_hab_ha = densidade habitacional líquida [hab/ha] — plano diretor / IPTU
+                  (valores típicos: 50–300 hab/ha)
+  coef_aproveit = coeficiente de aproveitamento urbanístico [-]
+                  (< 1 considera áreas de lazer, vias, equipamentos públicos)
+
+Referência: Plano Diretor Municipal, Freitas (2000)</span></div>
+</div>
+
+<!-- ============================
+     9. MOTOR DE DECISÃO
+     ============================ -->
+<div id="sec-decisao" class="met-section card">
+  <div class="card-title">9. Motor de Decisão Automatizado (Diagnóstico)</div>
+
+  <p>O módulo de diagnóstico analisa os resultados de projeção e dimensionamento para gerar alertas automáticos com quatro níveis de severidade:</p>
+
+  <table class="param-table">
+    <thead><tr><th>Nível</th><th>Critério</th><th>Ação sugerida</th></tr></thead>
+    <tbody>
+      <tr><td>✅ OK</td><td>Demanda ≤ capacidade instalada</td><td>Monitoramento periódico</td></tr>
+      <tr><td>⚠️ Atenção</td><td>Demanda entre 80% e 100% da capacidade</td><td>Planejar ampliação</td></tr>
+      <tr><td>🚨 Crítico</td><td>Demanda > capacidade (déficit)</td><td>Intervenção imediata</td></tr>
+      <tr><td>ℹ️ Info</td><td>Dado estatístico relevante</td><td>Análise técnica</td></tr>
+    </tbody>
+  </table>
+
+  <h3>9.1 Critérios de Expansão</h3>
+  <div class="formula-block"><span class="comment">SAA (Captação/Adução):</span>
+  Alerta quando Proj_futura > Qinstalada × 1,20   <span class="comment">(+20% de capacidade)</span>
+
+<span class="comment">Reservatório:</span>
+  Alerta quando V_demanda_futura > V_instalado × 1,20
+
+<span class="comment">ETE:</span>
+  Alerta quando Qesg_futuro > Q_ETE_instalado × 1,20
+
+<span class="comment">Resíduos:</span>
+  Alerta quando G_res_futuro > Capacidade_aterro × 1,25   <span class="comment">(+25%)</span></div>
+
+  <h3>9.2 Verificação de Qualidade do Ajuste</h3>
+  <div class="formula-block"><span class="comment">Confiabilidade "Baixa":
+  → Alerta se R² < 0,80 ou LOO_norm > 0,15
+  → Recomendação: inserir mais dados censitários ou revisar o modelo
+
+Saturation approach:
+  → Alerta se P_projetada > 0,85 × K (logístico)</span></div>
+</div>
+
+<!-- ============================
+     10. REFERÊNCIAS BIBLIOGRÁFICAS
+     ============================ -->
+<div id="sec-refs" class="met-section card">
+  <div class="card-title">10. Referências Bibliográficas</div>
+
+  <h3>Normas Técnicas ABNT</h3>
+  <ul class="ref-list">
+    <li><span class="ref-tag">NBR 12211</span> ABNT — NBR 12.211: <em>Estudos de concepção de sistemas públicos de abastecimento de água.</em> Rio de Janeiro: ABNT, 1992.</li>
+    <li><span class="ref-tag">NBR 12217</span> ABNT — NBR 12.217: <em>Projeto de reservatório de distribuição de água para abastecimento público.</em> Rio de Janeiro: ABNT, 1994.</li>
+    <li><span class="ref-tag">NBR 12218</span> ABNT — NBR 12.218: <em>Projeto de rede de distribuição de água para abastecimento público — Procedimento.</em> Rio de Janeiro: ABNT, 2017.</li>
+    <li><span class="ref-tag">NBR 13714</span> ABNT — NBR 13.714: <em>Sistemas de hidrantes e de mangotinhos para combate a incêndio.</em> Rio de Janeiro: ABNT, 2000.</li>
+    <li><span class="ref-tag">NBR 5648</span> ABNT — NBR 5648: <em>Tubos e conexões de PVC-U para sistemas prediais de água fria.</em> Rio de Janeiro: ABNT, 1999.</li>
+  </ul>
+
+  <h3>Publicações Técnicas e Governamentais</h3>
+  <ul class="ref-list">
+    <li><span class="ref-tag">FUNASA</span> FUNDAÇÃO NACIONAL DE SAÚDE. <em>Manual de Saneamento.</em> 4. ed. rev. Brasília: Funasa, 2014. 642 p. ISBN 978-85-7346-089-9.</li>
+    <li><span class="ref-tag">IBGE</span> INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA. <em>Censos Demográficos: 1940, 1950, 1960, 1970, 1980, 1991, 2000, 2010, 2022.</em> Rio de Janeiro: IBGE, 2022. Disponível em: &lt;https://www.ibge.gov.br&gt;.</li>
+    <li><span class="ref-tag">ABRELPE</span> ASSOCIAÇÃO BRASILEIRA DE EMPRESAS DE LIMPEZA PÚBLICA E RESÍDUOS ESPECIAIS. <em>Panorama dos Resíduos Sólidos no Brasil — 2020.</em> São Paulo: ABRELPE, 2020.</li>
+  </ul>
+
+  <h3>Livros e Artigos Científicos</h3>
+  <ul class="ref-list">
+    <li><span class="ref-tag">Azevedo Netto</span> AZEVEDO NETTO, J. M. de; FERNANDEZ, M. F.; NETTO, J. M. A. <em>Manual de Hidráulica.</em> 8. ed. São Paulo: Edgard Blücher, 1998.</li>
+    <li><span class="ref-tag">Von Sperling</span> VON SPERLING, M. <em>Lagoas de estabilização.</em> 2. ed. Belo Horizonte: DESA/UFMG, 2002. (Princípios do Tratamento Biológico de Águas Residuárias, v. 3).</li>
+    <li><span class="ref-tag">Porto</span> PORTO, R. M. <em>Hidráulica Básica.</em> 2. ed. São Carlos: EESC/USP, 1999.</li>
+    <li><span class="ref-tag">Hardy-Cross</span> HARDY CROSS, H. <em>Analysis of flow in networks of conduits or conductors.</em> University of Illinois Bulletin, n. 286, 1936.</li>
+    <li><span class="ref-tag">Joukowsky</span> JOUKOWSKY, N. <em>Über den hydraulischen Stoss in Wasserleitungsröhren.</em> Mémoires de l'Académie Impériale des Sciences de St.-Pétersbourg, ser. 8, v. 9, n. 5, 1898.</li>
+    <li><span class="ref-tag">Wylie & Streeter</span> WYLIE, E. B.; STREETER, V. L. <em>Fluid Transients in Systems.</em> Englewood Cliffs: Prentice Hall, 1993.</li>
+    <li><span class="ref-tag">Bresse</span> BRESSE, J. A. C. <em>Cours de mécanique appliquée.</em> Paris, 1879. apud AZEVEDO NETTO (1998).</li>
+    <li><span class="ref-tag">Holt</span> HOLT, C. C. Forecasting seasonals and trends by exponentially weighted moving averages. <em>International Journal of Forecasting</em>, v. 20, n. 1, p. 5–10, 2004. (Original ONR Memo, 1957).</li>
+    <li><span class="ref-tag">Verhulst</span> VERHULST, P.-F. Notice sur la loi que la population suit dans son accroissement. <em>Correspondance Mathématique et Physique</em>, v. 10, p. 113–121, 1838.</li>
+    <li><span class="ref-tag">Freitas</span> FREITAS, C. G. L. de. <em>Uso do solo urbano e legislação.</em> In: INSTITUTO DE PESQUISAS TECNOLÓGICAS DO ESTADO DE SÃO PAULO. Relatório Técnico, 2000.</li>
+    <li><span class="ref-tag">Hazen & Williams</span> HAZEN, A.; WILLIAMS, G. S. <em>Hydraulic Tables.</em> 3. ed. New York: John Wiley, 1920.</li>
+    <li><span class="ref-tag">Rippl</span> RIPPL, W. The capacity of storage reservoirs for water supply. <em>Minutes of Proceedings of the Institution of Civil Engineers</em>, v. 71, p. 270–278, 1883.</li>
+  </ul>
+
+  <h3>APIs e Dados Utilizados</h3>
+  <ul class="ref-list">
+    <li><span class="ref-tag">SIDRA</span> IBGE — SIDRA (Sistema IBGE de Recuperação Automática): API REST para dados do Censo Demográfico. Tabelas 202 e 4709. Disponível em: &lt;https://sidra.ibge.gov.br&gt;.</li>
+    <li><span class="ref-tag">Nominatim</span> OpenStreetMap / Nominatim — API de geocodificação reversa. Licença ODbL. Disponível em: &lt;https://nominatim.openstreetmap.org&gt;.</li>
+    <li><span class="ref-tag">OpenStreetMap</span> OpenStreetMap contributors — Tiles via Leaflet.js 1.9.4. Licença © OpenStreetMap contributors, ODbL.</li>
+  </ul>
+
+  <div class="alert-note" style="margin-top:1.2rem;">
+    📄 Este documento foi gerado pelo HidroFlow e descreve a metodologia implementada no código-fonte disponível em <strong>github.com/JoaoClaudiano/hidroflow</strong>. Os cálculos são realizados integralmente no navegador do usuário (client-side), sem envio de dados para servidores externos, exceto nas consultas às APIs públicas do IBGE e OpenStreetMap.
+  </div>
+</div>
+
+</div><!-- end main content -->
+</div><!-- end .app -->
+
+<script>
+function toggleTheme() {
+  var root = document.documentElement;
+  var cur = root.getAttribute('data-theme');
+  var next = cur === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  updateThemeIcon();
+}
+function updateThemeIcon() {
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark'
+    || (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  var sun = document.getElementById('theme-icon-sun');
+  var moon = document.getElementById('theme-icon-moon');
+  if (sun) sun.style.display = dark ? 'inline-block' : 'none';
+  if (moon) moon.style.display = dark ? 'none' : 'inline-block';
+}
+updateThemeIcon();
+</script>
+</body>
+</html>
