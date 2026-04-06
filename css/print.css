@@ -1,0 +1,22 @@
+/* PRINT STYLES */
+@media print {
+  .topbar-right,.tabs,.btn,.no-print,.rede-toolbar{display:none!important;}
+  .app{padding:0;}
+  .section{display:block!important;}
+  .card{break-inside:avoid;box-shadow:none;border-color:#ccc;}
+  .print-header{display:block;text-align:center;border-bottom:2px solid #000;padding-bottom:1rem;margin-bottom:1rem;}
+  .print-footer{display:block;text-align:center;font-size:10px;color:#666;border-top:1px solid #ccc;padding-top:8px;margin-top:1rem;}
+  canvas{max-width:100%!important;}
+}
+
+/* MOBILE */
+@media(max-width:700px){
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+  .infra-grid,.infra-grid-4{grid-template-columns:1fr 1fr;}
+  .compare-grid{grid-template-columns:1fr;}
+  .slider-row{flex-direction:column;align-items:flex-start;gap:6px;}
+  .slider-row>label{min-width:auto;}
+  .slider-val{text-align:left;}
+  .topbar{flex-direction:column;gap:8px;}
+  .sidra-search{flex-direction:column;}
+}

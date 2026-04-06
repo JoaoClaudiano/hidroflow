@@ -1,0 +1,66 @@
+/* INFRA CARDS */
+.infra-section-title{font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.infra-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.infra-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.infra-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 10px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;position:relative;}
+.infra-card.red{border-left:3px solid var(--red);}
+.infra-card.amber{border-left:3px solid var(--amber);}
+.infra-card.teal{border-left:3px solid var(--teal);}
+.infra-card.green{border-left:3px solid var(--green);}
+.infra-title{font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-top:4px;}
+.infra-value{font-size:22px;font-weight:600;font-family:var(--mono);color:var(--text);line-height:1.1;}
+.infra-unit{font-size:11px;font-family:var(--mono);color:var(--text3);}
+.infra-ponta{font-size:10px;font-family:var(--mono);color:var(--text3);}
+.infra-icon{width:20px;height:20px;stroke:var(--accent);flex-shrink:0;}
+.infra-icon.red{stroke:var(--red);}
+.infra-icon.amber{stroke:var(--amber);}
+.infra-icon.teal{stroke:var(--teal);}
+.infra-icon.green{stroke:var(--green);}
+
+/* DIMENSIONAMENTO */
+.dim-card{border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;background:var(--bg);}
+.dim-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.dim-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+.dim-result{font-size:28px;font-weight:700;font-family:var(--mono);color:var(--accent);line-height:1.1;}
+.dim-unit{font-size:11px;font-family:var(--mono);color:var(--text3);text-align:right;}
+.dim-detail{font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:6px;}
+.dim-formula{font-size:10px;font-family:var(--mono);background:var(--bg2);padding:8px 10px;border-radius:4px;color:var(--text2);border-left:2px solid var(--accent);}
+
+/* REDE */
+.rede-toolbar{display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px;border-bottom:1px solid var(--border);background:var(--bg2);align-items:center;}
+.rede-map-wrap{width:100%;height:480px;}
+#rede-map{width:100%;height:100%;}
+.rede-tooltip{position:absolute;z-index:500;background:rgba(0,0,0,.75);color:#fff;padding:6px 10px;border-radius:4px;font-size:11px;font-family:var(--mono);pointer-events:none;white-space:nowrap;}
+.rede-panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;}
+.rede-panel-title{font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:8px;font-weight:600;}
+.rede-results-table{width:100%;font-size:12px;border-collapse:collapse;font-family:var(--mono);}
+.rede-results-table th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border2);color:var(--text3);font-size:10px;text-transform:uppercase;}
+.rede-results-table td{padding:5px 8px;border-bottom:1px solid var(--border);}
+.status-ok{color:var(--green);font-weight:600;}
+.status-warn{color:var(--amber);font-weight:600;}
+.status-crit{color:var(--red);font-weight:600;}
+.active-tool{background:var(--accent-bg) !important;color:var(--accent) !important;border-color:var(--accent) !important;}
+.node-type-btn{width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:11px;font-family:var(--mono);cursor:pointer;text-align:left;transition:all .1s;}
+.node-type-btn:hover{background:var(--bg2);}
+.node-type-btn.selected{background:var(--accent-bg);color:var(--accent);border-color:var(--accent);}
+.legend-item{display:flex;align-items:center;gap:4px;}
+.legend-line{display:inline-block;width:20px;height:3px;border-radius:1px;}
+.legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;}
+
+/* HYDRAULIC STEPS */
+.hyd-step{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:6px;}
+.hyd-step.red{border-left:3px solid var(--red);}
+.hyd-step.amber{border-left:3px solid var(--amber);}
+.hyd-step.green{border-left:3px solid var(--green);}
+.hyd-step.teal{border-left:3px solid var(--teal);}
+.hyd-label{font-size:10px;font-family:var(--mono);color:var(--text3);flex:1;}
+.hyd-value{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--text);min-width:60px;text-align:right;}
+.hyd-unit{font-size:9px;font-family:var(--mono);color:var(--text3);text-align:right;}
+.hyd-formula{font-size:10px;font-family:var(--mono);background:var(--bg2);padding:8px;border-radius:var(--radius);color:var(--text2);}
+
+/* RIPPL TABLE */
+.rippl-table{width:100%;font-size:11px;border-collapse:collapse;font-family:var(--mono);}
+.rippl-table th{text-align:left;padding:5px 8px;border-bottom:1px solid var(--border2);color:var(--text3);font-size:10px;text-transform:uppercase;}
+.rippl-table td{padding:4px 8px;border-bottom:1px solid var(--border);}
+.rippl-max td{background:var(--amber-bg);font-weight:700;}
+.rippl-deficit td{background:var(--red-bg);}
