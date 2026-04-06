@@ -25,3 +25,44 @@ const SVG_PIPE=`<svg class="infra-icon" viewBox="0 0 24 24" fill="none" stroke="
 const SVG_ENERGY=`<svg class="infra-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
 
 function ic(svg,cls=''){return svg.replace('class="infra-icon"',`class="infra-icon ${cls}"`);}
+
+// ══════════════════════════════════════════
+// BIBLIOTECA DE MATERIAIS HIDRÁULICOS
+// ══════════════════════════════════════════
+// Cada entrada: { label, chw, n_mann, E_mpa, co2_kg_per_kg }
+//   chw         = Coeficiente Hazen-Williams C
+//   n_mann      = Coeficiente de Manning n (adimensional)
+//   E_mpa       = Módulo de elasticidade (MPa) — para golpe de aríete
+//   co2_kg_per_kg = Pegada de carbono (kg CO₂e / kg de material)
+// var (não const) para ser acessível em testes via vm.runInContext
+var MATERIAIS_HIDRO = {
+  pvc_novo:   { label:'PVC / PEAD (novo)',            chw:150, n_mann:0.009, E_mpa:2800,   co2_kg_per_kg:2.7,  rho_kg_m3:1400 },
+  pvc_uso:    { label:'PVC / PEAD (uso)',             chw:140, n_mann:0.010, E_mpa:2800,   co2_kg_per_kg:2.7,  rho_kg_m3:1400 },
+  pead:       { label:'PEAD (DN ≥ 200 mm)',           chw:140, n_mann:0.009, E_mpa:1000,   co2_kg_per_kg:2.5,  rho_kg_m3:950  },
+  ffd:        { label:'Ferro Fundido Dúctil (FFD)',   chw:130, n_mann:0.012, E_mpa:170000, co2_kg_per_kg:2.1,  rho_kg_m3:7200 },
+  ffc:        { label:'Ferro Fundido Cinzento (FFC)', chw:120, n_mann:0.013, E_mpa:110000, co2_kg_per_kg:2.1,  rho_kg_m3:7200 },
+  concreto_l: { label:'Concreto liso',                chw:110, n_mann:0.012, E_mpa:30000,  co2_kg_per_kg:0.35, rho_kg_m3:2400 },
+  concreto_r: { label:'Concreto rugoso / Amianto',   chw:100, n_mann:0.014, E_mpa:30000,  co2_kg_per_kg:0.35, rho_kg_m3:2400 },
+  aco:        { label:'Aço sem revestimento',         chw:90,  n_mann:0.011, E_mpa:210000, co2_kg_per_kg:1.85, rho_kg_m3:7850 },
+};
+
+/** Preenche automaticamente os campos de material no módulo de adução */
+function applyMaterialAducao(key){
+  const mat=MATERIAIS_HIDRO[key];
+  if(!mat)return;
+  // Atualiza o campo oculto que calcAducao() lê
+  const chwEl=document.getElementById('ad-chw');
+  if(chwEl){chwEl.value=mat.chw;}
+  const eTubo=document.getElementById('ad-e-tubo');
+  if(eTubo){eTubo.value=mat.E_mpa;}
+  state._materialKey=key;
+  calcAducao();
+  addAudit(`Material: ${mat.label} (C=${mat.chw}, n=${mat.n_mann}, E=${mat.E_mpa} MPa)`);
+}
+
+/** Opções <option> para os selects de material */
+function materialOptions(selectedChw){
+  return Object.entries(MATERIAIS_HIDRO).map(([k,m])=>
+    `<option value="${k}" ${m.chw===selectedChw?'selected':''}>${m.chw} — ${m.label}</option>`
+  ).join('');
+}

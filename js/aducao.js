@@ -10,10 +10,50 @@ const CURVA_CONSUMO_HORARIA=[
   0.058,0.052,0.046,0.040,0.034,0.026  // 18h–23h
 ];
 
+// ── Swamee-Jain — fator de atrito de Darcy-Weisbach (explícita, sem iteração) ──
+// ε = rugosidade absoluta (m), D = diâmetro (m), Re = número de Reynolds
+// Faixa válida: 10⁻⁶ ≤ ε/D ≤ 10⁻²  e  5000 ≤ Re ≤ 10⁸
+function calcSwameeJain(eps_m, D_m, Re){
+  if(Re<=0||D_m<=0)return 0.02;
+  const rel=eps_m/D_m;
+  const arg=rel/3.7+5.74/Math.pow(Re,0.9);
+  if(arg<=0)return 0.02;
+  const f=0.25/Math.pow(Math.log10(arg),2);
+  return Math.max(0.008,f);
+}
+
+// ── Darcy-Weisbach — perda de carga unitária J (m/m) ─────────────────────────
+function calcDarcyWeisbach(Q_m3s, D_m, eps_m, nu_m2s){
+  if(Q_m3s<=0||D_m<=0)return 0;
+  const A=Math.PI*(D_m/2)**2;
+  const v=Q_m3s/A;
+  const Re=v*D_m/nu_m2s;
+  const f=calcSwameeJain(eps_m,D_m,Re);
+  return f*(v**2)/(2*9.81*D_m);
+}
+
+// ── Pressão de vapor saturada pela fórmula de Antoine (kPa) ─────────────────
+// Válida de 1°C a 100°C — Antoine constants for water (Buck equation)
+function calcPvapor(temp_C){
+  return 0.61121*Math.exp((18.678-temp_C/234.5)*(temp_C/(257.14+temp_C)));
+}
+
+// ── NPSH disponível ────────────────────────────────────────────────────────
+// NPSH_d = Patm/ρg - Pv/ρg - Hs - hf_suc
+// Patm = 101.325 kPa, ρ = 1000 kg/m³, g = 9.81 m/s²
+function calcNPSH(Hs_m, hf_suc_m, temp_C){
+  const Patm=101.325; // kPa
+  const rho=1000,g=9.81;
+  const Pv=calcPvapor(temp_C);
+  const NPSH_d=(Patm-Pv)*1000/(rho*g)-Hs_m-hf_suc_m;
+  return NPSH_d;
+}
+
 function presetCagece(){
   document.getElementById('ad-horas').value='18';
   document.getElementById('ad-eta').value='72';
   document.getElementById('ad-chw').value='140';
+  if(document.getElementById('ad-material'))document.getElementById('ad-material').value='pvc_uso';
   document.getElementById('ad-k-bresse').value='auto';
   document.getElementById('ad-esp').value='8';
   const sa=document.getElementById('sl-agua');
@@ -50,7 +90,7 @@ function calcAducao(){
   }
 
   const p=getParams();
-  const adAnoIdx=state.adAnoIdx||0;
+  const adAnoIdx=state.adAnoIdx??0;
   const ano=state.infraAnos[adAnoIdx]||state.infraAnos[0];
   const pop=getPopForAno(ano);
   const Qmed=pop*p.agua/86400;
@@ -76,9 +116,37 @@ function calcAducao(){
   const D_real=DN/1000;
   const v_real=(Qb/1000)/(Math.PI*(D_real/2)**2);
 
-  const J=10.643*Math.pow(Qb/1000,1.852)/(Math.pow(C,1.852)*Math.pow(D_real,4.87));
-  const Hf=J*L;
+  // ── Método hidráulico: Hazen-Williams ou Darcy-Weisbach ─────────────────
+  const metodoDW=document.querySelector('input[name="metodo-hidra"]:checked')?.value==='dw';
+  const dwFieldsEl=document.getElementById('dw-fields');
+  if(dwFieldsEl)dwFieldsEl.style.display=metodoDW?'block':'none';
+  let J,Hf,metodoLabel;
+  if(metodoDW){
+    const eps_mm=+document.getElementById('ad-rugosidade')?.value||0.1;
+    const eps_m=eps_mm/1000;
+    const nu=1e-6; // viscosidade cinemática da água a ~20°C (m²/s)
+    J=calcDarcyWeisbach(Qb/1000,D_real,eps_m,nu);
+    metodoLabel=`Darcy-Weisbach + Swamee-Jain (ε=${eps_mm} mm)`;
+  }else{
+    J=10.643*Math.pow(Qb/1000,1.852)/(Math.pow(C,1.852)*Math.pow(D_real,4.87));
+    metodoLabel=`Hazen-Williams (C=${C})`;
+  }
+  Hf=J*L;
   const Hloc=Hf*0.10;
+
+  // ── C futuro — envelhecimento da tubulação ───────────────────────────────
+  const C_futuro_input=+document.getElementById('ad-chw-futuro')?.value||0;
+  let Hf_futuro=null,J_futuro=null;
+  if(C_futuro_input>0&&!metodoDW){
+    // Horizonte de projeto: diferença entre ano atual e ano selecionado
+    const anoBase=state.censosRaw?state.censosRaw[state.censosRaw.length-1].ano:new Date().getFullYear();
+    const anosDecorridos=Math.max(0,(state.infraAnos[state.adAnoIdx||0]||anoBase+20)-anoBase);
+    const horizonte_max=20;
+    const C_interp=anosDecorridos>=horizonte_max?C_futuro_input:
+      C+(C_futuro_input-C)*(anosDecorridos/horizonte_max);
+    J_futuro=10.643*Math.pow(Qb/1000,1.852)/(Math.pow(C_interp,1.852)*Math.pow(D_real,4.87));
+    Hf_futuro=J_futuro*L;
+  }
 
   const Hgeo=cotaRes-cotaCap;
   const Hman=Hgeo+Hf+Hloc;
@@ -103,11 +171,17 @@ function calcAducao(){
   }
 
   // Golpe de Aríete — Joukowsky ou Michaud (se T_c fornecido)
+  // E_tubo estimado pelo material selecionado (biblioteca) ou pelo C H-W
   let E_tubo=2800;
-  const C_val=+document.getElementById('ad-chw').value||140;
-  if(C_val>=130&&C_val<140)E_tubo=170000;
-  else if(C_val>=120&&C_val<130)E_tubo=170000;
-  else if(C_val<120)E_tubo=30000;
+  const matKey=state._materialKey;
+  if(matKey&&typeof MATERIAIS_HIDRO!=='undefined'&&MATERIAIS_HIDRO[matKey]){
+    E_tubo=MATERIAIS_HIDRO[matKey].E_mpa;
+  }else{
+    const C_val=+document.getElementById('ad-chw').value||140;
+    if(C_val>=130&&C_val<140)E_tubo=170000;
+    else if(C_val>=120&&C_val<130)E_tubo=170000;
+    else if(C_val<120)E_tubo=30000;
+  }
   const eTuboInput=document.getElementById('ad-e-tubo');
   const eTuboUser=eTuboInput&&eTuboInput.value.trim()?+eTuboInput.value:0;
   const eTuboSource=eTuboUser>0?'fabricante':'estimado pelo C H-W';
@@ -135,6 +209,39 @@ function calcAducao(){
   const pn_series=[60,80,100,125,160,200,250,315];
   const PN_rec=pn_series.find(pn=>pn>=P_max*1.2)||pn_series[pn_series.length-1];
   const risco_ariete=delta_H>Hman*0.5?'crit':delta_H>Hman*0.25?'warn':'ok';
+
+  // ── NPSH — verificação anti-cavitação ────────────────────────────────────
+  const npshHs=+document.getElementById('ad-npsh-hs')?.value||3;
+  const npshReq=+document.getElementById('ad-npsh-req')?.value||4;
+  const npshTemp=+document.getElementById('ad-npsh-temp')?.value||25;
+    const hf_suc=Hf*0.05; // estimativa: 5% Hf como perda na linha de sucção
+  const NPSH_d=calcNPSH(npshHs,hf_suc,npshTemp);
+  const npshMargem=0.5; // margem de segurança mínima
+  const npshOk=NPSH_d>=(npshReq+npshMargem);
+  const npshEl=document.getElementById('ad-npsh-result');
+  if(npshEl){
+    const npshCls=npshOk?'var(--green)':'var(--red)';
+    const npshIcon=npshOk?'✅':'🚨';
+    npshEl.innerHTML=`<span style="color:${npshCls};">${npshIcon} NPSH disponível = <strong>${NPSH_d.toFixed(2)} m</strong> | NPSH requerido = ${npshReq} m | Margem = ${(NPSH_d-npshReq).toFixed(2)} m${npshOk?'':' — <strong>RISCO DE CAVITAÇÃO</strong>'}</span>`;
+  }
+
+  // ── Estimativa de pegada de carbono ──────────────────────────────────────
+  // Emissão da tubulação: peso estimado × fator CO₂ do material
+  // Peso tubulação: π × D × e × ρ_mat × L (kg), ρ estimado por material
+  let co2_pipe=0,co2_energy=0,co2_total=0,co2Label='';
+  const matKeyC=state._materialKey;
+  const matC=matKeyC&&typeof MATERIAIS_HIDRO!=='undefined'?MATERIAIS_HIDRO[matKeyC]:null;
+  if(matC){
+    const rho_mat=matC.rho_kg_m3||1400;
+    const peso_tubo=Math.PI*D_real*(e_mm/1000)*rho_mat*L; // kg
+    co2_pipe=peso_tubo*matC.co2_kg_per_kg/1000; // ton CO₂e
+    const Pot_kw_real=(1000*(Qb/1000)*Hman)/(75*eta)*0.7355;
+    const fator_grid=0.088; // kg CO₂e/kWh — fator médio SIN (EPE 2023)
+    const kwh_ano=Pot_kw_real*(N*365);
+    co2_energy=kwh_ano*fator_grid/1000; // ton CO₂e/ano
+    co2_total=co2_pipe+co2_energy*20; // 20 anos de operação
+    co2Label=matC.label;
+  }
 
   // Rippl
   const Qdiario=Qmed*86400;
@@ -204,10 +311,12 @@ function calcAducao(){
   document.getElementById('ad-col-adutora').innerHTML=`
     <div class="hyd-step ${vColor}"><div class="hyd-label">DN adutora (Bresse)</div><div class="hyd-value">${DN}</div><div class="hyd-unit">mm · D_calc=${D_mm_calc.toFixed(0)} mm</div></div>
     <div class="hyd-step ${vColor}" style="margin-top:8px;"><div class="hyd-label">Velocidade real</div><div class="hyd-value">${v_real.toFixed(2)}</div><div class="hyd-unit">m/s · K=${K_bresse.toFixed(3)}</div></div>
-    <div class="hyd-step amber" style="margin-top:8px;"><div class="hyd-label">Perda de carga Hf</div><div class="hyd-value">${Hf.toFixed(2)}</div><div class="hyd-unit">m · J=${(J*1000).toFixed(3)} m/km</div></div>
+    <div class="hyd-step amber" style="margin-top:8px;"><div class="hyd-label">Perda de carga Hf (atual)</div><div class="hyd-value">${Hf.toFixed(2)}</div><div class="hyd-unit">m · J=${(J*1000).toFixed(3)} m/km</div></div>
+    ${Hf_futuro!==null?`<div class="hyd-step red" style="margin-top:8px;"><div class="hyd-label">Hf futuro (C=${C_futuro_input} envelhecido)</div><div class="hyd-value">${Hf_futuro.toFixed(2)}</div><div class="hyd-unit">m ·  +${((Hf_futuro-Hf)/Hf*100).toFixed(1)}% vs. atual</div></div>`:''}
     <div class="hyd-step" style="margin-top:8px;"><div class="hyd-label">Perdas localizadas (10%)</div><div class="hyd-value">${Hloc.toFixed(2)}</div><div class="hyd-unit">m</div></div>
-    <div class="hyd-step" style="margin-top:8px;"><div class="hyd-label">Material / C HW / L</div><div class="hyd-value">${C}</div><div class="hyd-unit">C · ${(L/1000).toFixed(2)} km</div></div>
-    <div class="hyd-formula" style="margin-top:10px;font-size:10px;">D = K√(Qb) = ${K_bresse.toFixed(3)}×√${(Qb/1000).toFixed(4)} = ${D_mm_calc.toFixed(0)} mm → <strong>DN ${DN} mm</strong><br>J = 10,643×Q^1,852/(C^1,852×D^4,87) = ${(J*1000).toFixed(4)} m/m</div>`;
+    <div class="hyd-step" style="margin-top:8px;"><div class="hyd-label">Método · C / L</div><div class="hyd-value">${metodoDW?'D-W':C}</div><div class="hyd-unit">${metodoDW?'Darcy-Weisbach':'C H-W'} · ${(L/1000).toFixed(2)} km</div></div>
+    ${co2_total>0?`<div class="hyd-step" style="margin-top:8px;background:var(--green-bg);"><div class="hyd-label">🌱 Pegada de carbono (20a)</div><div class="hyd-value">${co2_total.toFixed(0)}</div><div class="hyd-unit">ton CO₂e · tubo:${co2_pipe.toFixed(0)}t + op.:${(co2_energy*20).toFixed(0)}t</div></div>`:''}
+    <div class="hyd-formula" style="margin-top:10px;font-size:10px;">D = K√(Qb) = ${K_bresse.toFixed(3)}×√${(Qb/1000).toFixed(4)} = ${D_mm_calc.toFixed(0)} mm → <strong>DN ${DN} mm</strong><br>${metodoDW?`J = f·v²/(2g·D) [D-W+S-J] = ${(J*1000).toFixed(4)} m/m`:`J = 10,643×Q^1,852/(C^1,852×D^4,87) = ${(J*1000).toFixed(4)} m/m`}</div>`;
 
   document.getElementById('ad-col-reservatorio').innerHTML=`
     <div class="hyd-step"><div class="hyd-label">V₁ — Equilíbrio (Rippl)</div><div class="hyd-value">${V1.toFixed(0)}</div><div class="hyd-unit">m³</div></div>
@@ -282,16 +391,21 @@ function calcAducao(){
       <tr><td style="color:var(--text3);">Consumo per capita</td><td>q=${p.agua} L/hab/dia · K₁=${p.K1} · Qmed=${Qmed.toFixed(3)} L/s · Q·K1=${QK1.toFixed(3)} L/s</td></tr>
       <tr><td style="color:var(--text3);">Regime bombeamento</td><td>N=${N} h/dia → <strong>Qb = ${Qb.toFixed(3)} L/s</strong> (Q·K1×24/N)</td></tr>
       <tr><td style="color:var(--text3);">Adutora — Bresse</td><td>K=${K_bresse.toFixed(3)} · D=${D_mm_calc.toFixed(0)} mm → <strong>DN ${DN} mm</strong> · v=${v_real.toFixed(2)} m/s</td></tr>
-      <tr><td style="color:var(--text3);">Hazen-Williams (C=${C})</td><td>J=${(J*1000).toFixed(4)} m/m · L=${L} m · Hf=${Hf.toFixed(2)} m · Hloc=${Hloc.toFixed(2)} m</td></tr>
+      <tr><td style="color:var(--text3);">${metodoLabel}</td><td>J=${(J*1000).toFixed(4)} m/m · L=${L} m · Hf=${Hf.toFixed(2)} m · Hloc=${Hloc.toFixed(2)} m${Hf_futuro!==null?` · Hf_futuro(C=${C_futuro_input})=${Hf_futuro.toFixed(2)} m`:''}</td></tr>
       <tr><td style="color:var(--text3);">Topografia</td><td>Z_cap=${cotaCap} m · Z_res=${cotaRes} m · Hgeo=${Hgeo.toFixed(1)} m</td></tr>
       <tr><td style="color:var(--text3);">Altura manométrica total</td><td><strong>Hman = ${Hman.toFixed(2)} m.c.a.</strong> = ${Hgeo.toFixed(1)}+${Hf.toFixed(2)}+${Hloc.toFixed(2)}</td></tr>
       <tr><td style="color:var(--text3);">Potência da bomba</td><td>${Pot_cv.toFixed(1)} cv → Motor: <strong>${useFatorServico?Pot_motor_cv_fs:Pot_motor_cv} cv (${useFatorServico?Pot_motor_kw_fs:Pot_motor_kw} kW)</strong>${useFatorServico?` · fs=×${fatorServico.toFixed(2)} (catálogo)`:' — NBR 17094'}</td></tr>
+      <tr><td style="color:var(--text3);">NPSH verificação</td><td>NPSH_d=${NPSH_d.toFixed(2)} m | NPSHr=${npshReq} m | ${npshOk?'✅ Sem risco de cavitação':'🚨 RISCO DE CAVITAÇÃO — revisar instalação da bomba'}</td></tr>
       <tr><td style="color:var(--text3);">Reservatório (Rippl+NBR)</td><td>V₁=${V1.toFixed(0)} + V₂=${V2.toFixed(0)} + V₃=${V3.toFixed(0)} → <strong>V = ${V_total} m³</strong></td></tr>
       <tr><td style="color:var(--text3);">Golpe de aríete</td><td>${formulaAriete} · a=${a_celer.toFixed(0)} m/s · ΔH=${delta_H.toFixed(1)} m · P_max=${P_max.toFixed(1)} mca → <strong>PN ${PN_rec}</strong> · 2L/a=${T_critico.toFixed(1)}s · E_tubo=${E_tubo.toLocaleString('pt-BR')} MPa (${eTuboSource})</td></tr>
+      ${co2_total>0?`<tr><td style="color:var(--text3);">🌱 Pegada de carbono (20a)</td><td>${co2Label} · Tubulação: ${co2_pipe.toFixed(0)} ton CO₂e · Operação: ${(co2_energy*20).toFixed(0)} ton CO₂e · <strong>Total: ${co2_total.toFixed(0)} ton CO₂e</strong></td></tr>`:''}
       <tr><td style="color:var(--text3);">Verificação NBR</td><td>${nbrOk} conforme · ${nbrFail} não conforme — NBR 12211/12217/12218/5648/17094</td></tr>
     </tbody></table>`;
 
   addAudit(`Hidráulica: DN${DN}mm · Hman=${Hman.toFixed(1)}m · ${useFatorServico?Pot_motor_cv_fs:Pot_motor_cv}cv · V=${V_total}m³ · PN${PN_rec}`);
+
+  // LCC (async — não bloqueia a renderização principal)
+  renderLCC({DN,Qb,Hman,Hf,L,C,eta,N_h_dia:N,Pot_kw,series_dn}).catch(()=>{});
 }
 
 function setAdAno(idx,btn){
@@ -300,3 +414,95 @@ function setAdAno(idx,btn){
   btn.classList.add('btn-primary');
   calcAducao();
 }
+
+// ── Análise de Ciclo de Vida (LCC) ──────────────────────────────────────────
+// LCC = CAPEX_tubo + CAPEX_bomba + Σ(OPEX_energia × (1+r)^-t) para t=1..N
+// Compara 2 cenários: DN atual vs DN+1 (diâmetro maior, menor Hf)
+let _tarifasAneel = null;
+
+async function loadTarifasAneel(){
+  if(_tarifasAneel)return _tarifasAneel;
+  try{
+    const r=await fetch('data/tarifas-aneel.json');
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    _tarifasAneel=await r.json();
+    return _tarifasAneel;
+  }catch(_){ return null; }
+}
+
+async function renderLCC(params){
+  const {DN, Qb, Hman, Hf, L, C, eta, N_h_dia, Pot_kw, series_dn} = params;
+  const lccEl=document.getElementById('ad-lcc-display');
+  if(!lccEl)return;
+
+  const r_taxa=0.08; // taxa de desconto anual (8%)
+  const horizonte_lcc=20; // anos
+  const fator_dn_preco=2.0; // custo relativo por mm·m de tubulação (R$/mm/m)
+
+  // Tarifa de energia — do JSON estático ANEEL ou padrão
+  let tarifa_kwh=0.68;
+  const uf=state.municipioUF||'BR';
+  const tarifas=await loadTarifasAneel();
+  if(tarifas&&tarifas.tarifas){
+    const entry=tarifas.tarifas.find(t=>t.estado===uf)||tarifas.tarifas.find(t=>t.estado==='BR');
+    if(entry)tarifa_kwh=entry.tarifa_kwh;
+  }
+
+  // CAPEX tubulação: proporcional a DN² (simplificado)
+  const capex_tubo_dn=(dn)=>dn*dn*L*fator_dn_preco/1e6; // milhões R$
+
+  // OPEX energia: kWh/ano × tarifa
+  const opex_energia_dn=(hf_atual,dn_atual)=>{
+    const D_r=dn_atual/1000;
+    const J_r=10.643*Math.pow(Qb/1000,1.852)/(Math.pow(C,1.852)*Math.pow(D_r,4.87));
+    const Hf_r=J_r*L;
+    const Hloc_r=Hf_r*0.10;
+    const Hgeo_r=Hman-Hf*(1+0.10); // Hgeo fixo
+    const Hman_r=Hgeo_r+Hf_r+Hloc_r;
+    const pot_kw_r=(1000*(Qb/1000)*Hman_r)/(75*eta)*0.7355;
+    return pot_kw_r*N_h_dia*365*tarifa_kwh; // R$/ano
+  };
+
+  // VPL da OPEX por horizonte
+  const vpn=(opex_ano)=>{
+    let sum=0;
+    for(let t=1;t<=horizonte_lcc;t++) sum+=opex_ano/Math.pow(1+r_taxa,t);
+    return sum;
+  };
+
+  // Cenário A: DN atual
+  const opex_a=opex_energia_dn(Hf,DN);
+  const capex_a=capex_tubo_dn(DN);
+  const lcc_a=capex_a+vpn(opex_a)/1e6;
+
+  // Cenário B: DN+1 (diâmetro imediatamente acima na série)
+  const dn_b=series_dn.find(d=>d>DN)||DN;
+  const opex_b=opex_energia_dn(null,dn_b);
+  const capex_b=capex_tubo_dn(dn_b);
+  const lcc_b=capex_b+vpn(opex_b)/1e6;
+
+  const melhor=lcc_a<=lcc_b?'A':'B';
+
+  lccEl.innerHTML=`
+    <div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-bottom:8px;">
+      LCC = CAPEX_tubo + VPL(OPEX_energia) · r=${(r_taxa*100).toFixed(0)}%a.a. · ${horizonte_lcc} anos · Tarifa: R$ ${tarifa_kwh.toFixed(4)}/kWh (${uf}) · Fonte: ANEEL 2024
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="hyd-step ${melhor==='A'?'green':''}">
+        <div class="hyd-label">Cenário A — DN ${DN} mm ${melhor==='A'?'⭐ Recomendado':''}</div>
+        <div class="hyd-value">${lcc_a.toFixed(2)}</div>
+        <div class="hyd-unit">M R$ · CAPEX: ${capex_a.toFixed(2)} M · OPEX_VPL: ${(vpn(opex_a)/1e6).toFixed(2)} M</div>
+      </div>
+      <div class="hyd-step ${melhor==='B'?'green':''}">
+        <div class="hyd-label">Cenário B — DN ${dn_b} mm ${melhor==='B'?'⭐ Recomendado':''}</div>
+        <div class="hyd-value">${lcc_b.toFixed(2)}</div>
+        <div class="hyd-unit">M R$ · CAPEX: ${capex_b.toFixed(2)} M · OPEX_VPL: ${(vpn(opex_b)/1e6).toFixed(2)} M</div>
+      </div>
+    </div>
+    <div class="hyd-formula" style="margin-top:8px;font-size:10px;">
+      OPEX_A = ${(opex_a/1000).toFixed(1)} k R$/ano · OPEX_B = ${(opex_b/1000).toFixed(1)} k R$/ano · Diferença LCC = ${Math.abs(lcc_a-lcc_b).toFixed(2)} M R$
+      ${melhor==='A'?`<br>✅ DN ${DN} mm tem menor custo de ciclo de vida — maior velocidade compensa menor CAPEX.`:
+                    `<br>✅ DN ${dn_b} mm tem menor custo de ciclo de vida — menor OPEX de energia justifica maior CAPEX de tubulação.`}
+    </div>`;
+}
+

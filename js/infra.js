@@ -1,6 +1,21 @@
 // ══════════════════════════════════════════
 // DIMENSIONAMENTO + PARÂMETROS CUSTOM
 // ══════════════════════════════════════════
+
+// ── Manning — velocidade em conduto parcialmente cheio ─────────────────────
+// v = (1/n) × Rh^(2/3) × S^(1/2)   [m/s]
+// Rh = raio hidráulico (m), S = declividade (m/m), n = coef. Manning
+// Retorna { v_m_s, v_min_ok, D_m, area_m2, Rh_m }
+function calcManning(n_mann, D_m, S, laminaFrac){
+  // laminaFrac = fração de lâmina d'água (0,5–0,75 típico para SES)
+  const frac=Math.min(Math.max(laminaFrac??0.65,0.1),0.9);
+  const theta=2*Math.acos(1-2*frac); // ângulo central em radianos
+  const area=((theta-Math.sin(theta))/8)*D_m**2;
+  const perimeter=(theta/2)*D_m;
+  const Rh=perimeter>0?area/perimeter:D_m/4;
+  const v_m_s=(1/n_mann)*Math.pow(Rh,2/3)*Math.pow(S,0.5);
+  return{v_m_s,v_min_ok:v_m_s>=0.6,area_m2:area,Rh_m:Rh,theta};
+}
 function toggleCustomParams(){
   const show=document.getElementById('chk-custom').checked;
   document.getElementById('custom-params').style.display=show?'block':'none';
@@ -184,7 +199,43 @@ function renderObras(pop,v,p,ano){
       </div>
       <div class="dim-detail">Geração de ${v.res_td.toFixed(1)} ton/dia. Volume de aterro necessário para 20 anos: ${(v.res_td*365*20/0.8/1000).toFixed(0)} m³ (densidade 0,8 t/m³).</div>
       <div class="dim-formula">V_aterro = ${v.res_td.toFixed(1)} × 365 × 20 / 0,8 = ${(v.res_td*365*20/0.8/1000).toFixed(0)} m³</div>
-    </div>`;
+    </div>
+    ${renderManningCard(v,p,pop)}`;
+}
+
+// ── Dimensionamento de coletores de esgoto — Manning + infiltração ──────────
+function renderManningCard(v,p,pop){
+  // Parâmetros lidos do HTML (com defaults conservadores)
+  const n_mann=+(document.getElementById('ses-n-mann')?.value||0.013);
+  const S_oo=+(document.getElementById('ses-decl')?.value||0.5)/100; // convert % → m/m
+  const D_col_mm=+(document.getElementById('ses-dn-coletor')?.value||200);
+  const D_col=D_col_mm/1000;
+  const lamina_frac=+(document.getElementById('ses-lamina')?.value||65)/100; // convert % → fraction
+  const taxa_inf=+(document.getElementById('ses-taxa-infiltracao')?.value||0.1); // L/(s·km)
+  const ext_rede_km=+(document.getElementById('ses-ext-rede')?.value||5); // km
+  const Q_inf=taxa_inf*ext_rede_km; // L/s
+
+  const mann=calcManning(n_mann,D_col,S_oo,lamina_frac);
+  const Q_mann_ls=mann.area_m2*mann.v_m_s*1000; // L/s
+  const Q_design=v.QesgK1+Q_inf; // L/s total (ponta + infiltração)
+  const capacOk=Q_mann_ls>=Q_design;
+  const vMin_ok=mann.v_min_ok;
+
+  return `<div class="dim-card">
+    <div class="dim-header">
+      <div class="dim-title">${ic(SVG_SEWER,'teal')} SES — Coletor de Esgoto (Manning)</div>
+      <div><div class="dim-result" style="color:${capacOk?'var(--green)':'var(--red)'};">${capacOk?'OK':'INSUF.'}</div><div class="dim-unit">DN ${D_col_mm} mm</div></div>
+    </div>
+    <div class="dim-detail">
+      Manning n=${n_mann} · S=${(S_oo*100).toFixed(2)}% · Lâmina ${(lamina_frac*100).toFixed(0)}% · DN ${D_col_mm} mm<br>
+      v=${mann.v_m_s.toFixed(3)} m/s ${vMin_ok?'✅':'⚠ abaixo de 0,6 m/s (auto-limpeza)'} · Q_coletor=${Q_mann_ls.toFixed(2)} L/s<br>
+      Q_infiltração=${Q_inf.toFixed(3)} L/s (taxa ${taxa_inf} L/s·km × ${ext_rede_km} km) · Q_design=${Q_design.toFixed(2)} L/s
+    </div>
+    <div class="dim-formula">
+      v = (1/n)·Rh^2/3·S^1/2 = (1/${n_mann})×${mann.Rh_m.toFixed(4)}^0,667×${(S_oo*100).toFixed(2)}%^0,5 = ${mann.v_m_s.toFixed(3)} m/s
+      Q_inf = ${taxa_inf} × ${ext_rede_km} = ${Q_inf.toFixed(3)} L/s → Q_total = ${Q_design.toFixed(2)} L/s
+    </div>
+  </div>`;
 }
 
 function renderChartDemanda(p){

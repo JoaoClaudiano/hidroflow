@@ -45,6 +45,7 @@ const PRECACHE_URLS = [
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './data/tarifas-aneel.json',
 ];
 
 /* External CDN resources cached on first use */

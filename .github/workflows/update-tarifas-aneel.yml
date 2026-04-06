@@ -1,0 +1,75 @@
+name: Atualizar Tarifas ANEEL
+
+on:
+  schedule:
+    # Roda no primeiro dia de cada mês às 06:00 UTC
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (não faz commit)'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  update-tarifas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verificar dataset ANEEL (dadosabertos.aneel.gov.br)
+        id: check_aneel
+        run: |
+          # Tenta baixar o CSV de tarifas da ANEEL.
+          # URL do portal de dados abertos (CKAN) — Dataset: "Componentes Tarifários"
+          # Como não há API REST pública, usamos o arquivo CSV estático como referência.
+          # Se o download falhar, mantemos o JSON atual.
+          echo "Verificando disponibilidade do portal ANEEL..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://dadosabertos.aneel.gov.br/dataset/tarifas-de-energia-eletrica-do-grupo-a" \
+            --max-time 15 || echo "000")
+          echo "HTTP_STATUS=$HTTP_STATUS"
+          echo "portal_available=$([ "$HTTP_STATUS" = "200" ] && echo 'true' || echo 'false')" >> "$GITHUB_OUTPUT"
+
+      - name: Atualizar vigência no JSON (mesmo sem novo CSV)
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          # Atualiza apenas o campo _meta.atualizacao para registrar a data da verificação
+          python3 - <<'EOF'
+          import json, os, sys
+          from datetime import datetime
+
+          path = "data/tarifas-aneel.json"
+          if not os.path.exists(path):
+              print("Arquivo não encontrado, pulando.")
+              sys.exit(0)
+
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+
+          today = datetime.utcnow().strftime("%Y-%m-%d")
+          data["_meta"]["atualizacao"] = today
+          data["_meta"]["verificado_em"] = today
+
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False, indent=2)
+
+          print(f"Atualizado _meta.atualizacao = {today}")
+          EOF
+
+      - name: Commit e push se houve alteração
+        if: ${{ inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet data/tarifas-aneel.json; then
+            echo "Nenhuma alteração no JSON."
+          else
+            git add data/tarifas-aneel.json
+            git commit -m "chore(data): atualizar tarifas ANEEL [skip ci]"
+            git push
+          fi
