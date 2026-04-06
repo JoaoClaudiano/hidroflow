@@ -96,7 +96,7 @@ function calcAducao(){
   else if(C_val>=120&&C_val<130)E_tubo=170000;
   else if(C_val<120)E_tubo=30000;
   const eTuboInput=document.getElementById('ad-e-tubo');
-  const eTuboUser=eTuboInput?+eTuboInput.value:0;
+  const eTuboUser=eTuboInput&&eTuboInput.value.trim()?+eTuboInput.value:0;
   const eTuboSource=eTuboUser>0?'fabricante':'estimado pelo C H-W';
   if(eTuboUser>0)E_tubo=eTuboUser;
   const E_agua=2100;

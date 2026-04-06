@@ -48,7 +48,7 @@ function updateSlider(tipo){
   else if(tipo==='residuos')sv.textContent=(+sl.value).toFixed(2)+' kg/hab/dia';
   else if(tipo==='energia')sv.textContent=sl.value+' kWh/hab/mês';
   renderDimensionamento();
-  if(state.projData.length)calcAducao();
+  if(state.projData?.length)calcAducao();
 }
 
 function setInfraAno(idx,btn){
