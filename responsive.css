@@ -14,7 +14,7 @@
   .topbar-right .version-badge { font-size: 10px; }
 
   .tabs { gap: 0; padding-bottom: 2px; }
-  .tab  { font-size: 11px; padding: 8px 9px; }
+  .tab  { font-size: 11px; padding: 8px 9px; white-space: nowrap; }
 
   .card { padding: 0.75rem 0.85rem; }
   .card-title { font-size: 12px; }
@@ -58,6 +58,18 @@
   .model-name { width: 80px; font-size: 12px; }
 
   .dim-card { padding: 10px 12px; }
+
+  /* Network editor is hard to use on very small screens — show a notice */
+  #rede-map-wrap::before {
+    content: "⚠ O editor de rede é otimizado para telas maiores. Use em tablet ou desktop para melhor experiência.";
+    display: block;
+    font-size: 11px;
+    color: var(--amber);
+    padding: 6px 10px;
+    background: var(--amber-bg);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+  }
 }
 
 /* ── Medium phones (481px – 700px) ── */
@@ -106,4 +118,13 @@
   input[type=text],
   select,
   textarea       { font-size: 16px; } /* prevents iOS auto-zoom */
+}
+
+/* ── Charts: ensure canvas resizes on orientation change ── */
+@media screen {
+  .chart-wrap canvas,
+  .chart-wrap-lg canvas {
+    max-width: 100%;
+    height: auto !important;
+  }
 }

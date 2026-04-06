@@ -1,0 +1,25 @@
+{
+  "name": "hidroflow",
+  "version": "5.0.0",
+  "description": "Suporte à Análise e Dimensionamento de Sistemas de Abastecimento de Água",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoaoClaudiano/hidroflow.git"
+  },
+  "keywords": ["hidráulica", "abastecimento", "projeção populacional", "NBR"],
+  "author": "JoaoClaudiano",
+  "license": "MIT",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/JoaoClaudiano/hidroflow/issues"
+  },
+  "homepage": "https://github.com/JoaoClaudiano/hidroflow#readme",
+  "devDependencies": {
+    "vitest": "^4.1.2"
+  }
+}
