@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Novidades &amp; Roadmap — HidroFlow</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#1a4fd6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#4f7ef5" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HidroFlow">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="canonical" href="https://joaoclaudiano.github.io/hidroflow/novidades.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/footer.css">
+<link rel="stylesheet" href="responsive.css">
+<script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+  /* ── Layout base (same as sobre.html) ── */
+  .inst-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;
+  }
+  .inst-topbar-left { display: flex; align-items: center; gap: 12px; }
+  .inst-topbar-left a {
+    display: flex; align-items: center; gap: 8px;
+    text-decoration: none; color: var(--text);
+    font-size: 18px; font-weight: 600; letter-spacing: -0.02em;
+  }
+  .inst-topbar-left a:hover { color: var(--accent); }
+  .inst-breadcrumb {
+    font-family: var(--mono); font-size: 11px; color: var(--text3);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .inst-breadcrumb a { color: var(--text3); text-decoration: none; transition: color .15s; }
+  .inst-breadcrumb a:hover { color: var(--accent); }
+  .inst-body { max-width: 760px; }
+  .inst-body h1 {
+    font-size: 1.5rem; font-weight: 600; color: var(--text);
+    letter-spacing: -0.03em; margin-bottom: 0.3rem;
+  }
+  .inst-body .inst-lead {
+    font-size: 0.9rem; color: var(--text3); font-family: var(--mono);
+    margin-bottom: 2rem; display: flex; align-items: center; gap: 8px;
+  }
+  .inst-body h2 {
+    font-size: 0.95rem; font-weight: 600; color: var(--accent);
+    border-bottom: 2px solid var(--accent); padding-bottom: 0.35rem;
+    margin: 2.5rem 0 1.2rem; letter-spacing: -0.01em;
+  }
+  .inst-body p, .inst-body li {
+    font-size: 0.86rem; color: var(--text2); line-height: 1.75;
+  }
+  .inst-body ul { margin-left: 1.4rem; margin-bottom: 0.8rem; }
+  .inst-body ul li { margin-bottom: 0.3rem; }
+  .inst-body strong { color: var(--text); }
+  .inst-body a { color: var(--accent); text-decoration: none; }
+  .inst-body a:hover { text-decoration: underline; }
+  .inst-highlight {
+    background: var(--accent-bg);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.1rem;
+    margin: 1.5rem 0;
+    font-size: 0.86rem; color: var(--text2); line-height: 1.7;
+  }
+  .inst-highlight strong { color: var(--accent); }
+
+  /* ── Version badge inline ── */
+  .ver-chip {
+    display: inline-block; font-family: var(--mono); font-size: 10px;
+    font-weight: 500; padding: 2px 7px; border-radius: 4px;
+    vertical-align: middle; letter-spacing: 0.02em;
+  }
+  .ver-chip.stable  { background: #e6f4ea; color: #1e6e35; border: 1px solid #a8d5b4; }
+  .ver-chip.minor   { background: #e8f0fe; color: #1a4fd6; border: 1px solid #aac2f5; }
+  .ver-chip.current { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+  .ver-chip.future  { background: var(--bg2); color: var(--text3); border: 1px solid var(--border2); }
+  [data-theme="dark"] .ver-chip.stable  { background: #1a3a22; color: #6fcf97; border-color: #2d6640; }
+  [data-theme="dark"] .ver-chip.minor   { background: #1a2a4a; color: #7aadff; border-color: #2d4a80; }
+
+  /* ── Status pills ── */
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    padding: 2px 8px; border-radius: 20px; vertical-align: middle;
+  }
+  .status-pill.released  { background: #e6f4ea; color: #1e6e35; border: 1px solid #a8d5b4; }
+  .status-pill.planned   { background: #fff8e1; color: #7a5c00; border: 1px solid #f5cc5a; }
+  .status-pill.progress  { background: #e8f0fe; color: #1a4fd6; border: 1px solid #aac2f5; }
+  .status-pill.research  { background: #f3e8fd; color: #6a1b9a; border: 1px solid #d8a8f5; }
+  [data-theme="dark"] .status-pill.released  { background: #1a3a22; color: #6fcf97; border-color: #2d6640; }
+  [data-theme="dark"] .status-pill.planned   { background: #3a2d00; color: #f5cc5a; border-color: #7a5c00; }
+  [data-theme="dark"] .status-pill.progress  { background: #1a2a4a; color: #7aadff; border-color: #2d4a80; }
+  [data-theme="dark"] .status-pill.research  { background: #2a1a3a; color: #d8a8f5; border-color: #6a1b9a; }
+
+  /* ── Timeline ── */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    margin: 0.5rem 0 1rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 8px; top: 0; bottom: 0;
+    width: 2px; background: var(--border2);
+    border-radius: 2px;
+  }
+  .tl-entry {
+    position: relative;
+    margin-bottom: 0;
+    padding-bottom: 2rem;
+  }
+  .tl-entry:last-child { padding-bottom: 0; }
+  .tl-dot {
+    position: absolute; left: -24px; top: 4px;
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 2px var(--border2);
+    background: var(--border2);
+    z-index: 1;
+  }
+  .tl-dot.released  { background: #34a853; box-shadow: 0 0 0 2px #a8d5b4; }
+  .tl-dot.current   { background: var(--accent); box-shadow: 0 0 0 2px var(--accent); width: 14px; height: 14px; left: -25px; top: 3px; }
+  .tl-dot.planned   { background: #f5cc5a; box-shadow: 0 0 0 2px #f5cc5a55; }
+  .tl-dot.research  { background: #ab47bc; box-shadow: 0 0 0 2px #ab47bc55; }
+
+  .tl-header {
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap; margin-bottom: 0.5rem;
+  }
+  .tl-version {
+    font-family: var(--mono); font-size: 0.88rem; font-weight: 600;
+    color: var(--text); letter-spacing: -0.01em;
+  }
+  .tl-date {
+    font-family: var(--mono); font-size: 0.78rem; color: var(--text3);
+  }
+  .tl-title {
+    font-size: 0.86rem; font-weight: 600; color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+  .tl-body {
+    font-size: 0.83rem; color: var(--text2); line-height: 1.7;
+  }
+  .tl-body ul {
+    list-style: none; padding: 0; margin: 0.4rem 0 0;
+  }
+  .tl-body ul li {
+    display: flex; align-items: baseline; gap: 6px;
+    padding: 2px 0; font-size: 0.83rem;
+  }
+  .tl-body ul li::before {
+    content: '–'; color: var(--text3); flex-shrink: 0;
+  }
+  .tl-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1.05rem;
+  }
+  .tl-card.current-card {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+  }
+  .tl-card.future-card {
+    border-style: dashed;
+    opacity: 0.9;
+  }
+
+  /* ── Roadmap grid ── */
+  .roadmap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 10px;
+    margin: 1rem 0 1.5rem;
+  }
+  .roadmap-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+  }
+  .roadmap-item.in-progress {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+  }
+  .roadmap-item-icon { font-size: 20px; margin-bottom: 6px; }
+  .roadmap-item-title {
+    font-size: 0.84rem; font-weight: 600; color: var(--text);
+    margin-bottom: 4px;
+  }
+  .roadmap-item-desc {
+    font-size: 0.78rem; color: var(--text3); line-height: 1.5;
+  }
+  .roadmap-item-footer {
+    margin-top: 8px; display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ── Summary stats ── */
+  .stats-row {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin: 1.2rem 0;
+  }
+  .stat-box {
+    flex: 1; min-width: 100px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.7rem 1rem;
+    text-align: center;
+  }
+  .stat-box .stat-value {
+    font-family: var(--mono); font-size: 1.3rem; font-weight: 600;
+    color: var(--accent); display: block; line-height: 1.2;
+  }
+  .stat-box .stat-label {
+    font-size: 0.75rem; color: var(--text3); margin-top: 2px;
+  }
+
+  @media (max-width: 600px) {
+    .roadmap-grid { grid-template-columns: 1fr; }
+    .stats-row { gap: 8px; }
+    .tl-header { gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="inst-topbar">
+    <div class="inst-topbar-left">
+      <a href="index.html">💧 HidroFlow</a>
+    </div>
+    <nav class="inst-breadcrumb" aria-label="Navegação">
+      <a href="index.html">Início</a>
+      <span>›</span>
+      <span>Novidades &amp; Roadmap</span>
+    </nav>
+  </div>
+
+  <div class="inst-body">
+    <h1>Novidades &amp; Roadmap</h1>
+    <p class="inst-lead">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Histórico de versões, atualizações recentes e plano de desenvolvimento futuro
+    </p>
+
+    <div class="inst-highlight">
+      <strong>Versão atual:</strong> HidroFlow <strong>v5.0</strong> &mdash; plataforma de análise integrada de sistemas de abastecimento de água, inteiramente client-side, open source e em desenvolvimento ativo.
+      Código disponível em <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener">github.com/JoaoClaudiano/hidroflow</a>.
+    </div>
+
+    <!-- Stats summary -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <span class="stat-value">5</span>
+        <div class="stat-label">Versões principais</div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value">12+</span>
+        <div class="stat-label">Pull Requests</div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value">71</span>
+        <div class="stat-label">Testes unitários</div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value">6</span>
+        <div class="stat-label">Módulos de cálculo</div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-value">100%</span>
+        <div class="stat-label">Client-side</div>
+      </div>
+    </div>
+
+    <!-- ============================
+         CHANGELOG / PAST VERSIONS
+         ============================ -->
+    <h2>Histórico de Versões</h2>
+
+    <div class="timeline">
+
+      <!-- v5.0 — current -->
+      <div class="tl-entry">
+        <div class="tl-dot current"></div>
+        <div class="tl-card current-card">
+          <div class="tl-header">
+            <span class="tl-version">v5.0</span>
+            <span class="ver-chip current">Versão atual</span>
+            <span class="tl-date">2025–2026</span>
+            <span class="status-pill released">✓ Lançado</span>
+          </div>
+          <div class="tl-title">PWA, Service Worker &amp; Melhorias de UX Mobile</div>
+          <div class="tl-body">
+            <ul>
+              <li>Progressive Web App (PWA) completo com <code>manifest.json</code> e ícones adaptativos;</li>
+              <li>Service Worker versionado via GitHub Actions (cache por SHA de commit);</li>
+              <li>Botão "Voltar ao topo" com visibilidade automática por scroll;</li>
+              <li>Links canônicos e tags <code>preconnect</code>/<code>dns-prefetch</code> em todas as páginas;</li>
+              <li>Suporte a <em>apple-mobile-web-app</em> e <code>mobile-web-app-capable</code>;</li>
+              <li>Página <strong>Metodologia</strong> com memorial de cálculo completo (normas NBR 12211, FUNASA, Hazen-Williams, Hardy-Cross, Golpe de Aríete);</li>
+              <li>Footer institucional profissional presente em todas as páginas;</li>
+              <li>Correções de legibilidade no tema escuro (contraste elevado).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- v4.4 -->
+      <div class="tl-entry">
+        <div class="tl-dot released"></div>
+        <div class="tl-card">
+          <div class="tl-header">
+            <span class="tl-version">v4.4</span>
+            <span class="ver-chip stable">Estável</span>
+            <span class="status-pill released">✓ Lançado</span>
+          </div>
+          <div class="tl-title">Páginas Institucionais &amp; Footer Profissional</div>
+          <div class="tl-body">
+            <ul>
+              <li>Criação das páginas <strong>Sobre</strong>, <strong>Contato</strong>, <strong>Privacidade</strong> e <strong>Termos de Uso</strong>;</li>
+              <li>Footer unificado com branding, badges e navegação institucional;</li>
+              <li>Design system consolidado com variáveis CSS globais;</li>
+              <li>Tema escuro com persistência via <code>localStorage</code> em todas as páginas.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- v4.2 -->
+      <div class="tl-entry">
+        <div class="tl-dot released"></div>
+        <div class="tl-card">
+          <div class="tl-header">
+            <span class="tl-version">v4.2</span>
+            <span class="ver-chip stable">Estável</span>
+            <span class="status-pill released">✓ Lançado</span>
+          </div>
+          <div class="tl-title">Exportação Excel &amp; Fallbacks de API</div>
+          <div class="tl-body">
+            <ul>
+              <li>Correção do download por Blob na exportação de planilhas Excel (.xlsx);</li>
+              <li>Guards contra valores nulos em todos os cálculos de dimensionamento;</li>
+              <li>Fallback multi-ano para consulta de área geográfica via IBGE/SIDRA;</li>
+              <li>CDN do SheetJS (xlsx) corrigido para versão estável.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- v4.1 -->
+      <div class="tl-entry">
+        <div class="tl-dot released"></div>
+        <div class="tl-card">
+          <div class="tl-header">
+            <span class="tl-version">v4.1</span>
+            <span class="ver-chip stable">Estável</span>
+            <span class="status-pill released">✓ Lançado</span>
+          </div>
+          <div class="tl-title">Correção de Bugs Críticos</div>
+          <div class="tl-body">
+            <ul>
+              <li>Correção de <code>ReferenceError</code> em <code>calcBestFit</code> (seleção automática de modelo);</li>
+              <li>Favicon SVG corrigido (eliminação do 404);</li>
+              <li>Redução de ruído de console no retry de IBGE;</li>
+              <li>Ajustes de CSS para impressão e nomes de arquivo na exportação.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- v4.0 -->
+      <div class="tl-entry">
+        <div class="tl-dot released"></div>
+        <div class="tl-card">
+          <div class="tl-header">
+            <span class="tl-version">v4.0</span>
+            <span class="ver-chip stable">Estável</span>
+            <span class="status-pill released">✓ Lançado</span>
+          </div>
+          <div class="tl-title">Motor de Decisão, Hardy-Cross &amp; EPANET</div>
+          <div class="tl-body">
+            <ul>
+              <li>Implementação completa do <strong>método de Hardy-Cross</strong> para simulação de redes de distribuição;</li>
+              <li>Editor de rede interativo com mapa Leaflet, adição de nós e trechos via clique;</li>
+              <li>Importação e exportação de redes no formato <strong>EPANET (.INP)</strong>;</li>
+              <li>Motor de diagnóstico automatizado com auditoria de qualidade de dados;</li>
+              <li>Cálculo automático de diâmetros pela equação de <strong>Bresse</strong>;</li>
+              <li>Seleção automática de modelo de projeção por métricas R², RMSE e LOO-RMSE;</li>
+              <li>Envelope de confiança (IC 95%) nos gráficos de projeção populacional;</li>
+              <li>Exportação de relatório PDF com memorial de cálculo completo.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- v3.0 -->
+      <div class="tl-entry">
+        <div class="tl-dot released"></div>
+        <div class="tl-card">
+          <div class="tl-header">
+            <span class="tl-version">v3.0</span>
+            <span class="ver-chip stable">Estável</span>
+            <span class="status-pill released">✓ Lançado</span>
+          </div>
+          <div class="tl-title">Testes Unitários, CI/CD &amp; Qualidade de Código</div>
+          <div class="tl-body">
+            <ul>
+              <li>Suite de <strong>71 testes unitários</strong> com Vitest (cobertura dos módulos de cálculo principais);</li>
+              <li>Pipeline de CI/CD no GitHub Actions (lint, testes, deploy automático);</li>
+              <li>Validação de entradas de formulário com feedback ao usuário;</li>
+              <li>Cache em memória (<code>Map</code>) e retry exponencial (3 tentativas) nas chamadas às APIs IBGE/SIDRA;</li>
+              <li>Gráficos Chart.js com suporte completo ao tema escuro;</li>
+              <li>Proteção contra overflow do <code>localStorage</code>;</li>
+              <li>Sanitização de saídas para prevenção de XSS (CodeQL);</li>
+              <li>README completo com instruções de contribuição e documentação técnica.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- v2.0 -->
+      <div class="tl-entry">
+        <div class="tl-dot released"></div>
+        <div class="tl-card">
+          <div class="tl-header">
+            <span class="tl-version">v2.0</span>
+            <span class="ver-chip stable">Estável</span>
+            <span class="status-pill released">✓ Lançado</span>
+          </div>
+          <div class="tl-title">Modularização do Código &amp; Dark Mode</div>
+          <div class="tl-body">
+            <ul>
+              <li>Refatoração completa: <code>index.html</code> separado em módulos <code>css/</code> e <code>js/</code>;</li>
+              <li>Implementação do <strong>tema escuro</strong> com toggle na barra de ferramentas;</li>
+              <li>Arquivo <code>css/variables.css</code> com design tokens globais;</li>
+              <li>Layout responsivo com <code>responsive.css</code> dedicado;</li>
+              <li>Correções de acessibilidade (títulos, ARIA labels, contraste).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- v1.0 -->
+      <div class="tl-entry">
+        <div class="tl-dot released"></div>
+        <div class="tl-card">
+          <div class="tl-header">
+            <span class="tl-version">v1.0</span>
+            <span class="ver-chip stable">Inicial</span>
+            <span class="status-pill released">✓ Lançado</span>
+          </div>
+          <div class="tl-title">Lançamento Inicial — HidroFlow</div>
+          <div class="tl-body">
+            <ul>
+              <li>Aplicação single-page com projeção populacional (aritmético, geométrico, logístico, Holt);</li>
+              <li>Integração com <strong>IBGE/SIDRA</strong> para dados censitários de 1991 a 2022;</li>
+              <li>Geolocalização via <strong>OpenStreetMap/Nominatim</strong>;</li>
+              <li>Dimensionamento de vazões, volumes de reservação e adução (NBR 12211/FUNASA);</li>
+              <li>Gráficos interativos com Chart.js e mapa Leaflet;</li>
+              <li>100% client-side, sem back-end ou banco de dados.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /timeline -->
+
+
+    <!-- ============================
+         ROADMAP — PRÓXIMAS VERSÕES
+         ============================ -->
+    <h2>Roadmap — Próximas Versões</h2>
+
+    <p>O desenvolvimento do HidroFlow segue uma visão de expansão incremental, priorizando robustez técnica e cobertura das análises integradas de saneamento. Abaixo estão os itens planejados, em ordem de prioridade.</p>
+
+    <div class="roadmap-grid">
+
+      <div class="roadmap-item in-progress">
+        <div class="roadmap-item-icon">🏗️</div>
+        <div class="roadmap-item-title">Microsimulação Hidráulica Dinâmica</div>
+        <div class="roadmap-item-desc">Simulação transiente de redes ao estilo EPANET, com variação temporal de demanda e pressão (EPS — Extended Period Simulation).</div>
+        <div class="roadmap-item-footer"><span class="status-pill progress">Em desenvolvimento</span></div>
+      </div>
+
+      <div class="roadmap-item">
+        <div class="roadmap-item-icon">⚡</div>
+        <div class="roadmap-item-title">Consumo Energético de ETEs e ETAs</div>
+        <div class="roadmap-item-desc">Cálculo de energia consumida por estações elevatórias, ETAs e ETEs, com estimativa de custo operacional e índice de eficiência energética.</div>
+        <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
+      </div>
+
+      <div class="roadmap-item">
+        <div class="roadmap-item-icon">🌊</div>
+        <div class="roadmap-item-title">Balanço Hídrico com Variáveis Climáticas</div>
+        <div class="roadmap-item-desc">Integração com dados de precipitação, evapotranspiração e disponibilidade de mananciais para análise de balanço hídrico regional.</div>
+        <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
+      </div>
+
+      <div class="roadmap-item">
+        <div class="roadmap-item-icon">🏭</div>
+        <div class="roadmap-item-title">Análise de Demanda por Setores</div>
+        <div class="roadmap-item-desc">Decomposição do consumo em categorias: doméstico, industrial, comercial, público e perdas físicas/comerciais (coeficientes NRW).</div>
+        <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
+      </div>
+
+      <div class="roadmap-item">
+        <div class="roadmap-item-icon">♻️</div>
+        <div class="roadmap-item-title">Gestão de Resíduos Sólidos</div>
+        <div class="roadmap-item-desc">Interface para geração de resíduos, vida útil de aterros sanitários, coleta seletiva e indicadores SINISA/SNIS integrados à análise urbana.</div>
+        <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
+      </div>
+
+      <div class="roadmap-item">
+        <div class="roadmap-item-icon">🌡️</div>
+        <div class="roadmap-item-title">Cenários de Mudança Climática</div>
+        <div class="roadmap-item-desc">Análise de impacto de cenários RCP 4.5 / RCP 8.5 sobre a demanda e disponibilidade hídrica, com projeções de longo prazo.</div>
+        <div class="roadmap-item-footer"><span class="status-pill research">Pesquisa</span></div>
+      </div>
+
+      <div class="roadmap-item">
+        <div class="roadmap-item-icon">📡</div>
+        <div class="roadmap-item-title">Telemetria e SCADA Simplificado</div>
+        <div class="roadmap-item-desc">Painel de monitoramento em tempo real com importação de dados de sensores IoT e dashboard de indicadores operacionais.</div>
+        <div class="roadmap-item-footer"><span class="status-pill research">Pesquisa</span></div>
+      </div>
+
+      <div class="roadmap-item">
+        <div class="roadmap-item-icon">📐</div>
+        <div class="roadmap-item-title">Dimensionamento de Estações Elevatórias</div>
+        <div class="roadmap-item-desc">Seleção de bombas, curva do sistema, ponto de operação, NPSH e análise de cavitação com integração ao módulo hidráulico.</div>
+        <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
+      </div>
+
+      <div class="roadmap-item">
+        <div class="roadmap-item-icon">🗂️</div>
+        <div class="roadmap-item-title">Projetos Salvos &amp; Multi-cenário</div>
+        <div class="roadmap-item-desc">Persistência completa de projetos com suporte a múltiplos cenários de análise, comparação lado a lado e exportação consolidada.</div>
+        <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
+      </div>
+
+      <div class="roadmap-item">
+        <div class="roadmap-item-icon">🌍</div>
+        <div class="roadmap-item-title">Internacionalização (i18n)</div>
+        <div class="roadmap-item-desc">Suporte a inglês e espanhol para ampliar o uso acadêmico internacional da ferramenta, com suporte a diferentes normas técnicas regionais.</div>
+        <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
+      </div>
+
+      <div class="roadmap-item">
+        <div class="roadmap-item-icon">🤝</div>
+        <div class="roadmap-item-title">API Pública de Cálculos</div>
+        <div class="roadmap-item-desc">Exposição dos módulos de cálculo como biblioteca npm, permitindo integração com outros projetos e automação de análises em lote.</div>
+        <div class="roadmap-item-footer"><span class="status-pill research">Pesquisa</span></div>
+      </div>
+
+      <div class="roadmap-item">
+        <div class="roadmap-item-icon">📱</div>
+        <div class="roadmap-item-title">App Nativo (Capacitor/PWA+)</div>
+        <div class="roadmap-item-desc">Publicação nas lojas App Store e Google Play como aplicativo nativo via Capacitor, com suporte offline completo e notificações.</div>
+        <div class="roadmap-item-footer"><span class="status-pill research">Pesquisa</span></div>
+      </div>
+
+    </div><!-- /roadmap-grid -->
+
+
+    <!-- ============================
+         LEGEND
+         ============================ -->
+    <h2>Legenda de Status</h2>
+
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:1.5rem;">
+      <span class="status-pill released">✓ Lançado — funcionalidade disponível na versão atual</span>
+      <span class="status-pill progress">Em desenvolvimento — em implementação ativa</span>
+      <span class="status-pill planned">Planejado — escopo definido, aguardando implementação</span>
+      <span class="status-pill research">Pesquisa — em análise de viabilidade técnica</span>
+    </div>
+
+    <div class="inst-highlight">
+      <strong>Contribua com o roadmap:</strong> Tem uma sugestão de funcionalidade ou encontrou um bug?
+      Abra uma <em>issue</em> ou <em>pull request</em> no repositório GitHub.
+      Leia o <a href="https://github.com/JoaoClaudiano/hidroflow/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">CONTRIBUTING.md</a> para saber como participar.
+    </div>
+
+    <div style="margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--border); display:flex; gap:10px; flex-wrap:wrap;">
+      <a href="index.html" class="btn btn-primary btn-sm">← Ir para a Aplicação</a>
+      <a href="sobre.html" class="btn btn-sm">Sobre o Projeto</a>
+      <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener" class="btn btn-sm">GitHub</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer" role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="footer-logo">
+        <span>💧</span>
+        <span class="footer-logo-name">HidroFlow</span>
+      </a>
+      <p class="footer-desc">
+        Ferramenta de suporte à análise e dimensionamento de sistemas de abastecimento de água, integrando projeção populacional, demanda, infraestrutura e simulação hidráulica.
+      </p>
+      <div class="footer-badge-row">
+        <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener" class="footer-badge">GitHub</a>
+        <span class="footer-badge">Client-side</span>
+        <span class="footer-badge">Open Source</span>
+      </div>
+    </div>
+
+    <nav class="footer-nav-group" aria-label="Páginas">
+      <h4>Páginas</h4>
+      <ul>
+        <li><a href="index.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Aplicação</a></li>
+        <li><a href="metodologia.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Metodologia</a></li>
+        <li><a href="sobre.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Sobre</a></li>
+        <li><a href="contato.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Contato</a></li>
+        <li><a href="novidades.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Novidades</a></li>
+      </ul>
+    </nav>
+
+    <nav class="footer-nav-group" aria-label="Legal">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="privacidade.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Privacidade</a></li>
+        <li><a href="termos.html"><svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Termos de Uso</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-copy">
+      &copy; <span id="footer-year"></span>
+      <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener">HidroFlow</a>
+      — Universidade Federal do Ceará (UFC) &mdash; Engenharia Civil
+    </p>
+    <p class="footer-disclaimer">Dados via IBGE/SIDRA &amp; OpenStreetMap. Uso acadêmico.</p>
+  </div>
+</footer>
+<script>
+document.getElementById('footer-year').textContent = new Date().getFullYear();
+</script>
+<script>if('serviceWorker'in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});</script>
+<button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo" title="Voltar ao topo">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+<script>(function(){var b=document.getElementById('scroll-top-btn');function t(){b.classList.toggle('visible',window.scrollY>300);}window.addEventListener('scroll',t,{passive:true});t();})();</script>
+</body>
+</html>
