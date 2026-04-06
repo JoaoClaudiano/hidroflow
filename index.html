@@ -279,6 +279,18 @@
       <div><label>K2 — hora de maior consumo</label><input type="number" id="k2" value="1.5" step="0.01" min="1" max="2" oninput="renderDimensionamento()"></div>
       <div><label>K3 — hora de menor consumo</label><input type="number" id="k3" value="0.5" step="0.01" min="0.1" max="1" oninput="renderDimensionamento()"></div>
     </div>
+
+    <!-- OPÇÕES AVANÇADAS — ESGOTO -->
+    <details class="advanced-opts" style="margin-top:12px;">
+      <summary>⚙ Opções Avançadas — SES</summary>
+      <div class="advanced-opts-body">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text2);">
+          <input type="checkbox" id="chk-harmon" onchange="renderDimensionamento()">
+          Usar Fórmula de Harmon para vazão de ponta de esgoto — K_Harmon = (14+√P)/(4+√P)
+        </label>
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;">O coeficiente de Harmon varia com a população (P em mil hab) e tende a ser mais preciso do que K1 fixo para redes reais.</div>
+      </div>
+    </details>
   </div>
 
   <div class="card">
@@ -380,10 +392,27 @@
         <span style="font-size:10px;color:var(--text3);">Deixe em branco para estimativa pelo coef. C (H-W)</span>
       </div>
       <div>
+        <label>Tempo de fechamento da válvula T_c (s) <span style="font-size:10px;color:var(--text3);">opcional — Michaud vs. Joukowsky</span></label>
+        <input type="number" id="ad-tc" placeholder="Ex: 30 (deixe em branco para fechamento instantâneo)" min="0" step="0.5" oninput="calcAducao()" style="width:100%;">
+        <span style="font-size:10px;color:var(--text3);">Se T_c &gt; 2L/a → usa Michaud; caso contrário → Joukowsky</span>
+      </div>
+      <div>
         <label>Horizonte de dimensionamento</label>
         <div id="ad-infra-anos" style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;"></div>
       </div>
     </div>
+
+    <!-- OPÇÕES AVANÇADAS — ADUÇÃO -->
+    <details class="advanced-opts">
+      <summary>⚙ Opções Avançadas</summary>
+      <div class="advanced-opts-body">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:12px;color:var(--text2);">
+          <input type="checkbox" id="ad-fator-servico" onchange="calcAducao()">
+          Aplicar fator de serviço de catálogo ao motor (+50% até 2 cv · +20% até 5 cv · +15% até 20 cv · +10% acima)
+        </label>
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;">Recomendado por normas de fabricantes para garantir folga operacional e evitar sobrecarga.</div>
+      </div>
+    </details>
   </div>
 
   <!-- BENTO GRID — RESULTADOS PRINCIPAIS -->
@@ -422,7 +451,7 @@
 
     <!-- GOLPE DE ARÍETE -->
     <div class="card">
-      <div class="card-title">Golpe de Aríete — Verificação de sobrepressão (Joukowsky)</div>
+      <div class="card-title">Golpe de Aríete — Verificação de sobrepressão (Joukowsky / Michaud)</div>
       <div id="ad-ariete-display"></div>
     </div>
 

@@ -31,8 +31,9 @@ function projetarEEnvelope(){
 
   const rmseModel=state.rmse&&state.rmse[modelo]?state.rmse[modelo]:0;
   const dtH=horizonte-aBase;
-  const ciH=calcCI(popH,rmseModel,dtH);
-  const ciAtual=calcCI(popAtual,rmseModel,Math.max(0,anoAtual-aBase));
+  const nCensos=d.length;
+  const ciH=calcCI(popH,rmseModel,dtH,nCensos);
+  const ciAtual=calcCI(popAtual,rmseModel,Math.max(0,anoAtual-aBase),nCensos);
 
   const spanHistorico=d[d.length-1].ano-d[0].ano;
   const extrapRatio=dtH/Math.max(1,spanHistorico);
@@ -49,6 +50,7 @@ function projetarEEnvelope(){
     <span style="color:var(--text3);">Pop. ${horizonte}: </span><span style="color:var(--text);">${popH.toLocaleString('pt-BR')} hab</span>
     <span style="color:var(--text3);"> · IC 95%: </span><span style="color:var(--accent);">[${Math.max(0,ciH.lower).toLocaleString('pt-BR')} — ${ciH.upper.toLocaleString('pt-BR')}]</span>
     <span style="color:var(--text3);"> · RMSE ajuste: </span><span style="color:var(--text2);">${rmseModel.toFixed(0)} hab</span>
+    <span style="color:var(--text3);"> · multiplicador z/t: </span><span style="color:var(--text2);">${ciH.z.toFixed(3)}${nCensos<30?' (t-Student, n='+nCensos+')':' (normal)'}</span>
     ${rmseModel===0?'<br><span style="color:var(--amber);font-size:11px;">⚠ RMSE = 0 (≤2 pontos). IC não calculável com precisão. Adicione mais censos.</span>':''}
   </div>`;
 
@@ -62,8 +64,8 @@ function projetarEEnvelope(){
   const conf_label=dtH<=15?{t:'Alta confiabilidade',c:'conf-high'}:dtH<=25?{t:'Confiabilidade média',c:'conf-med'}:{t:'Baixa confiabilidade — cenário especulativo',c:'conf-low'};
   document.getElementById('conf-horizonte').innerHTML=`<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:12px;color:var(--text2);font-family:var(--mono);">Horizonte ${horizonte} (${dtH} anos além do último censo):</span><span class="conf-badge ${conf_label.c}">${conf_label.t}</span></div>`;
 
-  const ciUpper=anosEnv.map((a,i)=>{const dt2=a-aBase;const ci=calcCI(proj[anos.indexOf(a)],rmseModel,dt2);return Math.min(ci.upper,state.coefs.K?state.coefs.K*1.05:ci.upper);});
-  const ciLower=anosEnv.map((a,i)=>{const dt2=a-aBase;const ci=calcCI(proj[anos.indexOf(a)],rmseModel,dt2);return Math.max(0,ci.lower);});
+  const ciUpper=anosEnv.map((a,i)=>{const dt2=a-aBase;const ci=calcCI(proj[anos.indexOf(a)],rmseModel,dt2,nCensos);return Math.min(ci.upper,state.coefs.K?state.coefs.K*1.05:ci.upper);});
+  const ciLower=anosEnv.map((a,i)=>{const dt2=a-aBase;const ci=calcCI(proj[anos.indexOf(a)],rmseModel,dt2,nCensos);return Math.max(0,ci.lower);});
 
   if(state.charts.projecao)state.charts.projecao.destroy();
   state.charts.projecao=new Chart(document.getElementById('chart-projecao'),{
@@ -89,7 +91,7 @@ function projetarEEnvelope(){
       const idx=anos.indexOf(a),pop=proj[idx]||0;
       const jEnv=anosEnv.indexOf(a);
       const dt2=a-aBase;
-      const ci2=calcCI(pop,rmseModel,Math.max(0,dt2));
+      const ci2=calcCI(pop,rmseModel,Math.max(0,dt2),nCensos);
       const pessV=jEnv>=0?pP[jEnv].toLocaleString('pt-BR'):'–';
       const otimV=jEnv>=0?pO[jEnv].toLocaleString('pt-BR'):'–';
       return `<tr ${a===horizonte?'class="highlight"':''}><td>${a}</td><td>${pop.toLocaleString('pt-BR')}</td><td>${jEnv>=0?Math.max(0,ci2.lower).toLocaleString('pt-BR'):'–'}</td><td>${jEnv>=0?ci2.upper.toLocaleString('pt-BR'):'–'}</td><td>${pessV}</td><td>${otimV}</td></tr>`;

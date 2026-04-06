@@ -14,11 +14,30 @@ function calcRMSE(yReal,yPred){
   return Math.sqrt(sse/n);
 }
 
-// Intervalo de confiança (±1.96σ bootstrap simplificado por RMSE do ajuste)
-function calcCI(pred,rmse,dtExtrap){
+// Quantil t de Student bicaudal 95% (df = n − 2 para regressão simples)
+// Tabela embutida para df 1..30; df≥30 usa z=1.96 (normal)
+const T_STUDENT_95=[
+  12.706,4.303,3.182,2.776,2.571, // df 1–5
+   2.447,2.365,2.306,2.262,2.228, // df 6–10
+   2.201,2.179,2.160,2.145,2.131, // df 11–15
+   2.120,2.110,2.101,2.093,2.086, // df 16–20
+   2.080,2.074,2.069,2.064,2.060, // df 21–25
+   2.056,2.052,2.048,2.045,2.042  // df 26–30
+];
+function tQuantile95(n){
+  // n = número de censos; df = n − 2 (regressão linear simples)
+  const df=Math.max(1,n-2);
+  if(df>=30||df>=T_STUDENT_95.length)return 1.96;
+  return T_STUDENT_95[df-1];
+}
+
+// Intervalo de confiança bootstrap simplificado por RMSE do ajuste.
+// Usa t de Student quando n < 30 para refletir incerteza de pequenas amostras.
+function calcCI(pred,rmse,dtExtrap,n){
   const growth=Math.sqrt(Math.max(1,dtExtrap));
-  const margin=1.96*rmse*growth;
-  return{lower:Math.round(pred-margin),upper:Math.round(pred+margin),margin};
+  const z=tQuantile95(n||32);
+  const margin=z*rmse*growth;
+  return{lower:Math.round(pred-margin),upper:Math.round(pred+margin),margin,z};
 }
 
 // Leave-One-Out cross-validation — RMSE normalizado
