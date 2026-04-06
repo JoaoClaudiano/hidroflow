@@ -132,6 +132,6 @@ function exportarExcel(){
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(nodeRows),'Rede-Nós');
   }
 
-  XLSX.writeFile(wb,`hidroflow_${(state.municipioNome||'municipio').replace(/\s+/g,'_')}_${new Date().getFullYear()}.xlsx`);
+  XLSX.writeFile(wb,`hidroflow_${(state.municipioNome||'municipio').replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
   addAudit('Excel exportado');
 }

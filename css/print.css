@@ -6,11 +6,6 @@
 
   /* Page setup */
   @page{margin:18mm 15mm 20mm 15mm;}
-  @page{
-    @bottom-center{content:counter(page) ' / ' counter(pages);font-size:9pt;color:#666;}
-  }
-  body{counter-reset:page;}
-  .print-page-num::after{counter-increment:page;content:counter(page);}
 
   /* Reset layout to single column */
   .app{padding:0;}

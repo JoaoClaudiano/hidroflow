@@ -458,7 +458,8 @@ function initFlows(nodes, pipes, source){
     const v = bfsOrder[i];
     const {parent:u, pipe} = pred[v];
     const flow = Math.max(demand[v], 0.001);
-    // Positive direction = from parent toward child
+    // Positive direction = from parent toward child.
+    // pipe.flow unit is L/s throughout the network solver.
     pipe.flow = pipe.from === u ? flow : -flow;
     demand[u] = (demand[u]||0) + demand[v];
   }
@@ -613,7 +614,7 @@ function renderRedeResults(iters, nLoops){
     <tbody>${pipes.map(p=>{
       const vCls = p.velocity<0.6||p.velocity>3?'status-crit':p.velocity>1.5?'status-warn':'status-ok';
       const vLabel = p.velocity<0.6?'⚠ deposição':p.velocity>3?'⚠ erosão':'✅ OK';
-      const bresseD = (Math.sqrt(Math.abs(p.flow)/1000)*1.5*1000).toFixed(0);
+      const bresseD = (Math.sqrt(Math.abs(p.flow)/1000)*1.5*1000).toFixed(0); // Bresse: D(m)=1.5√Q(m³/s), Q_m³/s = Q_L/s / 1000
       return `<tr>
         <td>${p.id}</td><td style="font-size:10px;">${p.from}→${p.to}</td>
         <td>${p.dn}</td><td style="color:var(--text3)">${bresseD}</td>
@@ -659,7 +660,7 @@ function aplicarBresse(){
   if(!redeState.calculated){ alert('Calcule a rede primeiro.'); return; }
   let count = 0;
   redeState.pipes.forEach(p=>{
-    const D_mm = Math.sqrt(Math.abs(p.flow)/1000)*1.5*1000; // Bresse: D = 1.5√Q (m)
+    const D_mm = Math.sqrt(Math.abs(p.flow)/1000)*1.5*1000; // Bresse: D(m)=1.5√Q(m³/s), Q_m³/s=Q_L/s/1000
     // Round up to nearest standard DN
     const dn = _bresseDNs.find(d=>d>=D_mm) || _bresseDNs[_bresseDNs.length-1];
     if(dn !== p.dn){ p.dn = dn; p.calculated = false; count++; }
@@ -716,7 +717,9 @@ function _parseAndLoadINP(text){
   const addN = (id, type, elev, demand, head) => {
     const c = coords[id];
     if(!c){ console.warn('INP import: sem coordenadas para', id); return; }
-    // EPANET coordinates are arbitrary — try to detect if they look like lat/lng (*10000 as exported)
+    // HidroFlow's exportINP writes coordinates as lat/lng × 10000, so we divide by 10000
+    // to recover geographic coordinates. Files exported by the EPANET desktop app use
+    // projected coordinates; those networks may need manual repositioning after import.
     const lat = c.y / 10000, lng = c.x / 10000;
     nodes.push({id, type, lat, lng, elevation:elev, demand:demand||0, head:head||0, pressure:0, label:id});
   };
