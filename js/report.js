@@ -65,7 +65,7 @@ function gerarRelatorio(){
       </tbody></table>
     </div>
     ${popH?`<div class="report-section">
-      <div class="report-title">6. Síntese do dimensionamento para ${horizonte}</div>
+      <div class="report-title">6. Síntese do dimensionamento para ${safeHtml(horizonte)}</div>
       <table class="tbl"><thead><tr><th>Obra / Sistema</th><th>Parâmetro de projeto</th><th>Valor</th></tr></thead>
       <tbody>${(()=>{const pop=popH,v=calcInfra(pop,p);return[
         ['SAA — Adutora principal','Vazão Q·K1',v.QK1.toFixed(2)+' L/s'],
@@ -81,7 +81,7 @@ function gerarRelatorio(){
     <div class="report-section">
       <div class="report-title">${popH?'7':'6'}. Log de auditoria</div>
       <table class="tbl"><thead><tr><th>Horário</th><th>Ação</th></tr></thead>
-      <tbody>${state.auditLog.slice(-10).map(l=>`<tr><td>${l.time}</td><td>${l.action}</td></tr>`).join('')}</tbody></table>
+      <tbody>${state.auditLog.slice(-10).map(l=>`<tr><td>${safeHtml(l.time)}</td><td>${safeHtml(l.action)}</td></tr>`).join('')}</tbody></table>
     </div>`;
 }
 
