@@ -32,12 +32,12 @@ function tQuantile95(n){
 }
 
 // Intervalo de confiança bootstrap simplificado por RMSE do ajuste.
-// Usa t de Student quando n < 30 para refletir incerteza de pequenas amostras.
+// Usa t de Student quando n < 32 (df < 30) para refletir incerteza de pequenas amostras.
 function calcCI(pred,rmse,dtExtrap,n){
   const growth=Math.sqrt(Math.max(1,dtExtrap));
-  const z=tQuantile95(n||32);
-  const margin=z*rmse*growth;
-  return{lower:Math.round(pred-margin),upper:Math.round(pred+margin),margin,z};
+  const critValue=tQuantile95(n||32); // valor crítico: z (normal) ou t (Student) conforme n
+  const margin=critValue*rmse*growth;
+  return{lower:Math.round(pred-margin),upper:Math.round(pred+margin),margin,z:critValue};
 }
 
 // Leave-One-Out cross-validation — RMSE normalizado
