@@ -105,9 +105,9 @@
 
 /* SCORE BADGE */
 .score-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-family:var(--mono);font-weight:600;}
-.score-chip.a{background:#e4f5ed;color:#1a7a4a;}
-.score-chip.b{background:#fdf3e3;color:#925f0a;}
-.score-chip.c{background:#fbeaea;color:#c0392b;}
+.score-chip.a{background:var(--green-bg);color:var(--green);}
+.score-chip.b{background:var(--amber-bg);color:var(--amber);}
+.score-chip.c{background:var(--red-bg);color:var(--red);}
 
 /* MODEL SCORE BAR */
 .score-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);}
