@@ -169,10 +169,42 @@ async function buscarSIDRA(){
     renderCensusRows();
     setStatus(st,`${state.municipioNome} — ${state.censosData.length} censos carregados`,'ok');
     addAudit(`Dados SIDRA: ${state.municipioNome} (${cod})`);
+    // Auto-fill municipality area if available
+    fetchAreaMunicipio(cod).then(area=>{
+      if(area>0){
+        const el=document.getElementById('area-total');
+        if(el){ el.value=area.toFixed(2); }
+      }
+    }).catch(()=>{});
   }catch(err){
     setStatus(st,`Erro ao buscar dados: ${err.message}. Verifique a conexão e o código IBGE.`,'err');
   }
   finally{btn.classList.remove('btn-loading');txt.innerHTML='<svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Buscar dados SIDRA';}
+}
+
+/**
+ * Fetch municipality territorial area (km²) from IBGE SIDRA table 6579.
+ * Returns 0 if unavailable.
+ */
+async function fetchAreaMunicipio(cod){
+  try{
+    const r=await fetchWithRetry(
+      `https://servicodados.ibge.gov.br/api/v3/agregados/6579/periodos/2022/variaveis/606?localidades=N6[${cod}]`
+    );
+    if(!r.ok) return 0;
+    const data=await r.json();
+    if(!data||!data[0]||!data[0].resultados) return 0;
+    for(const res of data[0].resultados){
+      const serie=res.series&&res.series[0]&&res.series[0].serie;
+      if(serie){
+        for(const val of Object.values(serie)){
+          const area=parseFloat(val);
+          if(!isNaN(area)&&area>0) return area;
+        }
+      }
+    }
+  }catch(_){}
+  return 0;
 }
 
 async function carregarMunicipioB(){
