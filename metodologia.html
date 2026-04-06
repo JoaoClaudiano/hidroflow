@@ -218,7 +218,7 @@
     <a class="toc-item" href="#sec-validacao"><span class="toc-num">2</span>Métricas de Validação</a>
     <a class="toc-item" href="#sec-infra"><span class="toc-num">3</span>Dimensionamento de Infraestrutura</a>
     <a class="toc-item" href="#sec-aducao"><span class="toc-num">4</span>Adução e Elevatórias</a>
-    <a class="toc-item" href="#sec-ariete"><span class="toc-num">5</span>Golpe de Aríete</a>
+    <a class="toc-item" href="#sec-ariete"><span class="toc-num">5</span>Golpe de Aríete (Joukowsky / Michaud)</a>
     <a class="toc-item" href="#sec-rippl"><span class="toc-num">6</span>Método de Rippl (Reservatório)</a>
     <a class="toc-item" href="#sec-rede"><span class="toc-num">7</span>Rede de Distribuição (Hardy-Cross)</a>
     <a class="toc-item" href="#sec-saturacao"><span class="toc-num">8</span>População de Saturação</a>
@@ -287,14 +287,24 @@ Previsão:  P̂(t+h) = Lₜ + h · Tₜ
 Critério: minimizar RMSE de ajuste in-sample</span></div>
 
   <h3>1.5 Intervalo de Confiança (IC 95%)</h3>
-  <p>O envelope de confiança cresce com o horizonte de extrapolação, refletindo a maior incerteza em horizontes distantes:</p>
-  <div class="formula-block">IC±(t) = P̂(t) ± 1,96 · RMSE · √(Δt)
+  <p>O envelope de confiança cresce com o horizonte de extrapolação, refletindo a maior incerteza em horizontes distantes. Quando a série histórica é curta (n &lt; 32 censos), o multiplicador é extraído da <strong>Distribuição t de Student</strong> em vez da normal-padrão, alargando o intervalo para compensar a maior incerteza de amostras pequenas:</p>
+  <div class="formula-block">IC±(t) = P̂(t) ± t_{α/2,df} · RMSE · √(Δt)
 
 <span class="comment">Onde:
-  RMSE = erro-padrão do modelo no ajuste histórico [hab]
-  Δt   = anos de extrapolação além do último dado histórico
-  1,96 = quantil z para 95% de confiança (distribuição normal)</span></div>
-  <div class="alert-note">⚠️ O HidroFlow emite alerta quando a extrapolação ultrapassa o intervalo histórico disponível, pois nesse caso a incerteza cresce substancialmente.</div>
+  RMSE       = erro-padrão do modelo no ajuste histórico [hab]
+  Δt         = anos de extrapolação além do último dado histórico
+  df         = n − 2   (graus de liberdade da regressão simples)
+  t_{α/2,df} = quantil t de Student a 95% (bicaudal)
+
+Regra de seleção automática:
+  df ≥ 30  (n ≥ 32)  → t_{0,025,∞} = 1,96   (normal-padrão)
+  df < 30  (n < 32)  → tabela t embutida (ex.: df=1 → 12,706; df=2 → 4,303; df=4 → 2,776)
+
+Exemplo prático:
+  n = 5 censos → df = 3 → t = 3,182   (intervalo ~62% mais largo que z = 1,96)
+
+O multiplicador utilizado é exibido no painel "Intervalo de Confiança 95%" da aba Projeção.</span></div>
+  <div class="alert-note">⚠️ O HidroFlow emite alerta quando a extrapolação ultrapassa o intervalo histórico disponível, pois nesse caso a incerteza cresce substancialmente. O uso do t de Student é uma substituição silenciosa, invisível ao usuário, que produz intervalos mais honestos para as séries curtas típicas do Censo IBGE (3–5 pontos).</div>
 </div>
 
 <!-- ============================
@@ -385,6 +395,27 @@ Lagoa facultativa (Von Sperling, 2002):
 
 <span class="comment">Referência: Von Sperling (2002) — Lagoas de Estabilização</span></div>
 
+  <h3>3.3.1 Vazão de Ponta de Esgoto — Fórmula de Harmon (opção avançada)</h3>
+  <p>Por padrão, a vazão de ponta de esgoto é calculada com o coeficiente K₁ fixo (mesmo da água). Ativando a opção avançada <em>"Usar Fórmula de Harmon"</em>, o sistema aplica um coeficiente que varia com a população, tornando o dimensionamento mais representativo de redes reais:</p>
+  <div class="formula-block">K_Harmon = (14 + sqrt(P_mil)) / (4 + sqrt(P_mil))
+
+Qesg_ponta = Qesg_med × K_Harmon        <span class="comment">[L/s]</span>
+
+<span class="comment">Onde:
+  P_mil = população em mil habitantes
+
+Valores típicos:
+  P =   1.000 hab → K = (14+1)/(4+1)       = 3,00
+  P =  10.000 hab → K = (14+3,16)/(4+3,16) ≈ 2,40
+  P = 100.000 hab → K = (14+10)/(4+10)     ≈ 1,71
+  P = 500.000 hab → K ≈ 1,38
+
+O coeficiente decresce com a população porque redes maiores têm maior homogeneização dos picos.
+
+Referência: Harmon (1918) apud Metcalf & Eddy (2003)
+            Babbit et al. (1962) — variante para P < 1.000 hab usa Babbit</span></div>
+  <div class="alert-note">💡 A opção Harmon é acessível no acordeão <strong>"Opções Avançadas — SES"</strong> do card de parâmetros de consumo. Quando ativada, a ficha de resultado exibe <em>Harmon K=x,xx</em> em vez de <em>K1 = x,xx</em>.</div>
+
   <h3>3.4 Resíduos Sólidos Urbanos</h3>
   <div class="formula-block">G_res = Pop × g_per_capita / 1000   <span class="comment">[ton/dia]</span>
 Vol_lixo = G_res × 1000 / ρ_res     <span class="comment">[m³/dia] — ρ padrão ≈ 230 kg/m³</span>
@@ -458,6 +489,23 @@ Motor: potência comercial imediatamente superior à calculada
 
 Referência: Azevedo Netto (1998), NBR 12218 (ABNT, 2017)</span></div>
 
+  <h3>4.3.1 Fator de Serviço de Catálogo (opção avançada)</h3>
+  <p>Na prática de mercado, antes de buscar a potência comercial na série padronizada, aplica-se uma margem de segurança (fator de serviço) sobre a potência calculada. Esse fator está prescrito em catálogos de fabricantes e protege o motor contra sobrecarga em condições adversas de operação:</p>
+  <div class="formula-block">P_kW_fs = P_kW × fs
+
+<span class="comment">Onde fs é o fator de serviço de catálogo:
+  P_cv ≤  2 CV  → fs = 1,50  (+50%)
+  P_cv ≤  5 CV  → fs = 1,20  (+20%)
+  P_cv ≤ 20 CV  → fs = 1,15  (+15%)
+  P_cv >  20 CV → fs = 1,10  (+10%)
+
+Após aplicar fs, busca-se a próxima potência comercial ≥ P_kW_fs na série padronizada.
+
+Exemplo:
+  P_calc = 8,5 kW (≈11,6 CV → faixa ≤ 20 CV → fs = 1,15)
+  P_kW_fs = 8,5 × 1,15 = 9,78 kW → Motor comercial: 11 kW</span></div>
+  <div class="alert-note">💡 O fator de serviço é ativado pelo acordeão <strong>"Opções Avançadas"</strong> do card de parâmetros hidráulicos. Quando ativo, o resultado exibe o motor calculado (sem margem) e o motor de catálogo (com margem) lado a lado.</div>
+
   <h3>4.4 Verificação de Velocidade e Pressão</h3>
   <table class="param-table">
     <thead><tr><th>Parâmetro</th><th>Limite Mínimo</th><th>Limite Máximo</th><th>Norma</th></tr></thead>
@@ -473,9 +521,13 @@ Referência: Azevedo Netto (1998), NBR 12218 (ABNT, 2017)</span></div>
      5. GOLPE DE ARÍETE
      ============================ -->
 <div id="sec-ariete" class="met-section card">
-  <div class="card-title">5. Golpe de Aríete (Transiente Hidráulico) <span class="nbr-badge">NBR 5648</span></div>
+  <div class="card-title">5. Golpe de Aríete (Transiente Hidráulico) — Joukowsky &amp; Michaud <span class="nbr-badge">NBR 5648</span></div>
 
-  <p>O golpe de aríete é um fenômeno de transiente hidráulico causado pelo fechamento súbito de válvulas ou parada de bombas. A sobrepressão máxima é calculada pela equação de Joukowsky:</p>
+  <p>O golpe de aríete é um fenômeno de transiente hidráulico causado pelo fechamento súbito de válvulas ou parada de bombas. O HidroFlow seleciona automaticamente a fórmula de cálculo com base no tempo de fechamento da válvula (T_c) informado pelo usuário:</p>
+  <ul style="font-size:0.84rem;color:var(--text2);margin-left:1.4rem;margin-bottom:0.8rem;line-height:1.7;">
+    <li><strong>T_c em branco ou T_c ≤ 2L/a</strong> — Fórmula de <strong>Joukowsky</strong> (fechamento rápido/instantâneo)</li>
+    <li><strong>T_c &gt; 2L/a</strong> — Fórmula de <strong>Michaud</strong> (fechamento lento, mais comum em operação real)</li>
+  </ul>
 
   <h3>5.1 Celeridade da Onda de Pressão</h3>
   <div class="formula-block">a = √( (K_água/ρ) / (1 + D · K_água / (e · E_tubo)) )   <span class="comment">[m/s]</span>
@@ -493,7 +545,7 @@ Referência: Azevedo Netto (1998), NBR 12218 (ABNT, 2017)</span></div>
 
 Referência: Joukowsky (1898) apud Wylie & Streeter (1993)</span></div>
 
-  <h3>5.2 Sobrepressão de Joukowsky</h3>
+  <h3>5.2 Sobrepressão de Joukowsky (fechamento instantâneo)</h3>
   <div class="formula-block">ΔH = a · v / g                     <span class="comment">[m.c.a.] — sobrepressão máxima</span>
 P_max = Hman + ΔH               <span class="comment">[m.c.a.] — pressão máxima resultante</span>
 PN_rec = ⌈1,20 × P_max⌉        <span class="comment">[kPa] — pressão nominal com fs = 1,20</span>
@@ -501,12 +553,40 @@ PN_rec = ⌈1,20 × P_max⌉        <span class="comment">[kPa] — pressão nom
 <span class="comment">v     = velocidade média no escoamento [m/s]
 g     = aceleração da gravidade = 9,81 m/s²
 
+Válido apenas quando o fechamento da válvula é rápido ou instantâneo,
+isto é, quando T_c ≤ 2L/a  (tempo de percurso da onda de ida e volta).
+
 Classificação do risco:
   ΔH < 25% de Hman  → Baixo risco
   ΔH = 25–50% Hman  → Atenção (recomenda-se volante de inércia)
   ΔH > 50% de Hman  → Crítico (exige dispositivos anti-aríete)
 
 Referência: NBR 5648 (ABNT, 1999), Azevedo Netto (1998)</span></div>
+
+  <h3>5.3 Sobrepressão de Michaud (fechamento lento)</h3>
+  <p>Para manobras reais em redes longas, o fechamento de válvulas é gradual. Quando o <strong>tempo de fechamento T_c &gt; 2L/a</strong> (a onda de choque se dissipa antes de retornar), aplica-se a Fórmula de Michaud, que resulta em sobrepressões menores e mais realistas:</p>
+  <div class="formula-block">ΔH = (2 · L · v) / (g · T_c)     <span class="comment">[m.c.a.] — sobrepressão de fechamento lento</span>
+
+<span class="comment">Onde:
+  L   = comprimento da adutora [m]
+  v   = velocidade média no escoamento [m/s]
+  g   = aceleração da gravidade = 9,81 m/s²
+  T_c = tempo de fechamento da válvula [s]  (input opcional do usuário)
+
+Limiar de seleção automática:
+  T_critico = 2L/a   [s]
+
+  T_c = 0 ou em branco         → Joukowsky (fechamento instantâneo)
+  T_c > 0 e T_c ≤ T_critico   → Joukowsky (fechamento ainda é "rápido")
+  T_c > T_critico              → Michaud   (fechamento lento)
+
+Exemplo:
+  L = 3.500 m, a = 1.200 m/s → T_critico = 2×3500/1200 = 5,83 s
+  Se T_c = 30 s → Michaud → ΔH = 2×3500×1,5/(9,81×30) = 35,7 m
+  Se T_c = 3 s  → Joukowsky → ΔH = 1200×1,5/9,81     = 183,5 m
+
+Referência: Michaud (1878) apud Wylie & Streeter (1993)</span></div>
+  <div class="alert-note">💡 O campo <strong>"Tempo de fechamento da válvula T_c (s)"</strong> é opcional. Quando deixado em branco, o sistema usa Joukowsky (comportamento original). O limiar 2L/a e a fórmula aplicada são exibidos no painel de resultados e no memorial de cálculo.</div>
 </div>
 
 <!-- ============================
@@ -675,9 +755,12 @@ Saturation approach:
   <ul class="ref-list">
     <li><span class="ref-tag">Azevedo Netto</span> AZEVEDO NETTO, J. M. de; FERNANDEZ, M. F.; NETTO, J. M. A. <em>Manual de Hidráulica.</em> 8. ed. São Paulo: Edgard Blücher, 1998.</li>
     <li><span class="ref-tag">Von Sperling</span> VON SPERLING, M. <em>Lagoas de estabilização.</em> 2. ed. Belo Horizonte: DESA/UFMG, 2002. (Princípios do Tratamento Biológico de Águas Residuárias, v. 3).</li>
+    <li><span class="ref-tag">Metcalf & Eddy</span> METCALF &amp; EDDY. <em>Wastewater Engineering: Treatment and Resource Recovery.</em> 5. ed. New York: McGraw-Hill, 2014. (Fórmula de Harmon, capítulo 3 — Peak Flow Factors).</li>
+    <li><span class="ref-tag">Harmon</span> HARMON, W. E. Forecasting sewage at Toledo under dynamic growth conditions. <em>Engineering News-Record</em>, v. 80, p. 1236–1240, 1918. apud METCALF &amp; EDDY (2014).</li>
     <li><span class="ref-tag">Porto</span> PORTO, R. M. <em>Hidráulica Básica.</em> 2. ed. São Carlos: EESC/USP, 1999.</li>
     <li><span class="ref-tag">Hardy-Cross</span> HARDY CROSS, H. <em>Analysis of flow in networks of conduits or conductors.</em> University of Illinois Bulletin, n. 286, 1936.</li>
     <li><span class="ref-tag">Joukowsky</span> JOUKOWSKY, N. <em>Über den hydraulischen Stoss in Wasserleitungsröhren.</em> Mémoires de l'Académie Impériale des Sciences de St.-Pétersbourg, ser. 8, v. 9, n. 5, 1898.</li>
+    <li><span class="ref-tag">Michaud</span> MICHAUD, J. Coups de bélier dans les conduites. Étude des moyens employés pour en atténuer les effets. <em>Bulletin de la Société Vaudoise des Ingénieurs et des Architectes</em>, v. 4, n. 3–4, p. 56–64, 76–81, 1878. apud WYLIE, E. B.; STREETER, V. L. (1993).</li>
     <li><span class="ref-tag">Wylie & Streeter</span> WYLIE, E. B.; STREETER, V. L. <em>Fluid Transients in Systems.</em> Englewood Cliffs: Prentice Hall, 1993.</li>
     <li><span class="ref-tag">Bresse</span> BRESSE, J. A. C. <em>Cours de mécanique appliquée.</em> Paris, 1879. apud AZEVEDO NETTO (1998).</li>
     <li><span class="ref-tag">Holt</span> HOLT, C. C. Forecasting seasonals and trends by exponentially weighted moving averages. <em>International Journal of Forecasting</em>, v. 20, n. 1, p. 5–10, 2004. (Original ONR Memo, 1957).</li>
