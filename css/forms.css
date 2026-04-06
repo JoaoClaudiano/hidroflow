@@ -11,6 +11,7 @@ input[type=checkbox]{width:auto;accent-color:var(--accent);}
 .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
 .btn-primary:hover{opacity:.88;background:var(--accent);}
 .btn-sm{padding:5px 10px;font-size:12px;}
+.btn-icon-only{padding:5px 8px;}
 .btn-danger{color:var(--red);border-color:rgba(192,57,43,.25);}
 .btn-danger:hover{background:var(--red-bg);}
 .btn-loading{opacity:.6;pointer-events:none;}
