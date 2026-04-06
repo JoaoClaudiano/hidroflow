@@ -184,28 +184,32 @@ async function buscarSIDRA(){
 
 /**
  * Fetch municipality territorial area (km²) from IBGE SIDRA table 6579.
- * Returns 0 if unavailable.
+ * Tries multiple reference years (newest first) so a missing period does not
+ * cause a visible console error. Returns 0 if unavailable.
  */
 async function fetchAreaMunicipio(cod){
-  try{
-    const r=await fetchWithRetry(
-      `https://servicodados.ibge.gov.br/api/v3/agregados/6579/periodos/2022/variaveis/606?localidades=N6[${cod}]`,
-      {},
-      1
-    );
-    if(!r.ok) return 0;
-    const data=await r.json();
-    if(!data||!data[0]||!data[0].resultados) return 0;
-    for(const res of data[0].resultados){
-      const serie=res.series&&res.series[0]&&res.series[0].serie;
-      if(serie){
-        for(const val of Object.values(serie)){
-          const area=parseFloat(val);
-          if(!isNaN(area)&&area>0) return area;
+  const years=['2022','2021','2020','2019'];
+  for(const yr of years){
+    try{
+      const r=await fetchWithRetry(
+        `https://servicodados.ibge.gov.br/api/v3/agregados/6579/periodos/${yr}/variaveis/606?localidades=N6[${cod}]`,
+        {},
+        1
+      );
+      if(!r.ok) continue;
+      const data=await r.json();
+      if(!data||!data[0]||!data[0].resultados) continue;
+      for(const res of data[0].resultados){
+        const serie=res.series&&res.series[0]&&res.series[0].serie;
+        if(serie){
+          for(const val of Object.values(serie)){
+            const area=parseFloat(val);
+            if(!isNaN(area)&&area>0) return area;
+          }
         }
       }
-    }
-  }catch(_){}
+    }catch(_){}
+  }
   return 0;
 }
 

@@ -97,41 +97,62 @@ function exportarCSV(){
 function exportarExcel(){
   if(typeof XLSX==='undefined'){alert('SheetJS não carregado. Verifique a conexão com internet e recarregue a página.');return;}
   if(!state.projData.length){alert('Calcule e projete a população primeiro.');return;}
-  const wb=XLSX.utils.book_new();
+  try{
+    const wb=XLSX.utils.book_new();
 
-  // Sheet 1: Histórico + projeção
-  const censosAnos=state.censosRaw?state.censosRaw.map(x=>x.ano):[];
-  const projRows=[['Ano','Populacao (hab)','Tipo']];
-  state.projData.forEach(r=>projRows.push([r.ano,r.pop,censosAnos.includes(r.ano)?'historico':'projetado']));
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(projRows),'Projeção');
+    // Sheet 1: Histórico + projeção
+    const censosAnos=state.censosRaw?state.censosRaw.map(x=>x.ano):[];
+    const projRows=[['Ano','Populacao (hab)','Tipo']];
+    state.projData.forEach(r=>projRows.push([r.ano,r.pop,censosAnos.includes(r.ano)?'historico':'projetado']));
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(projRows),'Projecao');
 
-  // Sheet 2: Dimensionamento
-  const p=getParams();
-  const popH=state.projData.length?state.projData[state.projData.length-1].pop:0;
-  const horizonte=document.getElementById('ano-horizonte')?.value||'—';
-  const dimRows=[['Parâmetro','Valor']];
-  if(popH){
-    const v=calcInfra(popH,p);
-    dimRows.push(
-      ['Horizonte',horizonte],['População projetada (hab)',popH],
-      ['Consumo per capita (L/hab/dia)',p.agua],['K1',p.K1],['K2',p.K2],['K3',p.K3],
-      ['Q·K1 adução (L/s)',+v.QK1.toFixed(3)],['Q·K1·K2 ponta (L/s)',+v.QK2.toFixed(3)],
-      ['Volume reservatório (m³)',+v.vol_res_m3.toFixed(0)],['ETA (m³/dia)',+v.m3dia.toFixed(0)],
-      ['Vazão esgoto K1 (L/s)',+v.QesgK1.toFixed(3)],['Volume ETE (m³)',+v.vol_ete_m3.toFixed(0)],
-    );
+    // Sheet 2: Dimensionamento
+    const p=getParams();
+    const popH=state.projData.length?state.projData[state.projData.length-1].pop:0;
+    const horizonte=document.getElementById('ano-horizonte')?.value||'';
+    const dimRows=[['Parametro','Valor']];
+    if(popH){
+      const v=calcInfra(popH,p);
+      dimRows.push(
+        ['Horizonte',horizonte],['Populacao projetada (hab)',popH],
+        ['Consumo per capita (L/hab/dia)',p.agua],['K1',p.K1],['K2',p.K2],['K3',p.K3],
+        ['Q*K1 aducao (L/s)',+v.QK1.toFixed(3)],['Q*K1*K2 ponta (L/s)',+v.QK2.toFixed(3)],
+        ['Volume reservatorio (m3)',+v.vol_res_m3.toFixed(0)],['ETA (m3/dia)',+v.m3dia.toFixed(0)],
+        ['Vazao esgoto K1 (L/s)',+v.QesgK1.toFixed(3)],['Volume ETE (m3)',+v.vol_ete_m3.toFixed(0)],
+      );
+    }
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(dimRows),'Dimensionamento');
+
+    // Sheet 3: Rede (if calculated)
+    if(typeof redeState!=='undefined'&&redeState.calculated&&redeState.pipes.length){
+      const pipeRows=[['ID','De','Para','DN (mm)','L (m)','Q (L/s)','v (m/s)','Hf (m)']];
+      redeState.pipes.forEach(pp=>pipeRows.push([
+        pp.id,pp.from,pp.to,pp.dn,
+        +(pp.length||0).toFixed(0),+(pp.flow||0).toFixed(3),
+        +(pp.velocity||0).toFixed(3),+(pp.headloss||0).toFixed(4)
+      ]));
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pipeRows),'Rede-Trechos');
+      const nodeRows=[['ID','Tipo','Cota (m)','Demanda (L/s)','Pressao (mca)']];
+      redeState.nodes.forEach(n=>nodeRows.push([
+        n.id,n.type,n.elevation,
+        +(n.demand||0).toFixed(3),+(n.pressure||0).toFixed(1)
+      ]));
+      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(nodeRows),'Rede-Nos');
+    }
+
+    const fileName=`hidroflow_${(state.municipioNome||'municipio').replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`;
+    const wbOut=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+    const blob=new Blob([wbOut],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=fileName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
+    addAudit('Excel exportado');
+  }catch(err){
+    console.error('Erro ao gerar Excel:',err);
+    alert('Erro ao gerar o arquivo Excel: '+err.message);
   }
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(dimRows),'Dimensionamento');
-
-  // Sheet 3: Rede (if calculated)
-  if(typeof redeState!=='undefined'&&redeState.calculated&&redeState.pipes.length){
-    const pipeRows=[['ID','De','Para','DN (mm)','L (m)','Q (L/s)','v (m/s)','Hf (m)']];
-    redeState.pipes.forEach(pp=>pipeRows.push([pp.id,pp.from,pp.to,pp.dn,+pp.length.toFixed(0),+pp.flow.toFixed(3),+pp.velocity.toFixed(3),+pp.headloss.toFixed(4)]));
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(pipeRows),'Rede-Trechos');
-    const nodeRows=[['ID','Tipo','Cota (m)','Demanda (L/s)','Pressão (mca)']];
-    redeState.nodes.forEach(n=>nodeRows.push([n.id,n.type,n.elevation,+n.demand.toFixed(3),+n.pressure.toFixed(1)]));
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(nodeRows),'Rede-Nós');
-  }
-
-  XLSX.writeFile(wb,`hidroflow_${(state.municipioNome||'municipio').replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
-  addAudit('Excel exportado');
 }
