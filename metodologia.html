@@ -416,6 +416,48 @@ Referência: Harmon (1918) apud Metcalf & Eddy (2003)
             Babbit et al. (1962) — variante para P < 1.000 hab usa Babbit</span></div>
   <div class="alert-note">💡 A opção Harmon é acessível no acordeão <strong>"Opções Avançadas — SES"</strong> do card de parâmetros de consumo. Quando ativada, a ficha de resultado exibe <em>Harmon K=x,xx</em> em vez de <em>K1 = x,xx</em>.</div>
 
+  <h3>3.3.2 Dimensionamento de Coletores de Esgoto — Equação de Manning (conduto parcialmente cheio)</h3>
+  <p>O HidroFlow dimensiona o coletor de esgoto pelo critério de velocidade mínima de auto-limpeza e capacidade hidráulica disponível, considerando a lâmina d'água parcial conforme a geometria circular do tubo:</p>
+  <div class="formula-block">v = (1/n) · Rh^(2/3) · S^(1/2)       <span class="comment">[m/s] — equação de Manning</span>
+Q = A · v                              <span class="comment">[m³/s → L/s] — capacidade do coletor</span>
+
+<span class="comment">Geometria do conduto circular com lâmina parcial:
+  θ     = 2 · arccos(1 − 2·y/D)       [rad] — ângulo central
+  A     = ((θ − sin θ) / 8) · D²      [m²] — área molhada
+  Per.  = (θ/2) · D                   [m]  — perímetro molhado
+  Rh    = A / Per.                    [m]  — raio hidráulico
+
+  y/D = lâmina d'água fracional (frac) — padrão: 0,65 (65%)
+  Faixa recomendada: 0,50–0,75 para coleta de esgoto (NBR 9649)
+
+Onde:
+  n     = coeficiente de Manning adimensional (PVC: 0,010; concreto: 0,012–0,013)
+  D     = diâmetro interno do coletor [m]
+  S     = declividade longitudinal [m/m]
+
+Critérios normativos:
+  v ≥ 0,6 m/s   (velocidade mínima de auto-limpeza — NBR 9649)
+  v ≤ 5,0 m/s   (velocidade máxima)
+  Q_coletor ≥ Q_design   (capacidade ≥ vazão de projeto)
+
+Referência: Manning (1891); ABNT NBR 9649 (1986)</span></div>
+
+  <h3>3.3.3 Infiltração em Redes Coletoras</h3>
+  <p>A vazão de infiltração de água exógena (pluvial ou subterrânea) é adicionada à vazão de ponta de esgoto para o dimensionamento conservador do coletor:</p>
+  <div class="formula-block">Q_inf = taxa_inf × L_rede               <span class="comment">[L/s] — infiltração total estimada</span>
+Q_design = Q_esg_ponta + Q_inf         <span class="comment">[L/s] — vazão de projeto do coletor</span>
+
+<span class="comment">Onde:
+  taxa_inf  = taxa de infiltração [L/(s·km)] — padrão: 0,1 L/(s·km)
+               Valores típicos: 0,05–0,5 L/(s·km) conforme tipo de solo e idade da rede
+  L_rede    = extensão total da rede coletora [km]
+
+O coletor é considerado adequado quando:
+  Q_coletor(Manning) ≥ Q_design   e   v ≥ 0,6 m/s
+
+Referência: Von Sperling (2002); Tsutiya & Alem Sobrinho (2011)</span></div>
+  <div class="alert-note">💡 Os parâmetros de Manning (n, S, DN, lâmina e taxa de infiltração) são configuráveis no acordeão <strong>"Opções Avançadas — SES"</strong>. O card de resultado exibe capacidade, velocidade e comparação com a vazão de projeto.</div>
+
   <h3>3.4 Resíduos Sólidos Urbanos</h3>
   <div class="formula-block">G_res = Pop × g_per_capita / 1000   <span class="comment">[ton/dia]</span>
 Vol_lixo = G_res × 1000 / ρ_res     <span class="comment">[m³/dia] — ρ padrão ≈ 230 kg/m³</span>
@@ -453,18 +495,17 @@ K_B (adimensional):
 
 Referência: Bresse (1879) apud Azevedo Netto (1998)</span></div>
 
-  <h3>4.2 Perda de Carga — Equação de Hazen-Williams</h3>
-  <p>A equação de Hazen-Williams é amplamente utilizada no dimensionamento de adutoras de água, especialmente em regime turbulento pleno:</p>
+  <h3>4.2 Perda de Carga — Métodos Hazen-Williams e Darcy-Weisbach</h3>
+  <p>O HidroFlow oferece dois métodos para cálculo da perda de carga em adutoras. O método é selecionado pelo usuário no card de parâmetros hidráulicos:</p>
+
+  <h4 style="font-size:0.84rem;font-weight:600;color:var(--text);margin:0.8rem 0 0.4rem;">4.2.1 Hazen-Williams (padrão)</h4>
+  <p>Amplamente utilizado no dimensionamento de adutoras de água em regime turbulento pleno:</p>
   <div class="formula-block">J = 10,643 · Q^1,852 / (C^1,852 · D^4,87)   <span class="comment">[m/m] — gradiente hidráulico</span>
 Hf = J · L                                    <span class="comment">[m] — perda de carga distribuída</span>
 
 <span class="comment">Onde:
   Q = vazão [m³/s]
-  C = coeficiente de Hazen-Williams (adimensional)
-      C = 150 → PVC / PEAD novo
-      C = 120 → ferro fundido novo / aço
-      C = 100 → ferro fundido usado
-      C = 80  → ferro fundido muito usado / concreto envelhecido
+  C = coeficiente de Hazen-Williams (adimensional) — ver tabela de materiais abaixo
   D = diâmetro interno [m]
   L = comprimento da tubulação [m]
 
@@ -474,7 +515,55 @@ Perdas localizadas:
 Altura manométrica total:
   Hman = H_geo + Hf + Hloc
 
-Referência: Hazen & Williams (1920) apud ABNT NBR 12218</span></div>
+Referência: Hazen &amp; Williams (1920) apud ABNT NBR 12218</span></div>
+
+  <h4 style="font-size:0.84rem;font-weight:600;color:var(--text);margin:0.8rem 0 0.4rem;">4.2.2 Darcy-Weisbach + Swamee-Jain (opção avançada)</h4>
+  <p>Para escoamentos em que a rugosidade absoluta é conhecida, o HidroFlow permite usar a equação de Darcy-Weisbach com o fator de atrito calculado pela fórmula explícita de Swamee-Jain, evitando a iteração de Colebrook-White:</p>
+  <div class="formula-block">f = 0,25 / [log₁₀(ε/3,7D + 5,74/Re^0,9)]²   <span class="comment">fator de atrito de Darcy-Weisbach (Swamee-Jain)</span>
+J = f · v² / (2 · g · D)                       <span class="comment">[m/m] — gradiente hidráulico</span>
+
+<span class="comment">Onde:
+  ε   = rugosidade absoluta [m]  (ex.: PVC ≈ 0,0015 mm; aço ≈ 0,046 mm; FFD ≈ 0,12 mm)
+  D   = diâmetro interno [m]
+  Re  = v·D/ν   — número de Reynolds (ν ≈ 1×10⁻⁶ m²/s a 20°C)
+  v   = velocidade média [m/s]
+  g   = 9,81 m/s²
+
+Faixa válida: 10⁻⁶ ≤ ε/D ≤ 10⁻²  e  5.000 ≤ Re ≤ 10⁸
+Erro máximo em relação a Colebrook-White: &lt; 3%
+
+Referência: Swamee &amp; Jain (1976)</span></div>
+  <div class="alert-note">💡 A seleção do método (Hazen-Williams ou Darcy-Weisbach) é feita pelo seletor de rádio <strong>"Método hidráulico"</strong> no card de adução. Ao escolher D-W, o campo de rugosidade ε [mm] é exibido automaticamente.</div>
+
+  <h3>4.2.3 Biblioteca de Materiais Hidráulicos</h3>
+  <p>O HidroFlow inclui uma biblioteca de materiais (<code>MATERIAIS_HIDRO</code>) que preenche automaticamente o coeficiente C de Hazen-Williams, o coeficiente n de Manning, o módulo de elasticidade E (para cálculo de golpe de aríete) e o fator de emissão de CO₂ do material:</p>
+  <table class="param-table">
+    <thead><tr><th>Material</th><th>C (H-W)</th><th>n (Manning)</th><th>E (MPa)</th><th>CO₂ (kg/kg)</th></tr></thead>
+    <tbody>
+      <tr><td>PVC / PEAD (novo)</td><td>150</td><td>0,009</td><td>2.800</td><td>2,7</td></tr>
+      <tr><td>PVC / PEAD (uso)</td><td>140</td><td>0,010</td><td>2.800</td><td>2,7</td></tr>
+      <tr><td>PEAD (DN ≥ 200 mm)</td><td>140</td><td>0,009</td><td>1.000</td><td>2,5</td></tr>
+      <tr><td>Ferro Fundido Dúctil (FFD)</td><td>130</td><td>0,012</td><td>170.000</td><td>2,1</td></tr>
+      <tr><td>Ferro Fundido Cinzento (FFC)</td><td>120</td><td>0,013</td><td>110.000</td><td>2,1</td></tr>
+      <tr><td>Concreto liso</td><td>110</td><td>0,012</td><td>30.000</td><td>0,35</td></tr>
+      <tr><td>Concreto rugoso / Amianto</td><td>100</td><td>0,014</td><td>30.000</td><td>0,35</td></tr>
+      <tr><td>Aço sem revestimento</td><td>90</td><td>0,011</td><td>210.000</td><td>1,85</td></tr>
+    </tbody>
+  </table>
+  <div class="alert-note">💡 Ao selecionar um material no campo <strong>"Material da tubulação"</strong>, os campos C, E e o fator de CO₂ são preenchidos automaticamente. O E inserido pelo usuário prevalece sobre o da biblioteca.</div>
+
+  <h3>4.2.4 Envelhecimento da Tubulação (C Futuro — Hazen-Williams)</h3>
+  <p>Com o envelhecimento, o coeficiente C de Hazen-Williams decresce por incrustação, corrosão ou biofilme. O HidroFlow permite informar um C futuro para simular a perda de carga ao final do horizonte de projeto:</p>
+  <div class="formula-block">C(t) = C₀ + (C_fut − C₀) · (t / T_horiz)   <span class="comment">interpolação linear</span>
+Hf_fut = 10,643 · Q^1,852 / (C(t)^1,852 · D^4,87) · L
+
+<span class="comment">Onde:
+  C₀      = coeficiente atual (ano-base do censo mais recente)
+  C_fut   = coeficiente estimado ao final do horizonte (input do usuário)
+  t       = anos decorridos desde o ano-base até o ano de projeção
+  T_horiz = horizonte de projeto padrão = 20 anos
+
+O resultado exibe Hf atual e Hf futuro lado a lado, com a variação percentual.</span></div>
 
   <h3>4.3 Potência da Bomba</h3>
   <div class="formula-block">P_cv = (1000 · Q_b · Hman) / (75 · η)     <span class="comment">[CV] — potência no eixo</span>
@@ -506,7 +595,48 @@ Exemplo:
   P_kW_fs = 8,5 × 1,15 = 9,78 kW → Motor comercial: 11 kW</span></div>
   <div class="alert-note">💡 O fator de serviço é ativado pelo acordeão <strong>"Opções Avançadas"</strong> do card de parâmetros hidráulicos. Quando ativo, o resultado exibe o motor calculado (sem margem) e o motor de catálogo (com margem) lado a lado.</div>
 
-  <h3>4.4 Verificação de Velocidade e Pressão</h3>
+  <h3>4.4 NPSH — Verificação Anti-Cavitação</h3>
+  <p>O HidroFlow verifica automaticamente se o NPSH disponível é suficiente para evitar cavitação na bomba, usando a pressão de vapor saturada calculada pela equação de Buck:</p>
+  <div class="formula-block">NPSH_d = Patm/ρg − Pv/ρg − Hs − hf_suc     <span class="comment">[m] — NPSH disponível</span>
+
+<span class="comment">Onde:
+  Patm   = 101,325 kPa (pressão atmosférica padrão)
+  ρ      = 1000 kg/m³  (massa específica da água)
+  g      = 9,81 m/s²
+  Pv     = pressão de vapor saturada [kPa] — equação de Buck:
+             Pv = 0,61121 · exp[(18,678 − T/234,5) · T / (257,14 + T)]
+             T = temperatura da água [°C]
+  Hs     = altura de sucção estática [m] (positivo = bomba acima do nível da água)
+  hf_suc = perda de carga estimada na linha de sucção ≈ 5% de Hf [m]
+
+Critério de segurança (com margem de 0,5 m):
+  NPSH_d ≥ NPSH_requerido + 0,5 m  → sem risco de cavitação
+  NPSH_d &lt; NPSH_requerido + 0,5 m  → 🚨 RISCO DE CAVITAÇÃO
+
+Referência: Buck (1981) — equação de pressão de vapor
+            Azevedo Netto (1998) — verificação de NPSH</span></div>
+  <div class="alert-note">💡 Os campos de altura de sucção (Hs), NPSH requerido pelo fabricante e temperatura da água são editáveis no card de adução. O resultado de NPSH é exibido na ficha de resultados com indicador visual de risco.</div>
+
+  <h3>4.5 Pegada de Carbono da Adutora</h3>
+  <p>Quando um material é selecionado na biblioteca, o HidroFlow estima a pegada de carbono total em 20 anos de operação, considerando a emissão da fabricação da tubulação e o consumo energético da bomba:</p>
+  <div class="formula-block">CO₂_tubo   = π · D · e · ρ_mat · L · f_CO₂ / 1000    <span class="comment">[ton CO₂e] — emissão da tubulação</span>
+CO₂_op_ano = Pot_kW · N_h · 365 · FE / 1000          <span class="comment">[ton CO₂e/ano] — operação anual</span>
+CO₂_total  = CO₂_tubo + CO₂_op_ano × 20              <span class="comment">[ton CO₂e] — total em 20 anos</span>
+
+<span class="comment">Onde:
+  e         = espessura da parede do tubo [m]
+  ρ_mat     = densidade do material [kg/m³]
+                PVC/PEAD: 1.400 kg/m³ · FFD/FFC: 7.200 kg/m³
+                Aço: 7.850 kg/m³ · Concreto: 2.400 kg/m³
+  f_CO₂     = fator de emissão do material [kg CO₂e/kg] — da biblioteca de materiais
+  Pot_kW    = potência real da bomba [kW]
+  N_h       = horas de operação por dia
+  FE        = 0,088 kg CO₂e/kWh — Fator de Emissão médio do SIN (EPE, 2023)
+
+Referência: EPE (2023) — Fator médio de emissão do Sistema Interligado Nacional (SIN)</span></div>
+  <div class="alert-note">💡 A pegada de carbono só é calculada e exibida quando um material é selecionado na biblioteca. O resultado aparece no card de adutora com decomposição entre emissão da tubulação e da operação.</div>
+
+  <h3>4.6 Verificação de Velocidade e Pressão</h3>
   <table class="param-table">
     <thead><tr><th>Parâmetro</th><th>Limite Mínimo</th><th>Limite Máximo</th><th>Norma</th></tr></thead>
     <tbody>
@@ -664,6 +794,28 @@ Pressão disponível = H_j − z_j  (z_j = cota do terreno no nó j)</span></div
       <tr><td>Velocidade máxima</td><td>3,0 m/s</td><td>NBR 12218 (Art. 6.5)</td></tr>
     </tbody>
   </table>
+
+  <h3>7.5 Ferramenta de Medição de Distância e Altimetria (SRTM)</h3>
+  <p>A ferramenta <strong>"Medir"</strong> do módulo de rede permite clicar em dois pontos no mapa para obter automaticamente a distância Haversine e as cotas de terreno via API Open-Elevation (dados SRTM-90, NASA):</p>
+  <div class="formula-block">d = 2R · arcsin(√[ sin²(Δφ/2) + cos φ₁·cos φ₂·sin²(Δλ/2) ])   <span class="comment">[m] — distância Haversine</span>
+
+<span class="comment">Onde:
+  R   = 6.371.000 m  (raio médio da Terra)
+  φ₁,φ₂ = latitudes dos pontos 1 e 2 [rad]
+  λ₁,λ₂ = longitudes dos pontos 1 e 2 [rad]
+  Δφ  = φ₂ − φ₁
+  Δλ  = λ₂ − λ₁
+
+Após o cálculo:
+  • d é preenchido automaticamente no campo "Comprimento da adutora [m]"
+  • Cotas Z₁ e Z₂ são obtidas via Open-Elevation (SRTM-90) e preenchidas em
+    "Cota captação" e "Cota reservatório" — o cálculo de adução é refeito automaticamente.
+  • Em caso de falha na API, a distância já preenchida é mantida e o usuário
+    pode inserir as cotas manualmente.
+
+Referência: Sinnott (1984) — fórmula de Haversine
+            NASA SRTM / Open-Elevation API — resolução ~90 m</span></div>
+  <div class="alert-note">💡 Selecione a ferramenta "🔺 Medir" na barra de ferramentas do mapa, clique no ponto de captação (origem) e depois no ponto do reservatório (destino). A distância e as cotas são transferidas automaticamente para o módulo de Adução.</div>
 </div>
 
 <!-- ============================
@@ -727,6 +879,43 @@ Referência: Plano Diretor Municipal, Freitas (2000)</span></div>
 
 Saturation approach:
   → Alerta se P_projetada > 0,85 × K (logístico)</span></div>
+
+  <h3>9.3 Alerta de Crescimento Negativo</h3>
+  <p>Antes de calcular, o sistema verifica se a série histórica contém decrementos populacionais. Quando detectado, um alerta explica que os modelos Geométrico e Logístico podem produzir resultados distorcidos com populações decrescentes:</p>
+  <div class="formula-block"><span class="comment">Condição: ∃ i tal que P(i) < P(i−1)  →  crescimento negativo detectado
+
+Comportamento por modelo em série decrescente:
+  Aritmético  — robusto (taxa negativa é válida)
+  Holt        — robusto (captura tendência de queda)
+  Geométrico  — pode produzir taxa imaginária (ln de valor negativo) → guard aplicado
+  Logístico   — pode convergir para K negativo ou pequeno → guard de K aplicado (ver 9.4)
+
+O usuário pode prosseguir mesmo com a série decrescente ou cancelar para revisar os dados.</span></div>
+
+  <h3>9.4 Guard de Saturação K (Modelo Logístico)</h3>
+  <p>O modelo Logístico exige que a população de saturação K seja estritamente maior que a população mais recente Pn. Se o valor informado ou estimado for inválido, o sistema aplica um valor mínimo seguro automaticamente:</p>
+  <div class="formula-block"><span class="comment">Condição de validade: K > Pn
+
+Se K ≤ Pn (informado pelo usuário ou estimado):
+  K_efetivo = 2,5 × Pn     (padrão conservador)
+  → alerta exibido no console: "Saturação K ≤ Pn. Usando K = 2,5×Pn"
+
+Isso garante que a curva logística seja sempre crescente e bem comportada,
+independentemente do valor de K inserido pelo usuário.</span></div>
+
+  <h3>9.5 Override Manual de Modelo</h3>
+  <p>O sistema seleciona automaticamente o modelo com maior <em>score composto</em> (R²×60% + generalização×40%). No entanto, o usuário técnico pode forçar o uso de um modelo específico:</p>
+  <div class="formula-block"><span class="comment">Interface: card de comparação de modelos → botão "Usar" no modelo desejado
+
+Efeito:
+  • state.bestModel e state.bestModelOverride são definidos para o modelo selecionado
+  • O card do modelo passa a exibir o badge "Selecionado" em vez do botão "Usar"
+  • A projeção e todos os dimensionamentos são recalculados com o modelo forçado
+  • O override é registrado no log de auditoria: "Modelo overridden manualmente: …"
+
+O override persiste durante a sessão. Para reverter, basta selecionar outro modelo
+ou recarregar a página (o sistema retorna ao modelo de maior score).</span></div>
+  <div class="alert-note">💡 O painel de comparação de modelos exibe R², LOO-RMSE individual e score composto para cada modelo, facilitando a decisão técnica de qual modelo usar para o horizonte de projeto.</div>
 </div>
 
 <!-- ============================
@@ -768,6 +957,11 @@ Saturation approach:
     <li><span class="ref-tag">Freitas</span> FREITAS, C. G. L. de. <em>Uso do solo urbano e legislação.</em> In: INSTITUTO DE PESQUISAS TECNOLÓGICAS DO ESTADO DE SÃO PAULO. Relatório Técnico, 2000.</li>
     <li><span class="ref-tag">Hazen & Williams</span> HAZEN, A.; WILLIAMS, G. S. <em>Hydraulic Tables.</em> 3. ed. New York: John Wiley, 1920.</li>
     <li><span class="ref-tag">Rippl</span> RIPPL, W. The capacity of storage reservoirs for water supply. <em>Minutes of Proceedings of the Institution of Civil Engineers</em>, v. 71, p. 270–278, 1883.</li>
+    <li><span class="ref-tag">Swamee &amp; Jain</span> SWAMEE, P. K.; JAIN, A. K. Explicit equations for pipe-flow problems. <em>Journal of the Hydraulics Division, ASCE</em>, v. 102, n. HY5, p. 657–664, 1976.</li>
+    <li><span class="ref-tag">Sinnott</span> SINNOTT, R. W. Virtues of the Haversine. <em>Sky and Telescope</em>, v. 68, n. 2, p. 159, 1984. (Fórmula Haversine para distância esférica).</li>
+    <li><span class="ref-tag">Buck</span> BUCK, A. L. New equations for computing vapor pressure and enhancement factor. <em>Journal of Applied Meteorology</em>, v. 20, n. 12, p. 1527–1532, 1981. (Equação de pressão de vapor d'água).</li>
+    <li><span class="ref-tag">Tsutiya &amp; Alem</span> TSUTIYA, M. T.; ALEM SOBRINHO, P. <em>Coleta e transporte de esgoto sanitário.</em> 3. ed. São Paulo: ABES, 2011.</li>
+    <li><span class="ref-tag">Manning</span> MANNING, R. On the flow of water in open channels and pipes. <em>Transactions of the Institution of Civil Engineers of Ireland</em>, v. 20, p. 161–207, 1891.</li>
   </ul>
 
   <h3>APIs e Dados Utilizados</h3>
@@ -775,6 +969,8 @@ Saturation approach:
     <li><span class="ref-tag">SIDRA</span> IBGE — SIDRA (Sistema IBGE de Recuperação Automática): API REST para dados do Censo Demográfico. Tabelas 202 e 4709. Disponível em: &lt;https://sidra.ibge.gov.br&gt;.</li>
     <li><span class="ref-tag">Nominatim</span> OpenStreetMap / Nominatim — API de geocodificação reversa. Licença ODbL. Disponível em: &lt;https://nominatim.openstreetmap.org&gt;.</li>
     <li><span class="ref-tag">OpenStreetMap</span> OpenStreetMap contributors — Tiles via Leaflet.js 1.9.4. Licença © OpenStreetMap contributors, ODbL.</li>
+    <li><span class="ref-tag">Open-Elevation</span> Open-Elevation — API de altimetria baseada em dados SRTM-90 (NASA Shuttle Radar Topography Mission). Disponível em: &lt;https://api.open-elevation.com&gt;.</li>
+    <li><span class="ref-tag">EPE 2023</span> EMPRESA DE PESQUISA ENERGÉTICA. <em>Fator de Emissão de CO₂ do Sistema Interligado Nacional (SIN).</em> Brasília: EPE/MME, 2023. Fator médio utilizado: 0,088 kg CO₂e/kWh.</li>
   </ul>
 
   <div class="alert-note" style="margin-top:1.2rem;">
