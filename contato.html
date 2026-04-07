@@ -259,9 +259,7 @@
 
     <div class="contact-form-wrap">
       <h3>Formulário de Contato</h3>
-      <form id="contact-form" action="https://formsubmit.co/jooclaudiano@gmail.com" method="POST" novalidate>
-        <input type="hidden" name="_subject" value="[HidroFlow] Mensagem via site">
-        <input type="hidden" name="_captcha" value="false">
+      <form id="contact-form" novalidate>
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
 
         <div class="form-row">
@@ -305,6 +303,8 @@
           Alternativamente, abra uma <a href="https://github.com/JoaoClaudiano/hidroflow/issues" target="_blank" rel="noopener">issue no GitHub</a>.
         </p>
       </form>
+      <div id="contact-success">✔ Mensagem enviada com sucesso! Responderemos em breve.</div>
+      <div id="contact-error" style="display:none;background:var(--red-bg,#fef2f2);border:1px solid var(--red,#dc2626);border-radius:var(--radius);padding:.9rem 1.1rem;font-size:.86rem;color:var(--red,#dc2626);margin-top:1rem;"></div>
     </div>
 
     <h2>Perguntas Frequentes</h2>
@@ -411,6 +411,48 @@
 </footer>
 <script>
 document.getElementById('footer-year').textContent = new Date().getFullYear();
+(function(){
+  var form = document.getElementById('contact-form');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var btn = form.querySelector('button[type=submit]');
+    var successEl = document.getElementById('contact-success');
+    var errorEl = document.getElementById('contact-error');
+    successEl.style.display = 'none';
+    errorEl.style.display = 'none';
+    if(!form.checkValidity()){form.reportValidity();return;}
+    btn.disabled = true;
+    btn.textContent = 'Enviando…';
+    var data = {
+      nome: form.nome.value,
+      email: form.email.value,
+      assunto: form.assunto.value,
+      mensagem: form.mensagem.value,
+      _subject: '[HidroFlow] Mensagem via site',
+      _captcha: 'false'
+    };
+    fetch('https://formsubmit.co/ajax/jooclaudiano@gmail.com', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify(data)
+    }).then(function(r){return r.json();}).then(function(json){
+      if(json.success === 'true' || json.success === true){
+        form.reset();
+        successEl.style.display = 'block';
+        successEl.scrollIntoView({behavior:'smooth',block:'nearest'});
+      } else {
+        errorEl.textContent = 'Erro ao enviar. Tente novamente ou use o GitHub Issues.';
+        errorEl.style.display = 'block';
+      }
+    }).catch(function(){
+      errorEl.textContent = 'Falha de rede. Verifique sua conexão e tente novamente.';
+      errorEl.style.display = 'block';
+    }).finally(function(){
+      btn.disabled = false;
+      btn.innerHTML = '<svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Enviar mensagem';
+    });
+  });
+})();
 </script>
 <script>if('serviceWorker'in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});</script>
 <button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo" title="Voltar ao topo">
