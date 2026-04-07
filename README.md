@@ -223,6 +223,9 @@ Contribuições são bem-vindas! Consulte o [CONTRIBUTING.md](CONTRIBUTING.md) p
 | [Novidades](https://joaoclaudiano.github.io/hidroflow/novidades.html) | Changelog e roadmap |
 | [Sobre](https://joaoclaudiano.github.io/hidroflow/sobre.html) | Sobre o projeto e o autor |
 | [Contato](https://joaoclaudiano.github.io/hidroflow/contato.html) | Feedback e suporte |
+| [Privacidade](https://joaoclaudiano.github.io/hidroflow/privacidade.html) | Política de privacidade |
+| [Termos de Uso](https://joaoclaudiano.github.io/hidroflow/termos.html) | Termos e condições de uso |
+| [Aviso Legal](https://joaoclaudiano.github.io/hidroflow/disclaimer.html) | Limitação de responsabilidade e uso profissional |
 
 ---
 

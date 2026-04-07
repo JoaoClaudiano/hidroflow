@@ -78,12 +78,17 @@ Azevedo Netto (1998) — Manual de Hidráulica
 /novidades.html      → Changelog e roadmap de funcionalidades
 /sobre.html          → Sobre o projeto e autor
 /contato.html        → Formulário de contato e feedback
+/privacidade.html    → Política de privacidade
+/termos.html         → Termos de uso
+/disclaimer.html     → Aviso legal e limitação de responsabilidade
 /sitemap.xml         → Mapa completo de URLs
 
 # ============================================================
 # CONTATO E SUPORTE
 # ============================================================
 
+Contact: JoaoClaudiano <https://github.com/JoaoClaudiano>
+Info: https://joaoclaudiano.github.io/hidroflow/sobre.html
 Repositório GitHub: https://github.com/JoaoClaudiano/hidroflow
 Issues / Bug reports: https://github.com/JoaoClaudiano/hidroflow/issues
 Reporte de vulnerabilidades: .well-known/security.txt
