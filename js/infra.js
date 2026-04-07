@@ -52,13 +52,16 @@ function getParams(){
 
 function calcInfra(pop,p){
   const Qmed=pop*p.agua/86400;
-  const vol_res_m3=Qmed*p.K1*3600*12/1000;
+  // NBR 12217: volume mínimo de regularização = 1/3 do volume do dia de maior consumo
+  const vol_res_m3=Qmed*p.K1*86400/(3*1000);
   const K_harmon=harmonPeakFactor(pop);
   // Vazão de ponta de esgoto: K1 padrão ou Harmon (dependente da população)
   const QesgPonta=p.useHarmon?(Qmed*p.ret*K_harmon):(Qmed*p.ret*p.K1);
+  // Vazão de hora de ponta de esgoto: K1×K2 (não-Harmon) ou Harmon (já inclui pico horário)
+  const QesgK1K2=p.useHarmon?QesgPonta:(Qmed*p.ret*p.K1*p.K2);
   return{
     Qmed, QK1:Qmed*p.K1, QK2:Qmed*p.K1*p.K2, QK3:Qmed*p.K3,
-    Qesg:Qmed*p.ret, QesgK1:QesgPonta,
+    Qesg:Qmed*p.ret, QesgK1:QesgPonta, QesgK1K2,
     K_harmon, useHarmon:p.useHarmon,
     res_td:pop*p.res/1000, en_mwh:pop*p.en/1000,
     m3dia:pop*p.agua/1000,
@@ -113,7 +116,8 @@ function renderDimensionamento(){
     <div class="infra-section-title">Sistema de esgotamento sanitário</div>
     <div class="infra-grid">
       <div class="infra-card teal">${ic(SVG_SEWER,'teal')}<div class="infra-title">Qesg médio</div><div class="infra-value">${v.Qesg.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-unit" style="margin-top:3px;">Ret. ${(p.ret*100).toFixed(0)}%</div></div>
-      <div class="infra-card teal">${ic(SVG_FLOW,'teal')}<div class="infra-title">Qesg hora de ponta</div><div class="infra-value">${v.QesgK1.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">${v.useHarmon?`Harmon K=${v.K_harmon.toFixed(2)}`:`K1 = ${p.K1.toFixed(2)}`}</div></div>
+      <div class="infra-card teal">${ic(SVG_FLOW,'teal')}<div class="infra-title">Qesg dia de maior consumo</div><div class="infra-value">${v.QesgK1.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">${v.useHarmon?`Harmon K=${v.K_harmon.toFixed(2)}`:`K1 = ${p.K1.toFixed(2)}`}</div></div>
+      <div class="infra-card red">${ic(SVG_FLOW,'red')}<div class="infra-title">Qesg hora de ponta</div><div class="infra-value">${v.QesgK1K2.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">${v.useHarmon?`Harmon K=${v.K_harmon.toFixed(2)}`:`K1·K2 = ${(p.K1*p.K2).toFixed(2)}`}</div></div>
       <div class="infra-card">${ic(SVG_FLOW)}<div class="infra-title">Q mínima noturna</div><div class="infra-value">${v.QK3.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">K3 = ${p.K3.toFixed(2)}</div></div>
     </div>
     <div class="infra-section-title">Resíduos e energia</div>
@@ -156,8 +160,8 @@ function renderObras(pop,v,p,ano){
         <div class="dim-title">${ic(SVG_TANK)} Reservatório de distribuição</div>
         <div><div class="dim-result">${vol_res_total.toFixed(0)}</div><div class="dim-unit">m³ (regularização + incêndio)</div></div>
       </div>
-      <div class="dim-detail">Volume de regularização (12h × Q·K1) + reserva de incêndio NBR 13714 (${V_incendio.toFixed(0)} m³). Ref: NBR 12.218 / FUNASA.</div>
-      <div class="dim-formula">V_reg = Q·K1 × 3600 × 12 / 1000 = ${vol_res.toFixed(0)} m³ · V_inc = ${V_incendio.toFixed(0)} m³ → <strong>V_total = ${vol_res_total.toFixed(0)} m³</strong></div>
+      <div class="dim-detail">Volume de regularização (1/3 do volume do dia de maior consumo, NBR 12217) + reserva de incêndio NBR 13714 (${V_incendio.toFixed(0)} m³). Ref: NBR 12217 / FUNASA.</div>
+      <div class="dim-formula">V_reg = (1/3) × Q·K1 × 86.400 / 1.000 = ${vol_res.toFixed(0)} m³ · V_inc = ${V_incendio.toFixed(0)} m³ → <strong>V_total = ${vol_res_total.toFixed(0)} m³</strong></div>
     </div>
 
     <div class="dim-card">
@@ -257,6 +261,20 @@ function calcParshall(Q_ls, W_idx){
   return{Q_m3s,H_a_m:H_a,in_range,H_min,H_max,W_label:coef.label,K:coef.K,n:coef.n};
 }
 
+// Retorna o menor índice de garganta em PARSHALL_COEFS que mantém H_a dentro da
+// faixa de escoamento livre (0,03 m ≤ H_a ≤ 0,75 m) para a vazão Q_ls (L/s).
+// Retorna -1 se nenhuma garganta disponível for adequada (vazão acima do catálogo).
+function autoParshallIdx(Q_ls){
+  const H_min=0.03,H_max=0.75;
+  const Q_m3s=Q_ls/1000;
+  for(let i=0;i<PARSHALL_COEFS.length;i++){
+    const c=PARSHALL_COEFS[i];
+    const H_a=Q_m3s>0?Math.pow(Q_m3s/c.K,1/c.n):0;
+    if(H_a>=H_min&&H_a<=H_max)return i;
+  }
+  return -1;
+}
+
 // ── ETA avançada: Decantador (Stokes) + Calha Parshall ──────────────────────
 function renderETAAvancadaCard(v){
   const d_mm=+(document.getElementById('eta-d-particula')?.value||0.05);
@@ -281,6 +299,13 @@ function renderETAAvancadaCard(v){
   const stokesOk=stokes.stokes_ok;
   const parshOk=parsh.in_range;
 
+  // Recomendação automática da menor garganta adequada para a vazão
+  const recIdx=autoParshallIdx(v.Qmed);
+  const parshRec=recIdx>=0?PARSHALL_COEFS[recIdx]:null;
+  const parshRecLabel=parshRec?parshRec.label:'nenhuma disponível (considere medidor eletromagnético)';
+  const parshWarnMsg=parshOk?'✅ (dentro da faixa 3–75 cm)'
+    :`⚠ fora da faixa recomendada — <strong>garganta sugerida: ${parshRecLabel}</strong>`;
+
   return `<details class="advanced-opts" style="margin-top:10px;border-top:1px solid var(--border);padding-top:8px;">
     <summary style="font-size:11px;font-weight:600;font-family:var(--mono);color:var(--text2);text-transform:uppercase;letter-spacing:.05em;cursor:pointer;">
       ⚗ Dimensionamento avançado ETA — Decantador (Stokes) &amp; Calha Parshall
@@ -303,12 +328,12 @@ function renderETAAvancadaCard(v){
         <div style="font-size:10px;font-weight:600;color:var(--text2);font-family:var(--mono);margin-bottom:6px;text-transform:uppercase;">Calha Parshall — Mistura rápida</div>
         <div style="font-size:11px;color:var(--text2);line-height:1.7;font-family:var(--mono);">
           Garganta: <strong>${parsh.W_label}</strong> · Q = ${v.Qmed.toFixed(2)} L/s<br>
-          H_a calculado = <strong>${(parsh.H_a_m*100).toFixed(1)} cm</strong> ${parshOk?'✅ (dentro da faixa 3–75 cm)':'⚠ fora da faixa recomendada'}<br>
+          H_a calculado = <strong>${(parsh.H_a_m*100).toFixed(1)} cm</strong> ${parshWarnMsg}<br>
           Q = K·H_a^n = ${parsh.K}×(${parsh.H_a_m.toFixed(4)})^${parsh.n} = ${v.Qmed.toFixed(2)} L/s
         </div>
         <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;border-top:1px solid var(--border);padding-top:4px;">
           Ref: NBR 9281 / AWWA M22. Faixa: 0,03 ≤ H_a ≤ 0,75 m.<br>
-          <em>Nota: os limites de vazão por garganta são conservadores (ex.: 6" suporta até ~110 L/s em projeto). O conservadorismo favorece gradiente de velocidade adequado na mistura rápida.</em>
+          <em>Nota: a garganta sugerida acima é a menor dimensão que mantém escoamento livre (H_a ≤ 0,75 m) para a vazão informada.</em>
         </div>
       </div>
     </div>
@@ -329,7 +354,7 @@ function renderManningCard(v,p,pop){
 
   const mann=calcManning(n_mann,D_col,S_oo,lamina_frac);
   const Q_mann_ls=mann.area_m2*mann.v_m_s*1000; // L/s
-  const Q_design=v.QesgK1+Q_inf; // L/s total (ponta + infiltração)
+  const Q_design=v.QesgK1K2+Q_inf; // L/s total (K1·K2 hora de ponta + infiltração)
   const capacOk=Q_mann_ls>=Q_design;
   const vMin_ok=mann.v_min_ok;
 
@@ -341,11 +366,11 @@ function renderManningCard(v,p,pop){
     <div class="dim-detail">
       Manning n=${n_mann} · S=${(S_oo*100).toFixed(2)}% · Lâmina ${(lamina_frac*100).toFixed(0)}% · DN ${D_col_mm} mm<br>
       v=${mann.v_m_s.toFixed(3)} m/s ${vMin_ok?'✅':'⚠ abaixo de 0,6 m/s (auto-limpeza)'} · Q_coletor=${Q_mann_ls.toFixed(2)} L/s<br>
-      Q_infiltração=${Q_inf.toFixed(3)} L/s (taxa ${taxa_inf} L/s·km × ${ext_rede_km} km) · Q_design=${Q_design.toFixed(2)} L/s
+      Q_infiltração=${Q_inf.toFixed(3)} L/s (taxa ${taxa_inf} L/s·km × ${ext_rede_km} km) · Q_design (K1·K2)=${Q_design.toFixed(2)} L/s
     </div>
     <div class="dim-formula">
       v = (1/n)·Rh^2/3·S^1/2 = (1/${n_mann})×${mann.Rh_m.toFixed(4)}^0,667×${(S_oo*100).toFixed(2)}%^0,5 = ${mann.v_m_s.toFixed(3)} m/s
-      Q_inf = ${taxa_inf} × ${ext_rede_km} = ${Q_inf.toFixed(3)} L/s → Q_total = ${Q_design.toFixed(2)} L/s
+      Q_inf = ${taxa_inf} × ${ext_rede_km} = ${Q_inf.toFixed(3)} L/s → Q_total (K1·K2+inf) = ${Q_design.toFixed(2)} L/s
     </div>
   </div>`;
 }
