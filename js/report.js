@@ -81,6 +81,144 @@ function gerarRelatorio(){
 }
 
 function imprimirRelatorio(){gerarRelatorio();setTimeout(()=>window.print(),200);}
+
+function _buildPdfDoc(){
+  const {jsPDF: JsPDF}=window.jspdf;
+  const doc=new JsPDF({unit:'pt',format:'a4'});
+  const content=document.getElementById('relatorio-content');
+  const titulo=document.getElementById('print-titulo')?.textContent||'Memorial de Cálculo';
+  const meta=document.getElementById('print-meta')?.textContent||'';
+  const pageW=doc.internal.pageSize.getWidth();
+  const margin=40;
+  const maxW=pageW-margin*2;
+  let y=48;
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(14);
+  doc.setTextColor(26,79,214);
+  const tituloLines=doc.splitTextToSize(titulo,maxW);
+  doc.text(tituloLines,margin,y);
+  y+=tituloLines.length*18+4;
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.setTextColor(90,90,84);
+  doc.text(meta,margin,y);
+  y+=20;
+
+  doc.setDrawColor(220,220,215);
+  doc.line(margin,y,pageW-margin,y);
+  y+=16;
+
+  const sections=content?.querySelectorAll('.report-section')||[];
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10);
+  doc.setTextColor(26,26,24);
+
+  sections.forEach(sec=>{
+    const titleEl=sec.querySelector('.report-title');
+    if(titleEl){
+      if(y>780){doc.addPage();y=48;}
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10);
+      doc.setTextColor(26,79,214);
+      const sLines=doc.splitTextToSize(titleEl.textContent||'',maxW);
+      doc.text(sLines,margin,y);
+      y+=sLines.length*14+6;
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(26,26,24);
+    }
+    const rows=sec.querySelectorAll('tr');
+    rows.forEach(row=>{
+      if(y>790){doc.addPage();y=48;}
+      const cells=Array.from(row.querySelectorAll('th,td')).map(c=>(c.textContent||'').trim());
+      if(!cells.length)return;
+      doc.setFontSize(9);
+      const colW=maxW/Math.max(cells.length,1);
+      cells.forEach((cell,i)=>{
+        const cellLines=doc.splitTextToSize(cell,colW-4);
+        doc.text(cellLines,margin+i*colW,y);
+      });
+      y+=13;
+    });
+    const formulas=sec.querySelectorAll('.formula');
+    formulas.forEach(f=>{
+      if(y>785){doc.addPage();y=48;}
+      doc.setFontSize(8.5);
+      doc.setTextColor(70,100,180);
+      const fLines=doc.splitTextToSize(f.textContent||'',maxW-10);
+      doc.setFillColor(232,238,251);
+      doc.roundedRect(margin,y-10,maxW,fLines.length*12+6,2,2,'F');
+      doc.text(fLines,margin+5,y);
+      doc.setTextColor(26,26,24);
+      y+=fLines.length*12+10;
+    });
+    y+=8;
+  });
+  return doc;
+}
+
+async function compartilharRelatorio(){
+  const btn=document.getElementById('btnCompartilhar');
+  const statusEl=document.getElementById('share-status');
+
+  if(!state.r2||!state.censosRaw){
+    statusEl.style.color='var(--amber)';
+    statusEl.textContent='Execute o Best Fit e a Projeção antes de compartilhar o relatório.';
+    return;
+  }
+  if(typeof window.jspdf==='undefined'||typeof window.jspdf.jsPDF==='undefined'){
+    statusEl.style.color='var(--red)';
+    statusEl.textContent='jsPDF não carregado. Verifique a conexão e recarregue a página.';
+    return;
+  }
+
+  gerarRelatorio();
+
+  try{
+    btn.classList.add('btn-loading');
+    btn.disabled=true;
+    statusEl.style.color='var(--text2)';
+    statusEl.textContent='Gerando PDF…';
+
+    const doc=_buildPdfDoc();
+    const nomeMun=(state.municipioNome||'Município').replace(/\s+/g,'_');
+    const fileName=`Memorial_Descritivo_HidroFlow_${nomeMun}.pdf`;
+
+    const shareTitle=`Memorial de Cálculo — ${state.municipioNome||'Município'}`;
+    const shareText='Memorial de cálculo gerado pelo HidroFlow v5.0 — Dimensionamento de Sistemas de Abastecimento de Água.';
+
+    if(navigator.share && navigator.canShare){
+      const blob=new Blob([doc.output('arraybuffer')],{type:'application/pdf'});
+      const file=new File([blob],fileName,{type:'application/pdf'});
+      if(navigator.canShare({files:[file]})){
+        statusEl.textContent='Abrindo compartilhamento…';
+        await navigator.share({files:[file],title:shareTitle,text:shareText});
+        statusEl.style.color='var(--green)';
+        statusEl.textContent='✓ Compartilhado com sucesso.';
+        addAudit('Relatório compartilhado via Web Share API');
+        return;
+      }
+    }
+
+    doc.save(fileName);
+    statusEl.style.color='var(--green)';
+    statusEl.textContent='✓ PDF baixado com sucesso.';
+    addAudit('Relatório PDF baixado');
+  }catch(err){
+    if(err.name==='AbortError'){
+      statusEl.style.color='var(--text3)';
+      statusEl.textContent='Compartilhamento cancelado.';
+    }else{
+      console.error('Erro ao gerar PDF:',err);
+      statusEl.style.color='var(--red)';
+      statusEl.textContent='Erro ao gerar o PDF: '+err.message;
+    }
+  }finally{
+    btn.classList.remove('btn-loading');
+    btn.disabled=false;
+  }
+}
 function copiarRelatorio(){navigator.clipboard.writeText(document.getElementById('relatorio-content').innerText).then(()=>alert('Texto copiado!'));}
 function exportarCSV(){
   if(!state.projData.length){alert('Calcule e projete a população primeiro.');return;}

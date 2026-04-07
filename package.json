@@ -11,7 +11,12 @@
     "type": "git",
     "url": "git+https://github.com/JoaoClaudiano/hidroflow.git"
   },
-  "keywords": ["hidráulica", "abastecimento", "projeção populacional", "NBR"],
+  "keywords": [
+    "hidráulica",
+    "abastecimento",
+    "projeção populacional",
+    "NBR"
+  ],
   "author": "JoaoClaudiano",
   "license": "MIT",
   "type": "module",
