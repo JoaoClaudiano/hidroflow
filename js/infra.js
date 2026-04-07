@@ -143,8 +143,8 @@ function renderObras(pop,v,p,ano){
   const series_dn_rede=[50,75,100,125,150,200,250,300,350,400];
   const DN_rede=series_dn_rede.find(d=>d>=diam_rede)||series_dn_rede[series_dn_rede.length-1];
   const DN_adut=Math.ceil(diam_adut/25)*25;
-  const v_adut_real=(v.QK1/1000)/(Math.PI*((DN_adut/1000)/2)**2);
-  const v_rede_real=(v.QK2/1000)/(Math.PI*((DN_rede/1000)/2)**2);
+  const v_adut_real=(v.QK1/1000)/(Math.PI*(DN_adut/2000)**2);
+  const v_rede_real=(v.QK2/1000)/(Math.PI*(DN_rede/2000)**2);
   const warnAdut=v_adut_real>3?`<div style="margin-top:4px;color:var(--red);font-family:var(--mono);font-size:10px;">⚠ Velocidade real ${v_adut_real.toFixed(2)} m/s &gt; 3,0 m/s — risco de erosão. Considere aumentar o DN.</div>`:'';
   const warnRede=v_rede_real>3?`<div style="margin-top:4px;color:var(--red);font-family:var(--mono);font-size:10px;">⚠ Velocidade real ${v_rede_real.toFixed(2)} m/s &gt; 3,0 m/s — risco de erosão. Considere aumentar o DN.</div>`:'';
 
