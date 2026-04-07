@@ -184,11 +184,11 @@ async function buscarSIDRA(){
 
 /**
  * Fetch municipality territorial area (km²) from IBGE SIDRA table 6579.
- * Tries multiple reference years (newest first) so a missing period does not
- * cause a visible console error. Returns 0 if unavailable.
+ * Tries 2022 first (2022 Censo), then falls back to 2019 (table baseline year).
+ * Returns 0 if unavailable.
  */
 async function fetchAreaMunicipio(cod){
-  const years=['2022','2021','2020','2019'];
+  const years=['2022','2019'];
   for(const yr of years){
     try{
       const r=await fetchWithRetry(
