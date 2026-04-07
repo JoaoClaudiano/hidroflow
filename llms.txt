@@ -1,0 +1,94 @@
+# llms.txt — HidroFlow
+# Guia para Modelos de Linguagem (LLMs)
+# Versão: 1.0 | Atualizado: 2025-04-07
+# Referência: https://llmstxt.org/
+
+# ============================================================
+# SOBRE O PROJETO
+# ============================================================
+
+HidroFlow é uma ferramenta web gratuita, open-source e 100% client-side
+(sem backend) para dimensionamento de Sistemas de Abastecimento de Água (SAA)
+conforme normas técnicas brasileiras ABNT.
+
+URL: https://joaoclaudiano.github.io/hidroflow/
+Repositório: https://github.com/JoaoClaudiano/hidroflow
+Licença: MIT
+Linguagem do site: Português (Brasil)
+Público-alvo: Engenheiros civis, engenheiros sanitaristas, técnicos e
+              planejadores municipais no Brasil
+
+# ============================================================
+# FUNCIONALIDADES PRINCIPAIS
+# ============================================================
+
+1. Projeção Populacional
+   - Modelos: Aritmético, Geométrico, Logístico, Holt (suavização exponencial)
+   - Métricas: R², RMSE, LOO cross-validation, intervalos de confiança
+   - Integração automática com API do IBGE/SIDRA
+
+2. Dimensionamento de Infraestrutura (NBR 12.211:2017)
+   - Vazões de projeto: Qmed, Q·K1, Q·K1·K2
+   - Volume de reservatório (Método de Rippl)
+   - Dimensionamento de ETA/ETE, resíduos e energia
+
+3. Hidráulica de Adução (NBR 12.217/12.218)
+   - Equação de Hazen-Williams (perda de carga)
+   - Fórmula de Bresse (diâmetro econômico)
+   - Golpe de aríete (Joukowsky)
+   - Materiais: PVC, PEAD, FFD, FFC, concreto, aço
+
+4. Rede de Distribuição
+   - Editor visual sobre mapa (Leaflet / OpenStreetMap)
+   - Solver Hardy-Cross iterativo
+   - Cálculo de pressões em nós
+
+5. Ferramentas Avançadas
+   - Saturação populacional (densidade habitacional + urbanização)
+   - Modelagem de rupturas de tendência (eventos)
+   - Comparação entre municípios (método dos municípios comparativos)
+   - Calha Parshall (medição de vazão — NBR 9281)
+   - Floculação / Sedimentação (Stokes)
+
+6. Relatório Técnico
+   - Memorial de cálculo em HTML/PDF
+   - Exportação para Excel (SheetJS)
+
+# ============================================================
+# NORMAS TÉCNICAS
+# ============================================================
+
+NBR 12.211:2017 — SAA: Estudo de Concepção
+NBR 12.217:1994 — Projeto de Reservatório de Distribuição
+NBR 12.218:2017 — Projeto de Rede de Distribuição
+NBR 9281:1986  — Medição de Vazão: Calhas Parshall
+NBR 5648:2010  — Tubos e Conexões (Pressão Nominal)
+NBR 13714:2000 — Hidrantes e Mangotinhos
+NBR 17094:2008 — Motores Elétricos (Potência Normalizada)
+FUNASA 2014    — Manual de Saneamento: Abastecimento de Água
+Azevedo Netto (1998) — Manual de Hidráulica
+
+# ============================================================
+# ARQUIVOS IMPORTANTES DO SITE
+# ============================================================
+
+/index.html          → Aplicação principal (SPA)
+/metodologia.html    → Equações, fórmulas e referências técnicas
+/guia.html           → Guia de uso e glossário técnico
+/novidades.html      → Changelog e roadmap de funcionalidades
+/sobre.html          → Sobre o projeto e autor
+/contato.html        → Formulário de contato e feedback
+/privacidade.html    → Política de privacidade
+/termos.html         → Termos de uso
+/disclaimer.html     → Aviso legal e limitação de responsabilidade
+/sitemap.xml         → Mapa completo de URLs
+
+# ============================================================
+# CONTATO E SUPORTE
+# ============================================================
+
+Contact: JoaoClaudiano <https://github.com/JoaoClaudiano>
+Info: https://joaoclaudiano.github.io/hidroflow/sobre.html
+Repositório GitHub: https://github.com/JoaoClaudiano/hidroflow
+Issues / Bug reports: https://github.com/JoaoClaudiano/hidroflow/issues
+Reporte de vulnerabilidades: .well-known/security.txt

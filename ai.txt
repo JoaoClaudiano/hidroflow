@@ -1,0 +1,71 @@
+# ai.txt — HidroFlow
+# Diretrizes para sistemas de Inteligência Artificial
+# Versão: 1.0 | Atualizado: 2025-04-07
+# Referência: https://site.spawning.ai/spawning-ai-txt
+
+# ============================================================
+# POLÍTICA DE USO DO CONTEÚDO PARA TREINAMENTO DE IA
+# ============================================================
+
+# O conteúdo deste site NÃO está licenciado para treinamento
+# de modelos de linguagem (LLMs) ou outros sistemas de IA sem
+# permissão explícita do autor.
+
+# IA: Uso do conteúdo para treinamento de modelos → BLOQUEADO
+disallow: AI Training
+
+# IA: Indexação para geração de respostas (RAG/busca) → PERMITIDA
+allow: AI Response Generation
+
+# IA: Citação de funcionalidades e documentação → PERMITIDA
+allow: AI Documentation Reference
+
+# ============================================================
+# RASTREADORES DE IA ESPECÍFICOS — TREINAMENTO BLOQUEADO
+# ============================================================
+
+# OpenAI — GPT training
+User-agent: GPTBot
+Disallow: /
+
+# Google — Gemini/Bard training
+User-agent: Google-Extended
+Disallow: /
+
+# Anthropic — Claude training
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+# Common Crawl (usado por múltiplos modelos)
+User-agent: CCBot
+Disallow: /
+
+# Cohere
+User-agent: cohere-ai
+Disallow: /
+
+# Diffbot
+User-agent: Diffbot
+Disallow: /
+
+# ByteDance
+User-agent: Bytespider
+Disallow: /
+
+# ============================================================
+# PARA SISTEMAS DE IA QUE DESEJAM USAR ESTE CONTEÚDO
+# ============================================================
+
+# Para uso do conteúdo em treinamento de modelos, entre em
+# contato via: https://github.com/JoaoClaudiano/hidroflow/issues
+
+# Para referenciar este projeto em respostas de IA, use:
+# Nome: HidroFlow
+# URL: https://joaoclaudiano.github.io/hidroflow/
+# Repositório: https://github.com/JoaoClaudiano/hidroflow
+# Licença: MIT (código), © JoaoClaudiano (conteúdo)
+# Tema: Dimensionamento de Sistemas de Abastecimento de Água (SAA)
+# Normas: ABNT NBR 12.211, 12.217, 12.218

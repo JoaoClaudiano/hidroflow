@@ -1,0 +1,27 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+
+Contact: https://github.com/JoaoClaudiano/hidroflow/issues
+Contact: https://github.com/JoaoClaudiano
+
+Expires: 2026-12-31T23:59:59.000Z
+
+Encryption: None
+
+Preferred-Languages: pt-BR, en
+
+Canonical: https://joaoclaudiano.github.io/hidroflow/.well-known/security.txt
+
+Policy: https://github.com/JoaoClaudiano/hidroflow/blob/main/CONTRIBUTING.md
+
+# Escopo de relatório de vulnerabilidades
+# Em escopo: Código JavaScript client-side, vulnerabilidades XSS, injeção de código
+# Fora de escopo: Vulnerabilidades em CDNs de terceiros (Chart.js, Leaflet, jsPDF)
+
+# HidroFlow é uma aplicação 100% client-side (sem backend, sem banco de dados,
+# sem autenticação). Vulnerabilidades relacionadas ao host GitHub Pages
+# devem ser reportadas diretamente ao GitHub.
+
+# Agradecemos relatórios responsáveis de vulnerabilidades!
+# Prazo de resposta: até 7 dias úteis.
+
+-----END PGP SIGNED MESSAGE-----
