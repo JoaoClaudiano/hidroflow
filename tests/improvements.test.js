@@ -222,3 +222,77 @@ describe('calcParshall — Calha Parshall', () => {
     expect(rMais.W_label).toBe(infra.PARSHALL_COEFS[infra.PARSHALL_COEFS.length-1].label);
   });
 });
+
+// ── autoParshallIdx (infra.js) ─────────────────────────────────────────────────
+describe('autoParshallIdx — seleção automática de garganta Parshall', () => {
+  test('Q = 30 L/s: garganta 9" (idx 2) é adequada', () => {
+    const idx = infra.autoParshallIdx(30);
+    // Para 30 L/s, a garganta 9" (K=0.1225) dá H_a ≈ 0.37 m → dentro da faixa
+    expect(idx).toBeLessThanOrEqual(2);
+    expect(idx).toBeGreaterThanOrEqual(0);
+  });
+
+  test('Q = 208 L/s: garganta sugerida mantém H_a ≤ 0,75 m', () => {
+    const idx = infra.autoParshallIdx(208);
+    expect(idx).toBeGreaterThanOrEqual(0); // existe uma garganta adequada
+    const r = infra.calcParshall(208, idx);
+    expect(r.in_range).toBe(true);
+  });
+
+  test('Q muito pequena (1 L/s): menor garganta (3") é suficiente', () => {
+    const idx = infra.autoParshallIdx(1);
+    const r = infra.calcParshall(1, idx);
+    expect(r.in_range).toBe(true);
+  });
+
+  test('garganta retornada é a menor adequada para Q = 208 L/s', () => {
+    const idx = infra.autoParshallIdx(208);
+    // Todas as gargantas menores devem estar fora da faixa para 208 L/s
+    for (let i = 0; i < idx; i++) {
+      const r = infra.calcParshall(208, i);
+      expect(r.in_range).toBe(false);
+    }
+  });
+});
+
+// ── calcInfra — reservatório NBR 12217 e QesgK1K2 ────────────────────────────
+describe('calcInfra — volume de reservatório e SES hora de ponta', () => {
+  const p = {
+    agua: 150, ret: 0.8, res: 0.5, en: 100,
+    K1: 1.2, K2: 1.5, K3: 0.5,
+    extra1Nome: '', extra1Val: 0,
+    custom: false, useHarmon: false,
+  };
+
+  test('reservatório: V_reg = (1/3) × Q·K1 × 86400 (NBR 12217)', () => {
+    const pop = 120000;
+    const Qmed = pop * p.agua / 86400; // L/s
+    const expected = Qmed * p.K1 * 86400 / (3 * 1000); // m³
+    const v = infra.calcInfra(pop, p);
+    expect(v.vol_res_m3).toBeCloseTo(expected, 3);
+  });
+
+  test('reservatório 120k hab: V_reg ≈ 7200 m³ (NBR 12217)', () => {
+    const v = infra.calcInfra(120000, p);
+    // (1/3) × 0.25 m³/s × 86400 = 7200 m³
+    expect(v.vol_res_m3).toBeCloseTo(7200, 0);
+  });
+
+  test('QesgK1K2 não-Harmon = Qesg × K1 × K2', () => {
+    const pop = 120000;
+    const v = infra.calcInfra(pop, p);
+    const expected = v.Qesg * p.K1 * p.K2;
+    expect(v.QesgK1K2).toBeCloseTo(expected, 3);
+  });
+
+  test('QesgK1K2 Harmon = QesgK1 (Harmon já inclui pico horário)', () => {
+    const pHarmon = { ...p, useHarmon: true };
+    const v = infra.calcInfra(120000, pHarmon);
+    expect(v.QesgK1K2).toBeCloseTo(v.QesgK1, 6);
+  });
+
+  test('QesgK1K2 > QesgK1 quando não usa Harmon e K2 > 1', () => {
+    const v = infra.calcInfra(120000, p);
+    expect(v.QesgK1K2).toBeGreaterThan(v.QesgK1);
+  });
+});
