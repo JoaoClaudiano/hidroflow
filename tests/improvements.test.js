@@ -4,6 +4,8 @@
  * 2. Joukowsky vs. Michaud water-hammer logic (helpers in aducao.js context)
  * 3. Motor safety factor per catalog
  * 4. Harmon peak-flow factor (harmonPeakFactor in infra.js)
+ * 5. Lei de Stokes — settling velocity (calcStokes in infra.js)
+ * 6. Calha Parshall — flow measurement (calcParshall in infra.js)
  */
 import { describe, test, expect } from 'vitest';
 import { loadScript } from './setup.js';
@@ -139,5 +141,84 @@ describe('Motor catalog safety factor', () => {
     const Pot_kw_fs = Pot_kw * fs;
     const commercial = nextCommercial(Pot_kw_fs);
     expect(commercial).toBeGreaterThanOrEqual(Pot_kw_fs);
+  });
+});
+
+// ── calcStokes (infra.js) ─────────────────────────────────────────────────────
+describe('calcStokes — Lei de Stokes', () => {
+  // calcStokes(d_mm, rho_p, temp_C, Q_m3s)
+  test('areia fina 0,1 mm @ 20°C: v_s ≈ 8,2 mm/s', () => {
+    const r = infra.calcStokes(0.1, 2650, 20, 0.01);
+    // Manual: v_s = 9.81*(2650-1000)*(0.0001)^2/(18*0.001002) ≈ 8.93e-3 m/s
+    expect(r.v_s_m_s).toBeGreaterThan(0.005);
+    expect(r.v_s_m_s).toBeLessThan(0.015);
+  });
+
+  test('argila muito fina 0,01 mm @ 20°C: v_s deve ser muito menor', () => {
+    const r_argila = infra.calcStokes(0.01, 2650, 20, 0.01);
+    const r_areia  = infra.calcStokes(0.1,  2650, 20, 0.01);
+    // v_s ∝ d² → 100× mais lento
+    expect(r_argila.v_s_m_s).toBeLessThan(r_areia.v_s_m_s / 50);
+  });
+
+  test('Re < 0,5 para partícula fina (Stokes válido)', () => {
+    const r = infra.calcStokes(0.05, 2650, 20, 0.01);
+    expect(r.stokes_ok).toBe(true);
+  });
+
+  test('área do decantador A = Q / v_s', () => {
+    const Q = 0.05; // m³/s
+    const r = infra.calcStokes(0.1, 2650, 20, Q);
+    expect(r.A_dec_m2).toBeCloseTo(Q / r.v_s_m_s, 4);
+  });
+
+  test('temperatura maior → viscosidade menor → v_s maior', () => {
+    const r20 = infra.calcStokes(0.1, 2650, 20, 0.01);
+    const r35 = infra.calcStokes(0.1, 2650, 35, 0.01);
+    expect(r35.v_s_m_s).toBeGreaterThan(r20.v_s_m_s);
+  });
+
+  test('v_s = 0 se Q = 0 mas retorna valor positivo (v_s independe de Q)', () => {
+    const r = infra.calcStokes(0.1, 2650, 20, 0);
+    expect(r.v_s_m_s).toBeGreaterThan(0);
+    expect(r.A_dec_m2).toBe(0); // A = 0/v_s = 0
+  });
+});
+
+// ── calcParshall (infra.js) ───────────────────────────────────────────────────
+describe('calcParshall — Calha Parshall', () => {
+  // calcParshall(Q_ls, W_idx)  W_idx=2 → garganta 9" (K=0.1225, n=1.547)
+  test('Q = 30 L/s com garganta 9": H_a deve estar dentro da faixa', () => {
+    const r = infra.calcParshall(30, 2);
+    expect(r.in_range).toBe(true);
+    expect(r.H_a_m).toBeGreaterThan(0.03);
+    expect(r.H_a_m).toBeLessThan(0.75);
+  });
+
+  test('H_a consistente: Q_re = K × H_a^n deve recuperar Q original', () => {
+    const Q_ls = 20;
+    const r = infra.calcParshall(Q_ls, 2); // garganta 9"
+    const Q_re = r.K * Math.pow(r.H_a_m, r.n) * 1000; // m³/s → L/s
+    expect(Q_re).toBeCloseTo(Q_ls, 2);
+  });
+
+  test('garganta maior permite vazão maior na mesma H_a', () => {
+    // Q fixo: garganta 6" vs 24"
+    const r6  = infra.calcParshall(50, 1); // 6" — K=0.0703
+    const r24 = infra.calcParshall(50, 5); // 24" — K=0.4376
+    // Garganta maior → menor H_a para a mesma Q
+    expect(r24.H_a_m).toBeLessThan(r6.H_a_m);
+  });
+
+  test('PARSHALL_COEFS exportado e tem 9 entradas', () => {
+    expect(infra.PARSHALL_COEFS).toBeDefined();
+    expect(infra.PARSHALL_COEFS.length).toBe(9);
+  });
+
+  test('W_idx fora do intervalo clampado ao mais próximo', () => {
+    const rMenos = infra.calcParshall(10, -5);
+    const rMais  = infra.calcParshall(10, 999);
+    expect(rMenos.W_label).toBe(infra.PARSHALL_COEFS[0].label);
+    expect(rMais.W_label).toBe(infra.PARSHALL_COEFS[infra.PARSHALL_COEFS.length-1].label);
   });
 });
