@@ -23,9 +23,10 @@ function toggleCustomParams(){
 }
 
 // Coeficiente de ponta de esgoto pela Fórmula de Harmon (P em mil hab)
+// M = 1 + 14/(4+√P) = (4+√P+14)/(4+√P) = (18+√P)/(4+√P)
 function harmonPeakFactor(pop){
   const P=pop/1000;
-  return(14+Math.sqrt(P))/(4+Math.sqrt(P));
+  return(18+Math.sqrt(P))/(4+Math.sqrt(P));
 }
 
 function getParams(){
@@ -127,10 +128,10 @@ function renderDimensionamento(){
 }
 
 function renderObras(pop,v,p,ano){
-  const diam_adut=Math.sqrt((4*v.QK1)/(Math.PI*1.5))*1000;
-  const diam_rede=Math.sqrt((4*v.QK2/0.7)/(Math.PI*2.0))*1000;
+  const diam_adut=Math.sqrt((4*(v.QK1/1000))/(Math.PI*1.5))*1000;
+  const diam_rede=Math.sqrt((4*(v.QK2/0.7)/1000)/(Math.PI*2.0))*1000;
   const vol_res=v.vol_res_m3;
-  const area_eta=v.Qmed*86400/600;
+  const area_eta=v.m3dia/600;
   const vol_ete=v.vol_ete_m3;
   const area_lagoa=vol_ete/(3.5);
 
@@ -142,7 +143,10 @@ function renderObras(pop,v,p,ano){
   const series_dn_rede=[50,75,100,125,150,200,250,300,350,400];
   const DN_rede=series_dn_rede.find(d=>d>=diam_rede)||series_dn_rede[series_dn_rede.length-1];
   const DN_adut=Math.ceil(diam_adut/25)*25;
+  const v_adut_real=(v.QK1/1000)/(Math.PI*((DN_adut/1000)/2)**2);
   const v_rede_real=(v.QK2/1000)/(Math.PI*((DN_rede/1000)/2)**2);
+  const warnAdut=v_adut_real>3?`<div style="margin-top:4px;color:var(--red);font-family:var(--mono);font-size:10px;">⚠ Velocidade real ${v_adut_real.toFixed(2)} m/s &gt; 3,0 m/s — risco de erosão. Considere aumentar o DN.</div>`:'';
+  const warnRede=v_rede_real>3?`<div style="margin-top:4px;color:var(--red);font-family:var(--mono);font-size:10px;">⚠ Velocidade real ${v_rede_real.toFixed(2)} m/s &gt; 3,0 m/s — risco de erosão. Considere aumentar o DN.</div>`:'';
 
   document.getElementById('dim-display').innerHTML=`
     <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:14px;">Dimensionamento de obras para <strong style="color:var(--text);">${pop.toLocaleString('pt-BR')} hab</strong> em <strong style="color:var(--text);">${ano}</strong></p>
@@ -161,8 +165,9 @@ function renderObras(pop,v,p,ano){
         <div class="dim-title">${ic(SVG_PIPE)} Adutora principal</div>
         <div><div class="dim-result">${DN_adut}</div><div class="dim-unit">mm (DN nominal)</div></div>
       </div>
-      <div class="dim-detail">Diâmetro calculado para conduzir Q·K1 com velocidade de 1,5 m/s. DN nominal arredondado para cima (série ABNT).</div>
-      <div class="dim-formula">D = √(4·Q / π·v) = ${diam_adut.toFixed(0)} mm calc. → DN ${DN_adut} mm</div>
+      <div class="dim-detail">Diâmetro calculado para conduzir Q·K1 com velocidade de 1,5 m/s. DN nominal arredondado para cima (série ABNT). Velocidade real no DN ${DN_adut} mm: ${v_adut_real.toFixed(2)} m/s.</div>
+      <div class="dim-formula">D = √(4·Q / π·v) = ${diam_adut.toFixed(0)} mm calc. → DN ${DN_adut} mm · v = ${v_adut_real.toFixed(2)} m/s</div>
+      ${warnAdut}
     </div>
 
     <div class="dim-card">
@@ -172,6 +177,7 @@ function renderObras(pop,v,p,ano){
       </div>
       <div class="dim-detail">Diâmetro para conduzir Q·K1·K2 (hora de ponta) com velocidade de 2,0 m/s no tronco. Derivações secundárias: DN 75–100 mm. Velocidade real no tronco: ${v_rede_real.toFixed(2)} m/s. NBR 12218.</div>
       <div class="dim-formula">D_rede = √(4·Q·K1·K2 / (π·v)) = ${diam_rede.toFixed(0)} mm calc. → DN ${DN_rede} mm · v = ${v_rede_real.toFixed(2)} m/s</div>
+      ${warnRede}
     </div>
 
     <div class="dim-card">
@@ -198,8 +204,8 @@ function renderObras(pop,v,p,ano){
         <div class="dim-title">${ic(SVG_WASTE,'amber')} Aterro sanitário / Galpão de triagem</div>
         <div><div class="dim-result">${(v.res_td*365*20/1000).toFixed(1)}</div><div class="dim-unit">mil ton (20 anos)</div></div>
       </div>
-      <div class="dim-detail">Geração de ${v.res_td.toFixed(1)} ton/dia. Volume de aterro necessário para 20 anos: ${(v.res_td*365*20/0.8/1000).toFixed(0)} m³ (densidade 0,8 t/m³).</div>
-      <div class="dim-formula">V_aterro = ${v.res_td.toFixed(1)} × 365 × 20 / 0,8 = ${(v.res_td*365*20/0.8/1000).toFixed(0)} m³</div>
+      <div class="dim-detail">Geração de ${v.res_td.toFixed(1)} ton/dia. Volume de aterro necessário para 20 anos: ${(v.res_td*365*20/0.8).toFixed(0)} m³ (densidade 0,8 t/m³).</div>
+      <div class="dim-formula">V_aterro = ${v.res_td.toFixed(1)} × 365 × 20 / 0,8 = ${(v.res_td*365*20/0.8).toFixed(0)} m³</div>
     </div>
     ${renderManningCard(v,p,pop)}`;
 }
@@ -301,7 +307,8 @@ function renderETAAvancadaCard(v){
           Q = K·H_a^n = ${parsh.K}×(${parsh.H_a_m.toFixed(4)})^${parsh.n} = ${v.Qmed.toFixed(2)} L/s
         </div>
         <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;border-top:1px solid var(--border);padding-top:4px;">
-          Ref: NBR 9281 / AWWA M22. Faixa: 0,03 ≤ H_a ≤ 0,75 m.
+          Ref: NBR 9281 / AWWA M22. Faixa: 0,03 ≤ H_a ≤ 0,75 m.<br>
+          <em>Nota: os limites de vazão por garganta são conservadores (ex.: 6" suporta até ~110 L/s em projeto). O conservadorismo favorece gradiente de velocidade adequado na mistura rápida.</em>
         </div>
       </div>
     </div>
