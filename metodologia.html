@@ -152,8 +152,8 @@
     color: var(--accent);
     font-size: 0.72rem;
     font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
     margin-right: 6px;
     font-family: var(--mono);
   }
@@ -198,8 +198,8 @@
     color: var(--green);
     font-size: 0.71rem;
     font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
     margin-left: 4px;
     font-family: var(--mono);
   }
@@ -268,7 +268,7 @@
      1. PROJEÇÃO POPULACIONAL
      ============================ -->
 <div id="sec-projecao" class="met-section card">
-  <div class="card-title">1. Projeção Populacional</div>
+  <div class="card-title">1. Projeção Populacional <span class="nbr-badge">NBR 12.211</span></div>
 
   <p>O HidroFlow ajusta automaticamente quatro modelos de crescimento demográfico aos dados censitários fornecidos, seleciona o melhor por score composto e projeta a população para os horizontes de projeto. Todos os modelos são ajustados por regressão de mínimos quadrados ordinários (OLS) ou por busca em grade (<em>grid search</em>).</p>
 
@@ -348,7 +348,7 @@ O multiplicador utilizado é exibido no painel "Intervalo de Confiança 95%" da 
      2. MÉTRICAS DE VALIDAÇÃO
      ============================ -->
 <div id="sec-validacao" class="met-section card">
-  <div class="card-title">2. Métricas de Validação e Seleção de Modelo</div>
+  <div class="card-title">2. Métricas de Validação e Seleção de Modelo <span class="nbr-badge">OLS / LOO-CV</span></div>
 
   <h3>2.1 Coeficiente de Determinação (R²)</h3>
   <div class="formula-block">R² = 1 − SS_res / SS_tot
@@ -760,7 +760,7 @@ Referência: Michaud (1878) apud Wylie & Streeter (1993)</span></div>
      6. MÉTODO DE RIPPL
      ============================ -->
 <div id="sec-rippl" class="met-section card">
-  <div class="card-title">6. Volume do Reservatório — Método de Rippl</div>
+  <div class="card-title">6. Volume do Reservatório — Método de Rippl <span class="nbr-badge">NBR 12.217</span></div>
 
   <p>O Método de Rippl determina o volume de regularização do reservatório de distribuição a partir do diagrama de massa (curva integral do consumo horário), considerando o regime de funcionamento da bomba:</p>
 
@@ -859,7 +859,7 @@ Referência: Sinnott (1984) — fórmula de Haversine
      8. POPULAÇÃO DE SATURAÇÃO
      ============================ -->
 <div id="sec-saturacao" class="met-section card">
-  <div class="card-title">8. Estimativa da População de Saturação</div>
+  <div class="card-title">8. Estimativa da População de Saturação <span class="nbr-badge">Freitas, 2000</span></div>
 
   <p>A população de saturação <em>K</em> representa o limite máximo que o município pode atingir dado seu uso do solo e parâmetros urbanísticos. É utilizada como parâmetro de capacidade de suporte no Modelo Logístico.</p>
 
@@ -882,7 +882,7 @@ Referência: Plano Diretor Municipal, Freitas (2000)</span></div>
      9. MOTOR DE DECISÃO
      ============================ -->
 <div id="sec-decisao" class="met-section card">
-  <div class="card-title">9. Motor de Decisão Automatizado (Diagnóstico)</div>
+  <div class="card-title">9. Motor de Decisão Automatizado (Diagnóstico) <span class="nbr-badge">Multi-norma</span></div>
 
   <p>O módulo de diagnóstico analisa os resultados de projeção e dimensionamento para gerar alertas automáticos com quatro níveis de severidade:</p>
 
@@ -1119,6 +1119,12 @@ updateThemeIcon();
             Aviso Legal
           </a>
         </li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-copy">
       &copy; <span id="footer-year"></span>
       <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener">HidroFlow</a>
       — Universidade Federal do Ceará (UFC) &mdash; Engenharia Civil
