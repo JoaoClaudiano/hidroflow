@@ -1,0 +1,32 @@
+/* humans.txt — HidroFlow
+   humanstxt.org — A iniciativa de creditar pessoas que constroem a web */
+
+/* EQUIPE */
+  Desenvolvedor: JoaoClaudiano
+  GitHub: https://github.com/JoaoClaudiano
+  Localização: Brasil
+
+/* AGRADECIMENTOS */
+  Engenheiros e técnicos de saneamento que contribuíram com feedback.
+  Comunidade open-source pelas ferramentas utilizadas.
+
+/* TECNOLOGIAS */
+  HTML5, CSS3, JavaScript (ES Modules)
+  Chart.js 4.4.1 — Visualização de gráficos
+  Leaflet.js 1.9.4 — Mapas interativos
+  jsPDF 2.5.1 — Exportação PDF
+  SheetJS (xlsx) 0.20.3 — Exportação Excel
+  Vitest — Testes unitários
+  OpenStreetMap / Nominatim — Dados geográficos
+  IBGE/SIDRA API — Dados censitários brasileiros
+
+/* NORMAS TÉCNICAS */
+  ABNT NBR 12.211:2017 — SAA: Estudo de Concepção
+  ABNT NBR 12.217:1994 — Projeto de Reservatório
+  ABNT NBR 12.218:2017 — Rede de Distribuição
+  FUNASA 2014 — Manual de Saneamento
+
+/* ÚLTIMO UPDATE */
+  Data: 2025/04/07
+  Versão: 5.0.0
+  Site: https://joaoclaudiano.github.io/hidroflow/
