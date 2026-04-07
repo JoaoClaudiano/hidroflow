@@ -227,6 +227,50 @@
     .accordion-body { display: block !important; }
     .accordion-chevron { display: none; }
   }
+  /* NBR badge */
+  .nbr-badge {
+    display: inline-block;
+    background: var(--green-bg);
+    color: var(--green);
+    font-size: 0.71rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 4px;
+    font-family: var(--mono);
+    vertical-align: middle;
+  }
+  /* Reference tags and list */
+  .ref-tag {
+    display: inline-block;
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-right: 6px;
+    font-family: var(--mono);
+  }
+  .ref-list { list-style: none; margin-left: 0; }
+  .ref-list li {
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.83rem;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .ref-list li:last-child { border-bottom: none; }
+  /* Alert note */
+  .alert-note {
+    background: var(--teal-bg);
+    border-left: 4px solid var(--teal);
+    border-radius: var(--radius);
+    padding: 0.65rem 0.9rem;
+    margin: 0.6rem 0;
+    font-size: 0.82rem;
+    color: var(--text2);
+  }
 </style>
 </head>
 <body>
@@ -266,6 +310,7 @@
     <a class="toc-item" href="#sec-glossario"><span class="toc-num">4</span>Glossário de termos</a>
     <a class="toc-item" href="#sec-pressoes"><span class="toc-num">5</span>Pressões em sistemas de abastecimento</a>
     <a class="toc-item" href="#sec-epanet"><span class="toc-num">6</span>Exportação para EPANET</a>
+    <a class="toc-item" href="#sec-refs"><span class="toc-num">7</span>Referências Bibliográficas</a>
   </div>
 </div>
 
@@ -307,6 +352,7 @@
       <span class="accordion-header-left">
         <span class="module-icon">👥</span>
         Projeção Populacional
+        <span class="nbr-badge">NBR 12.211</span>
       </span>
       <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
@@ -349,6 +395,7 @@
       <span class="accordion-header-left">
         <span class="module-icon">🔧</span>
         SAA — Adução e Elevatórias
+        <span class="nbr-badge">NBR 12.218</span>
       </span>
       <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
@@ -384,6 +431,7 @@
       <span class="accordion-header-left">
         <span class="module-icon">🏗️</span>
         SAA — Reservatório
+        <span class="nbr-badge">NBR 12.217</span>
       </span>
       <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
@@ -411,6 +459,7 @@
       <span class="accordion-header-left">
         <span class="module-icon">🚰</span>
         SES — Esgotamento Sanitário
+        <span class="nbr-badge">NBR 9649</span>
       </span>
       <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
@@ -440,6 +489,7 @@
       <span class="accordion-header-left">
         <span class="module-icon">🕸️</span>
         Rede de Distribuição (Hardy-Cross)
+        <span class="nbr-badge">NBR 12.218</span>
       </span>
       <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
@@ -478,6 +528,7 @@
       <span class="accordion-header-left">
         <span class="module-icon">⚡</span>
         Golpe de Aríete
+        <span class="nbr-badge">NBR 5648</span>
       </span>
       <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
@@ -513,6 +564,7 @@
       <span class="accordion-header-left">
         <span class="module-icon">📐</span>
         Dimensionamento de Infraestrutura
+        <span class="nbr-badge">NBR 12.211 / FUNASA</span>
       </span>
       <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
@@ -740,6 +792,50 @@
   </div>
 </div>
 
+<!-- ========================
+     7. REFERÊNCIAS BIBLIOGRÁFICAS
+======================== -->
+<div class="card guia-section" id="sec-refs">
+  <h2><span class="module-icon">📚</span> 7 — Referências Bibliográficas</h2>
+  <p style="margin-bottom:1rem;font-size:0.84rem;color:var(--text2);">
+    Para as equações e fundamentos matemáticos completos, consulte a <a href="metodologia.html" style="color:var(--accent);">Metodologia</a>. As normas e publicações a seguir embasam os módulos do HidroFlow.
+  </p>
+
+  <h3 style="font-size:0.88rem;font-weight:600;color:var(--text);margin:0 0 0.6rem;">Normas Técnicas ABNT</h3>
+  <ul class="ref-list">
+    <li><span class="ref-tag">NBR 12211</span> ABNT — NBR 12.211: <em>Estudos de concepção de sistemas públicos de abastecimento de água.</em> Rio de Janeiro: ABNT, 1992. — <em>Base para dimensionamento do SAA (vazões, coeficientes K1, K2).</em></li>
+    <li><span class="ref-tag">NBR 12217</span> ABNT — NBR 12.217: <em>Projeto de reservatório de distribuição de água para abastecimento público.</em> Rio de Janeiro: ABNT, 1994. — <em>Volume mínimo, reserva de regularização e incêndio.</em></li>
+    <li><span class="ref-tag">NBR 12218</span> ABNT — NBR 12.218: <em>Projeto de rede de distribuição de água para abastecimento público.</em> Rio de Janeiro: ABNT, 2017. — <em>Pressões mínima (10 mca) e máxima (50 mca), velocidades limites (0,5–3,0 m/s).</em></li>
+    <li><span class="ref-tag">NBR 9649</span> ABNT — NBR 9649: <em>Projeto de redes coletoras de esgoto sanitário.</em> Rio de Janeiro: ABNT, 1986. — <em>Critérios de velocidade, lâmina d'água (y/D ≤ 0,75) e tensão trativa (≥ 1 Pa).</em></li>
+    <li><span class="ref-tag">NBR 13714</span> ABNT — NBR 13.714: <em>Sistemas de hidrantes e de mangotinhos para combate a incêndio.</em> Rio de Janeiro: ABNT, 2000. — <em>Reserva de incêndio: 12 a 108 m³.</em></li>
+    <li><span class="ref-tag">NBR 5648</span> ABNT — NBR 5648: <em>Tubos e conexões de PVC-U para sistemas prediais de água fria.</em> Rio de Janeiro: ABNT, 1999. — <em>Referência para cálculo de golpe de aríete em tubulações PVC.</em></li>
+    <li><span class="ref-tag">NBR 5626</span> ABNT — NBR 5626: <em>Sistemas prediais de água fria e água quente.</em> Rio de Janeiro: ABNT, 2020. — <em>Pressões em pontos de uso: mínima 1–5 kPa, máxima 400 kPa.</em></li>
+  </ul>
+
+  <h3 style="font-size:0.88rem;font-weight:600;color:var(--text);margin:1.2rem 0 0.6rem;">Publicações Técnicas e Governamentais</h3>
+  <ul class="ref-list">
+    <li><span class="ref-tag">FUNASA</span> FUNDAÇÃO NACIONAL DE SAÚDE. <em>Manual de Saneamento.</em> 4. ed. rev. Brasília: Funasa, 2014. 642 p. ISBN 978-85-7346-089-9. — <em>Coeficientes K1 e K2, per capita de referência.</em></li>
+    <li><span class="ref-tag">IBGE</span> INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA. <em>Censos Demográficos: 1940–2022.</em> Rio de Janeiro: IBGE, 2022. Disponível em: &lt;https://www.ibge.gov.br&gt;. — <em>Dados populacionais históricos via SIDRA.</em></li>
+    <li><span class="ref-tag">ABRELPE</span> ASSOCIAÇÃO BRASILEIRA DE EMPRESAS DE LIMPEZA PÚBLICA E RESÍDUOS ESPECIAIS. <em>Panorama dos Resíduos Sólidos no Brasil — 2020.</em> São Paulo: ABRELPE, 2020. — <em>Per capita de resíduos sólidos urbanos: 0,8 kg/hab·dia.</em></li>
+    <li><span class="ref-tag">EPE 2023</span> EMPRESA DE PESQUISA ENERGÉTICA. <em>Fator de Emissão de CO₂ do SIN.</em> Brasília: EPE/MME, 2023. — <em>Fator médio: 0,088 kg CO₂e/kWh (pegada de carbono da elevatória).</em></li>
+  </ul>
+
+  <h3 style="font-size:0.88rem;font-weight:600;color:var(--text);margin:1.2rem 0 0.6rem;">Livros e Artigos Técnicos</h3>
+  <ul class="ref-list">
+    <li><span class="ref-tag">Azevedo Netto</span> AZEVEDO NETTO, J. M. de. <em>Manual de Hidráulica.</em> 8. ed. São Paulo: Edgard Blücher, 1998. — <em>Fórmula de Bresse (diâmetro econômico), potência da bomba, NPSH.</em></li>
+    <li><span class="ref-tag">Von Sperling</span> VON SPERLING, M. <em>Lagoas de estabilização.</em> 2. ed. Belo Horizonte: DESA/UFMG, 2002. — <em>TDH de 20 dias e profundidade de 3,5 m para lagoa facultativa tropical.</em></li>
+    <li><span class="ref-tag">Porto</span> PORTO, R. M. <em>Hidráulica Básica.</em> 2. ed. São Carlos: EESC/USP, 1999. — <em>Método de Rippl, reservatórios e redes de distribuição.</em></li>
+    <li><span class="ref-tag">Hardy-Cross</span> HARDY CROSS, H. <em>Analysis of flow in networks of conduits or conductors.</em> University of Illinois Bulletin, n. 286, 1936. — <em>Método iterativo de equilíbrio hidráulico para redes malhadas.</em></li>
+    <li><span class="ref-tag">Wylie & Streeter</span> WYLIE, E. B.; STREETER, V. L. <em>Fluid Transients in Systems.</em> Prentice Hall, 1993. — <em>Celeridade da onda de pressão (golpe de aríete), fórmulas de Joukowsky e Michaud.</em></li>
+    <li><span class="ref-tag">Tsutiya & Alem</span> TSUTIYA, M. T.; ALEM SOBRINHO, P. <em>Coleta e transporte de esgoto sanitário.</em> 3. ed. São Paulo: ABES, 2011. — <em>Infiltração em redes coletoras, Manning em seções circulares parcialmente cheias.</em></li>
+    <li><span class="ref-tag">Metcalf & Eddy</span> METCALF &amp; EDDY. <em>Wastewater Engineering: Treatment and Resource Recovery.</em> 5. ed. McGraw-Hill, 2014. — <em>Fórmula de Harmon para coeficiente de ponta de esgoto.</em></li>
+  </ul>
+
+  <div class="alert-note" style="margin-top:1.2rem;">
+    📄 Para o memorial de cálculo completo com equações e demonstrações matemáticas, acesse a <a href="metodologia.html" style="color:var(--accent);">Metodologia</a>. O código-fonte está disponível em <strong>github.com/JoaoClaudiano/hidroflow</strong>.
+  </div>
+</div>
+
 </div><!-- end margin-top -->
 </div><!-- end .app -->
 
@@ -850,6 +946,12 @@ updateThemeIcon();
             Aviso Legal
           </a>
         </li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-copy">
       &copy; <span id="footer-year"></span>
       <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener">HidroFlow</a>
       — Universidade Federal do Ceará (UFC) &mdash; Engenharia Civil
@@ -858,6 +960,7 @@ updateThemeIcon();
   </div>
 </footer>
 <script>document.getElementById('footer-year').textContent=new Date().getFullYear();</script>
+<script>if('serviceWorker'in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});</script>
 <button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo" title="Voltar ao topo">
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
