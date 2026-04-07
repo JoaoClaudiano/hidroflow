@@ -413,6 +413,8 @@
 document.getElementById('footer-year').textContent = new Date().getFullYear();
 (function(){
   var form = document.getElementById('contact-form');
+  var btnOrigHTML = form.querySelector('button[type=submit]').innerHTML;
+  function resetBtn(btn){btn.disabled=false;btn.innerHTML=btnOrigHTML;}
   form.addEventListener('submit', function(e){
     e.preventDefault();
     var btn = form.querySelector('button[type=submit]');
@@ -424,12 +426,13 @@ document.getElementById('footer-year').textContent = new Date().getFullYear();
     btn.disabled = true;
     btn.textContent = 'Enviando…';
     // Honeypot: abort silently if the hidden field was filled by a bot
-    if(form.querySelector('#contact-honey').value){btn.disabled=false;btn.innerHTML='<svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Enviar mensagem';return;}
+    if(form.querySelector('#contact-honey').value){resetBtn(btn);return;}
+    var nameEl=form.nome, emailEl=form.email, msgEl=form.mensagem;
     var data = {
-      nome: form.nome.value.trim().slice(0,100),
-      email: form.email.value.trim().slice(0,254),
+      nome: nameEl.value.trim().slice(0, +(nameEl.maxLength||100)),
+      email: emailEl.value.trim().slice(0, +(emailEl.maxLength||254)),
       assunto: form.assunto.value,
-      mensagem: form.mensagem.value.trim().slice(0,3000),
+      mensagem: msgEl.value.trim().slice(0, +(msgEl.maxLength||3000)),
       _subject: '[HidroFlow] Mensagem via site',
       _honey: form.querySelector('#contact-honey').value
     };
@@ -449,10 +452,7 @@ document.getElementById('footer-year').textContent = new Date().getFullYear();
     }).catch(function(){
       errorEl.textContent = 'Falha de rede. Verifique sua conexão e tente novamente.';
       errorEl.style.display = 'block';
-    }).finally(function(){
-      btn.disabled = false;
-      btn.innerHTML = '<svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Enviar mensagem';
-    });
+    }).finally(function(){resetBtn(btn);});
   });
 })();
 </script>
