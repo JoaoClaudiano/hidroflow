@@ -81,6 +81,152 @@ function gerarRelatorio(){
 }
 
 function imprimirRelatorio(){gerarRelatorio();setTimeout(()=>window.print(),200);}
+
+function enviarRelatorioPorEmail(){
+  const emailInput=document.getElementById('email-relatorio');
+  const statusEl=document.getElementById('email-status');
+  const btn=document.getElementById('btnEnviarEmail');
+  const email=(emailInput?.value||'').trim();
+
+  if(!email){
+    statusEl.style.color='var(--red)';
+    statusEl.textContent='Informe o e-mail do destinatário.';
+    emailInput?.focus();
+    return;
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    statusEl.style.color='var(--red)';
+    statusEl.textContent='E-mail inválido. Verifique e tente novamente.';
+    emailInput?.focus();
+    return;
+  }
+  if(!state.r2||!state.censosRaw){
+    statusEl.style.color='var(--amber)';
+    statusEl.textContent='Execute o Best Fit e a Projeção antes de enviar o relatório.';
+    return;
+  }
+  if(typeof window.jspdf==='undefined'||typeof window.jspdf.jsPDF==='undefined'){
+    statusEl.style.color='var(--red)';
+    statusEl.textContent='jsPDF não carregado. Verifique a conexão e recarregue a página.';
+    return;
+  }
+
+  gerarRelatorio();
+
+  try{
+    const {jsPDF: JsPDF}=window.jspdf;
+    const doc=new JsPDF({unit:'pt',format:'a4'});
+    const content=document.getElementById('relatorio-content');
+    const titulo=document.getElementById('print-titulo')?.textContent||'Memorial de Cálculo';
+    const meta=document.getElementById('print-meta')?.textContent||'';
+    const pageW=doc.internal.pageSize.getWidth();
+    const margin=40;
+    const maxW=pageW-margin*2;
+    let y=48;
+
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(14);
+    doc.setTextColor(26,79,214);
+    const tituloLines=doc.splitTextToSize(titulo,maxW);
+    doc.text(tituloLines,margin,y);
+    y+=tituloLines.length*18+4;
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    doc.setTextColor(90,90,84);
+    doc.text(meta,margin,y);
+    y+=20;
+
+    doc.setDrawColor(220,220,215);
+    doc.line(margin,y,pageW-margin,y);
+    y+=16;
+
+    const sections=content?.querySelectorAll('.report-section')||[];
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    doc.setTextColor(26,26,24);
+
+    sections.forEach(sec=>{
+      const titleEl=sec.querySelector('.report-title');
+      if(titleEl){
+        if(y>780){doc.addPage();y=48;}
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(10);
+        doc.setTextColor(26,79,214);
+        const sLines=doc.splitTextToSize(titleEl.textContent||'',maxW);
+        doc.text(sLines,margin,y);
+        y+=sLines.length*14+6;
+        doc.setFont('helvetica','normal');
+        doc.setTextColor(26,26,24);
+      }
+      const rows=sec.querySelectorAll('tr');
+      rows.forEach(row=>{
+        if(y>790){doc.addPage();y=48;}
+        const cells=Array.from(row.querySelectorAll('th,td')).map(c=>(c.textContent||'').trim());
+        if(!cells.length)return;
+        doc.setFontSize(9);
+        const colW=maxW/Math.max(cells.length,1);
+        cells.forEach((cell,i)=>{
+          const cellLines=doc.splitTextToSize(cell,colW-4);
+          doc.text(cellLines,margin+i*colW,y);
+        });
+        y+=13;
+      });
+      const formulas=sec.querySelectorAll('.formula');
+      formulas.forEach(f=>{
+        if(y>785){doc.addPage();y=48;}
+        doc.setFontSize(8.5);
+        doc.setTextColor(70,100,180);
+        const fLines=doc.splitTextToSize(f.textContent||'',maxW-10);
+        doc.setFillColor(232,238,251);
+        doc.roundedRect(margin,y-10,maxW,fLines.length*12+6,2,2,'F');
+        doc.text(fLines,margin+5,y);
+        doc.setTextColor(26,26,24);
+        y+=fLines.length*12+10;
+      });
+      y+=8;
+    });
+
+    const pdfBase64=doc.output('datauristring');
+
+    btn.classList.add('btn-loading');
+    btn.disabled=true;
+    statusEl.style.color='var(--text2)';
+    statusEl.textContent='Gerando e enviando PDF…';
+
+    fetch('/api/send-report',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,pdfBase64,municipio:state.municipioNome||'Município'}),
+    })
+    .then(r=>r.json().then(d=>({ok:r.ok,data:d})))
+    .then(({ok,data})=>{
+      if(ok){
+        statusEl.style.color='var(--green)';
+        statusEl.textContent=`✓ Relatório enviado para ${email}`;
+        addAudit(`Relatório enviado por e-mail para ${email}`);
+      }else{
+        statusEl.style.color='var(--red)';
+        statusEl.textContent=`Erro: ${data.error||'Falha ao enviar.'}`;
+      }
+    })
+    .catch(err=>{
+      statusEl.style.color='var(--red)';
+      statusEl.textContent=err instanceof TypeError
+        ?'Não foi possível conectar ao servidor. Verifique a implantação (Vercel) e tente novamente.'
+        :'Erro inesperado. Tente novamente.';
+    })
+    .finally(()=>{
+      btn.classList.remove('btn-loading');
+      btn.disabled=false;
+    });
+
+  }catch(err){
+    console.error('Erro ao gerar PDF:',err);
+    statusEl.style.color='var(--red)';
+    statusEl.textContent='Erro ao gerar o PDF: '+err.message;
+  }
+}
 function copiarRelatorio(){navigator.clipboard.writeText(document.getElementById('relatorio-content').innerText).then(()=>alert('Texto copiado!'));}
 function exportarCSV(){
   if(!state.projData.length){alert('Calcule e projete a população primeiro.');return;}
