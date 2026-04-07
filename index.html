@@ -53,6 +53,10 @@
       <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
       Metodologia
     </a>
+    <a href="guia.html" class="btn btn-sm" title="Guia de Uso e Glossário">
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Guia
+    </a>
     <button class="btn btn-sm" onclick="abrirConfiguracoes()">
       <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       Configurações
@@ -110,6 +114,9 @@
   </button>
   <button class="tab" onclick="showTab('comparacao',this)">
     <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>Comparar Municípios
+  </button>
+  <button class="tab" onclick="showTab('avancados',this)">
+    <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Avançados
   </button>
   <button class="tab" onclick="showTab('relatorio',this)">
     <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Relatório
@@ -332,6 +339,44 @@
               <label style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;">Extensão rede (km)</label>
               <input type="number" id="ses-ext-rede" value="5" min="0.1" max="500" step="0.5" oninput="renderDimensionamento()" style="width:100%;">
             </div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- OPÇÕES AVANÇADAS — ETA (Stokes + Parshall) -->
+    <details class="advanced-opts" style="margin-top:8px;">
+      <summary>⚗ Opções Avançadas — ETA (Decantador Stokes &amp; Calha Parshall)</summary>
+      <div class="advanced-opts-body">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px;">Parâmetros para dimensionamento do decantador (Lei de Stokes) e da calha Parshall de mistura rápida.</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div>
+            <label style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;">Diâmetro partícula d (mm)</label>
+            <input type="number" id="eta-d-particula" value="0.05" min="0.001" max="2" step="0.001" oninput="renderDimensionamento()" style="width:100%;">
+            <div style="font-size:9px;color:var(--text3);">Ex: 0,05 mm (argila fina), 0,1 mm (areia fina)</div>
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;">Densidade partícula ρ (kg/m³)</label>
+            <input type="number" id="eta-rho-particula" value="2650" min="1001" max="5000" step="10" oninput="renderDimensionamento()" style="width:100%;">
+            <div style="font-size:9px;color:var(--text3);">Areia: 2650 · Argila: 2600 · Flocos: 1050–1200</div>
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;">Temperatura da água (°C)</label>
+            <input type="number" id="eta-temperatura" value="25" min="5" max="40" step="1" oninput="renderDimensionamento()" style="width:100%;">
+          </div>
+          <div style="grid-column:span 3;">
+            <label style="font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;">Garganta da Calha Parshall (W)</label>
+            <select id="eta-parshall-w" onchange="renderDimensionamento()" style="width:100%;padding:5px;font-size:11px;font-family:var(--mono);border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);">
+              <option value="0">3" (0,076 m) — até ~10 L/s</option>
+              <option value="1">6" (0,152 m) — até ~25 L/s</option>
+              <option value="2" selected>9" (0,229 m) — até ~50 L/s</option>
+              <option value="3">12" (0,305 m) — até ~80 L/s</option>
+              <option value="4">18" (0,457 m) — até ~160 L/s</option>
+              <option value="5">24" (0,610 m) — até ~250 L/s</option>
+              <option value="6">36" (0,914 m) — até ~450 L/s</option>
+              <option value="7">48" (1,219 m) — até ~700 L/s</option>
+              <option value="8">60" (1,524 m) — até ~1000 L/s</option>
+            </select>
           </div>
         </div>
       </div>
@@ -859,6 +904,95 @@
   </div>
 </div>
 
+<!-- ═══════════ TAB — AVANÇADOS ═══════════ -->
+<div id="sec-avancados" class="section">
+
+  <!-- MUSKINGUM -->
+  <div class="card">
+    <div class="card-title">Método de Muskingum — Propagação de Cheias em Canal</div>
+    <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:14px;">Translada e atenua um hidrograma de entrada ao longo de um trecho de rio. Equação: Q_s(t+1) = C0·Q_e(t+1) + C1·Q_e(t) + C2·Q_s(t)</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div>
+        <label style="font-size:11px;font-weight:500;text-transform:uppercase;color:var(--text3);">K (h)</label>
+        <input type="number" id="musk-K" value="12" min="0.1" step="0.1" style="width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;background:var(--input-bg);color:var(--text);">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:500;text-transform:uppercase;color:var(--text3);">X (0–0,5)</label>
+        <input type="number" id="musk-X" value="0.2" min="0" max="0.5" step="0.01" style="width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;background:var(--input-bg);color:var(--text);">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:500;text-transform:uppercase;color:var(--text3);">Δt (h)</label>
+        <input type="number" id="musk-dt" value="6" min="0.1" step="0.1" style="width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;background:var(--input-bg);color:var(--text);">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:500;text-transform:uppercase;color:var(--text3);">Q inicial saída (m³/s)</label>
+        <input type="number" id="musk-Q0" value="10" min="0" step="1" style="width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;background:var(--input-bg);color:var(--text);">
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px;">Hidrograma de entrada — Q(t) em m³/s, um valor por linha (Δt entre cada passo):</p>
+    <textarea id="musk-inflow" rows="6" style="width:100%;padding:8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;font-family:var(--mono);background:var(--input-bg);color:var(--text);resize:vertical;" placeholder="10&#10;20&#10;45&#10;80&#10;120&#10;100&#10;75&#10;50&#10;30&#10;18&#10;12&#10;10">10
+20
+45
+80
+120
+100
+75
+50
+30
+18
+12
+10</textarea>
+    <button class="btn btn-primary" style="margin-top:10px;" onclick="calcMuskingum()">
+      <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Propagar hidrograma
+    </button>
+    <div id="musk-result" style="margin-top:12px;"></div>
+    <div class="chart-wrap" style="margin-top:1rem;"><canvas id="chart-musk"></canvas></div>
+  </div>
+
+  <!-- CURVA BOMBA -->
+  <div class="card">
+    <div class="card-title">Curva do Sistema vs. Curva da Bomba — Ponto de Operação</div>
+    <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:14px;">Intersecção entre a curva característica da bomba (fornecida pelo fabricante) e a curva do sistema (H_sis = H_man + K·Q²).</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div>
+        <label style="font-size:11px;font-weight:500;text-transform:uppercase;color:var(--text3);">H manométrica estática (m)</label>
+        <input type="number" id="pump-Hman" value="20" min="0" step="0.5" style="width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;background:var(--input-bg);color:var(--text);">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:500;text-transform:uppercase;color:var(--text3);">Comprimento L (m)</label>
+        <input type="number" id="pump-L" value="500" min="1" step="10" style="width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;background:var(--input-bg);color:var(--text);">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:500;text-transform:uppercase;color:var(--text3);">Diâmetro D (mm)</label>
+        <input type="number" id="pump-D" value="150" min="10" step="5" style="width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;background:var(--input-bg);color:var(--text);">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:500;text-transform:uppercase;color:var(--text3);">Coef. C Hazen-Williams</label>
+        <input type="number" id="pump-C" value="120" min="60" max="160" step="5" style="width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;background:var(--input-bg);color:var(--text);">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:500;text-transform:uppercase;color:var(--text3);">Perdas localizadas Σk·V²/2g (m) — ou 0</label>
+        <input type="number" id="pump-hloc" value="2" min="0" step="0.5" style="width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;background:var(--input-bg);color:var(--text);">
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px;">Curva da bomba — pares Q (m³/h) ; H (m), um par por linha separado por ponto-e-vírgula:</p>
+    <textarea id="pump-curve" rows="6" style="width:100%;padding:8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;font-family:var(--mono);background:var(--input-bg);color:var(--text);resize:vertical;" placeholder="0;45&#10;10;43&#10;20;38&#10;30;30&#10;40;18&#10;50;0">0;45
+10;43
+20;38
+30;30
+40;18
+50;0</textarea>
+    <button class="btn btn-primary" style="margin-top:10px;" onclick="calcPumpCurve()">
+      <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+      Calcular ponto de operação
+    </button>
+    <div id="pump-result" style="margin-top:12px;"></div>
+    <div class="chart-wrap" style="margin-top:1rem;"><canvas id="chart-pump"></canvas></div>
+  </div>
+
+</div>
+
 </div><!-- /app -->
 
 <script src="js/state.js"></script>
@@ -879,6 +1013,7 @@
 <script src="js/report.js"></script>
 <script src="js/projects.js"></script>
 <script src="js/decision.js"></script>
+<script src="js/avancados.js"></script>
 <script src="js/main.js"></script>
 
 <!-- FOOTER -->
@@ -912,6 +1047,12 @@
           <a href="metodologia.html">
             <svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Metodologia
+          </a>
+        </li>
+        <li>
+          <a href="guia.html">
+            <svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Guia de Uso
           </a>
         </li>
         <li>

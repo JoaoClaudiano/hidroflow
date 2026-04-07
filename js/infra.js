@@ -181,6 +181,7 @@ function renderObras(pop,v,p,ano){
       </div>
       <div class="dim-detail">Área de leito filtrante para taxa de filtração de 600 m³/m²/dia (filtro rápido pressão). Capacidade de tratamento: ${v.m3dia.toFixed(0)} m³/dia.</div>
       <div class="dim-formula">A_ETA = Q / τ = ${v.m3dia.toFixed(0)} m³/dia ÷ 600 m³/m²/dia = ${area_eta.toFixed(0)} m²</div>
+      ${renderETAAvancadaCard(v)}
     </div>
 
     <div class="dim-card">
@@ -201,6 +202,110 @@ function renderObras(pop,v,p,ano){
       <div class="dim-formula">V_aterro = ${v.res_td.toFixed(1)} × 365 × 20 / 0,8 = ${(v.res_td*365*20/0.8/1000).toFixed(0)} m³</div>
     </div>
     ${renderManningCard(v,p,pop)}`;
+}
+
+// ── Lei de Stokes — velocidade de sedimentação (decantadores) ───────────────
+// v_s = g × (ρ_p − ρ_w) × d² / (18 × μ)
+// Retorna { v_s_m_s, Re_stokes, stokes_ok, A_dec_m2, Q_m3s }
+// Válido para Re < 0,5 (regime laminar de sedimentação)
+function calcStokes(d_mm, rho_p_kg_m3, temp_C, Q_m3s){
+  const g=9.81;
+  const rho_w=1000;
+  // Viscosidade dinâmica da água em função da temperatura (Poiseuille approx.)
+  const mu=0.001002*Math.exp(-0.025*(temp_C-20)); // Pa·s (~1,002e-3 a 20°C)
+  const d=d_mm/1000; // m
+  const v_s=g*(rho_p_kg_m3-rho_w)*d*d/(18*mu);
+  const Re=rho_w*v_s*d/mu;
+  const stokes_ok=Re<0.5;
+  // Área superficial mínima do decantador: A = Q / v_s
+  const A_dec=v_s>0?Q_m3s/v_s:0;
+  return{v_s_m_s:v_s,Re_stokes:Re,stokes_ok,A_dec_m2:A_dec,Q_m3s};
+}
+
+// ── Calha Parshall — vazão em função da carga hidráulica H_a ─────────────────
+// Q = K × H_a^n  (Q em m³/s, H_a em m)
+// Coeficientes per NBR 9281 / FUNASA / AWWA — garganta em metros
+var PARSHALL_COEFS = [
+  {W_m:0.076, label:'3" (0,076 m)',  K:0.0342, n:1.547},
+  {W_m:0.152, label:'6" (0,152 m)',  K:0.0703, n:1.547},
+  {W_m:0.229, label:'9" (0,229 m)',  K:0.1225, n:1.547},
+  {W_m:0.305, label:'12" (0,305 m)', K:0.1771, n:1.547},
+  {W_m:0.457, label:'18" (0,457 m)', K:0.3066, n:1.547},
+  {W_m:0.610, label:'24" (0,610 m)', K:0.4376, n:1.547},
+  {W_m:0.914, label:'36" (0,914 m)', K:0.6955, n:1.566},
+  {W_m:1.219, label:'48" (1,219 m)', K:0.9632, n:1.578},
+  {W_m:1.524, label:'60" (1,524 m)', K:1.2278, n:1.587},
+];
+
+// Retorna { Q_m3s, H_min_m, H_max_m, W_label }
+// Modo direto: dado Q, encontra o menor W que opere dentro da faixa livre
+// Modo inverso: dado H_a e W, calcula Q
+function calcParshall(Q_ls, W_idx){
+  const Q_m3s=Q_ls/1000;
+  const coef=PARSHALL_COEFS[Math.min(Math.max(0,W_idx),PARSHALL_COEFS.length-1)];
+  // H_a a partir de Q: H = (Q/K)^(1/n)
+  const H_a=Q_m3s>0?Math.pow(Q_m3s/coef.K,1/coef.n):0;
+  // Faixas típicas de H_a por tamanho: 0,03–0,75 m (AWWA M22)
+  const H_min=0.03,H_max=0.75;
+  const in_range=H_a>=H_min&&H_a<=H_max;
+  return{Q_m3s,H_a_m:H_a,in_range,H_min,H_max,W_label:coef.label,K:coef.K,n:coef.n};
+}
+
+// ── ETA avançada: Decantador (Stokes) + Calha Parshall ──────────────────────
+function renderETAAvancadaCard(v){
+  const d_mm=+(document.getElementById('eta-d-particula')?.value||0.05);
+  const rho_p=+(document.getElementById('eta-rho-particula')?.value||2650);
+  const temp_eta=+(document.getElementById('eta-temperatura')?.value||25);
+  const w_idx=+(document.getElementById('eta-parshall-w')?.value??2);
+
+  const Q_m3s=v.Qmed/1000; // Qmed L/s → m³/s
+  const Q_m3d=v.m3dia; // m³/dia
+
+  const stokes=calcStokes(d_mm,rho_p,temp_eta,Q_m3s);
+  const parsh=calcParshall(v.Qmed,w_idx);
+
+  // Decantador: dimensionamento prático com L/W=4 e profundidade 3,5 m
+  const A_dec=stokes.A_dec_m2;
+  const L_dec=Math.sqrt(A_dec*4);   // L = 4W
+  const W_dec=L_dec/4;
+  const prof_dec=3.5;
+  const V_dec=A_dec*prof_dec;
+  const TDH_dec_h=Q_m3s>0?V_dec/Q_m3s/3600:0; // horas
+
+  const stokesOk=stokes.stokes_ok;
+  const parshOk=parsh.in_range;
+
+  return `<details class="advanced-opts" style="margin-top:10px;border-top:1px solid var(--border);padding-top:8px;">
+    <summary style="font-size:11px;font-weight:600;font-family:var(--mono);color:var(--text2);text-transform:uppercase;letter-spacing:.05em;cursor:pointer;">
+      ⚗ Dimensionamento avançado ETA — Decantador (Stokes) &amp; Calha Parshall
+    </summary>
+    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <div style="font-size:10px;font-weight:600;color:var(--text2);font-family:var(--mono);margin-bottom:6px;text-transform:uppercase;">Decantador — Lei de Stokes</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.7;font-family:var(--mono);">
+          d = ${d_mm} mm · ρ_p = ${rho_p} kg/m³ · T = ${temp_eta}°C<br>
+          v_s = <strong>${(stokes.v_s_m_s*1000).toFixed(4)} mm/s</strong> ${stokesOk?'✅ (Stokes válido, Re='+stokes.Re_stokes.toFixed(3)+')':'⚠ Re='+stokes.Re_stokes.toFixed(2)+' > 0,5 (usar Newton/Allen)'}<br>
+          A_dec = Q / v_s = <strong>${A_dec.toFixed(1)} m²</strong><br>
+          L=${L_dec.toFixed(1)} m · W=${W_dec.toFixed(1)} m · Prof.=${prof_dec} m<br>
+          TDH = <strong>${TDH_dec_h.toFixed(2)} h</strong> (Vol=${V_dec.toFixed(0)} m³)
+        </div>
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;border-top:1px solid var(--border);padding-top:4px;">
+          v_s = g·(ρ_p−ρ_w)·d²/(18·μ) = 9,81×(${rho_p}−1000)×${(d_mm/1000).toFixed(5)}²/(18×μ(${temp_eta}°C))
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;color:var(--text2);font-family:var(--mono);margin-bottom:6px;text-transform:uppercase;">Calha Parshall — Mistura rápida</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.7;font-family:var(--mono);">
+          Garganta: <strong>${parsh.W_label}</strong> · Q = ${v.Qmed.toFixed(2)} L/s<br>
+          H_a calculado = <strong>${(parsh.H_a_m*100).toFixed(1)} cm</strong> ${parshOk?'✅ (dentro da faixa 3–75 cm)':'⚠ fora da faixa recomendada'}<br>
+          Q = K·H_a^n = ${parsh.K}×(${parsh.H_a_m.toFixed(4)})^${parsh.n} = ${v.Qmed.toFixed(2)} L/s
+        </div>
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;border-top:1px solid var(--border);padding-top:4px;">
+          Ref: NBR 9281 / AWWA M22. Faixa: 0,03 ≤ H_a ≤ 0,75 m.
+        </div>
+      </div>
+    </div>
+  </details>`;
 }
 
 // ── Dimensionamento de coletores de esgoto — Manning + infiltração ──────────

@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HidroFlow — Guia de Uso e Glossário</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#1a4fd6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#4f7ef5" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HidroFlow">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Guia de uso do HidroFlow: entenda o significado de cada cálculo, campo, resultado e indicador em linguagem acessível.">
+<link rel="canonical" href="https://joaoclaudiano.github.io/hidroflow/guia.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/domain.css">
+<link rel="stylesheet" href="css/print.css">
+<link rel="stylesheet" href="css/footer.css">
+<link rel="stylesheet" href="responsive.css">
+<script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+  .guia-section { margin-bottom: 2.5rem; }
+  .guia-section h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 0.4rem;
+    margin-bottom: 1.2rem;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .guia-section h3 {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 1.2rem 0 0.5rem;
+    letter-spacing: -0.01em;
+  }
+  .guia-section p, .guia-section li {
+    font-size: 0.84rem;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+  .guia-section ul, .guia-section ol {
+    margin-left: 1.4rem;
+    margin-bottom: 0.6rem;
+  }
+  .module-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+  }
+  .toc-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.55rem 0.85rem;
+    font-size: 0.81rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.15s;
+  }
+  .toc-item:hover { background: var(--accent-bg); }
+  .toc-num {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text3);
+    min-width: 1.4rem;
+  }
+  /* Accordion */
+  .accordion-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+  }
+  .accordion-header {
+    width: 100%;
+    background: var(--bg2);
+    border: none;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .accordion-header:hover { background: var(--bg3); }
+  .accordion-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .accordion-chevron {
+    transition: transform 0.2s;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  .accordion-item.open .accordion-chevron {
+    transform: rotate(180deg);
+  }
+  .accordion-body {
+    display: none;
+    padding: 1rem 1.1rem 1.1rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .accordion-item.open .accordion-body {
+    display: block;
+  }
+  .accordion-body p, .accordion-body li {
+    font-size: 0.84rem;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+  .accordion-body ul {
+    margin-left: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+  .accordion-body h4 {
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0.9rem 0 0.3rem;
+  }
+  /* Glossary table */
+  .gloss-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-top: 0.4rem;
+  }
+  .gloss-table th {
+    background: var(--bg3);
+    color: var(--text2);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border2);
+  }
+  .gloss-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  .gloss-table td:first-child {
+    font-family: var(--mono);
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+    width: 130px;
+  }
+  .gloss-table tr:last-child td { border-bottom: none; }
+  /* Alert hint boxes */
+  .hint-box {
+    display: flex;
+    gap: 0.6rem;
+    border-radius: var(--radius);
+    padding: 0.65rem 0.9rem;
+    margin: 0.6rem 0;
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+  .hint-box.green { background: var(--green-bg); border-left: 4px solid var(--green); color: var(--text2); }
+  .hint-box.yellow { background: var(--yellow-bg,#fffaed); border-left: 4px solid var(--yellow,#e6a817); color: var(--text2); }
+  .hint-box.red { background: var(--red-bg); border-left: 4px solid var(--red); color: var(--text2); }
+  .hint-box.blue { background: var(--teal-bg); border-left: 4px solid var(--teal); color: var(--text2); }
+  .hint-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .hint-dot.green { background: var(--green); }
+  .hint-dot.yellow { background: var(--yellow,#e6a817); }
+  .hint-dot.red { background: var(--red); }
+  .hint-dot.blue { background: var(--teal); }
+  @media print {
+    .topbar-right { display: none !important; }
+    .accordion-body { display: block !important; }
+    .accordion-chevron { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>HidroFlow</h1>
+    <p>Guia de Uso e Glossário</p>
+  </div>
+  <div class="topbar-right">
+    <a href="index.html" class="btn btn-sm">
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+      Voltar ao HidroFlow
+    </a>
+    <a href="metodologia.html" class="btn btn-sm">
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Metodologia
+    </a>
+    <button class="btn btn-sm btn-icon-only" id="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
+      <svg id="theme-icon-sun" class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg id="theme-icon-moon" class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div style="margin-top:1.5rem;">
+
+<!-- SUMÁRIO -->
+<div class="card" style="margin-bottom:1.5rem;">
+  <div class="card-title">Sumário</div>
+  <div class="toc-grid">
+    <a class="toc-item" href="#sec-visao"><span class="toc-num">1</span>O que é o HidroFlow</a>
+    <a class="toc-item" href="#sec-modulos"><span class="toc-num">2</span>Módulos — entradas e resultados</a>
+    <a class="toc-item" href="#sec-alertas"><span class="toc-num">3</span>Interpretando alertas e cores</a>
+    <a class="toc-item" href="#sec-glossario"><span class="toc-num">4</span>Glossário de termos</a>
+    <a class="toc-item" href="#sec-epanet"><span class="toc-num">5</span>Exportação para EPANET</a>
+  </div>
+</div>
+
+<!-- ========================
+     1. O QUE É O HIDROFLOW
+======================== -->
+<div class="card guia-section" id="sec-visao">
+  <h2><span class="module-icon">💧</span> 1 — O que é o HidroFlow</h2>
+  <p>
+    O <strong>HidroFlow</strong> é uma ferramenta de suporte ao dimensionamento e análise de sistemas hidráulicos urbanos, desenvolvida como projeto acadêmico na Universidade Federal do Ceará (UFC) — Engenharia Civil.
+  </p>
+  <p style="margin-top:0.6rem;">
+    Ela integra, em uma única interface web, os principais cálculos exigidos em projetos de:
+  </p>
+  <ul>
+    <li><strong>SAA — Sistema de Abastecimento de Água</strong>: adução, reservação e rede de distribuição.</li>
+    <li><strong>SES — Sistema de Esgotamento Sanitário</strong>: dimensionamento de coletores e ramais.</li>
+    <li><strong>Projeção Populacional</strong>: estimativa da população futura para definir a demanda do sistema.</li>
+  </ul>
+  <p style="margin-top:0.6rem;">
+    Todo o processamento ocorre <strong>no próprio navegador</strong> — nenhum dado é enviado a servidores externos (exceto consultas ao IBGE/SIDRA e ao OpenStreetMap para buscar dados públicos).
+  </p>
+  <div class="hint-box blue">
+    <span class="hint-dot blue"></span>
+    <span>Este guia explica o <em>significado prático</em> de cada campo e resultado. Para as equações matemáticas utilizadas, consulte a <a href="metodologia.html" style="color:var(--accent);">Metodologia</a>.</span>
+  </div>
+</div>
+
+<!-- ========================
+     2. MÓDULOS
+======================== -->
+<div class="card guia-section" id="sec-modulos">
+  <h2><span class="module-icon">🧩</span> 2 — Módulos — entradas e resultados</h2>
+  <p style="margin-bottom:1rem;font-size:0.84rem;color:var(--text2);">Clique em cada módulo para expandir a explicação.</p>
+
+  <!-- Projeção Populacional -->
+  <div class="accordion-item" id="acc-projecao">
+    <button class="accordion-header" onclick="toggleAccordion('acc-projecao')">
+      <span class="accordion-header-left">
+        <span class="module-icon">👥</span>
+        Projeção Populacional
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>A projeção populacional estima quantas pessoas viverão na área de projeto no ano-horizonte (ex.: 2045). Esse número é essencial para calcular a demanda de água e a capacidade do sistema.</p>
+      <h4>Entradas principais</h4>
+      <ul>
+        <li><strong>Dados censitários (ano × população):</strong> utilize os valores históricos do IBGE para calibrar o modelo. O botão "Buscar IBGE" preenche automaticamente com dados públicos.</li>
+        <li><strong>Ano-horizonte:</strong> ano final do projeto (geralmente 20–25 anos à frente da data de inauguração).</li>
+        <li><strong>Método de projeção:</strong>
+          <ul>
+            <li><em>Aritmético</em> — crescimento absoluto constante (igual número de habitantes por ano). Indicado para populações estabilizadas.</li>
+            <li><em>Geométrico</em> — crescimento percentual constante (taxa fixa ao ano). O mais usado em projetos brasileiros.</li>
+            <li><em>Logístico</em> — crescimento que desacelera ao se aproximar de uma população de saturação. Mais realista a longo prazo.</li>
+            <li><em>Best Fit</em> — o HidroFlow testa os três métodos e seleciona automaticamente o que melhor se ajusta aos dados históricos (menor erro).</li>
+          </ul>
+        </li>
+        <li><strong>Consumo per capita (L/hab·dia):</strong> quantidade média de água consumida por pessoa por dia. Valores típicos no Brasil: 150–250 L/hab·dia.</li>
+      </ul>
+      <h4>Resultados e gráfico</h4>
+      <ul>
+        <li><strong>Pop. projetada:</strong> estimativa da população no ano-horizonte.</li>
+        <li><strong>Q médio diário (Qmd):</strong> vazão média necessária para atender à população projetada.</li>
+        <li><strong>Q máximo diário (QMD):</strong> Qmd × coeficiente K1 (dia de maior consumo do ano, tipicamente 1,20).</li>
+        <li><strong>Q máximo horário (QMH):</strong> Qmd × K1 × K2 (hora de pico do dia de maior consumo, tipicamente ×1,50). Usado para dimensionar redes de distribuição.</li>
+        <li>O <strong>gráfico</strong> exibe a curva projetada e os pontos históricos, facilitando avaliar se o ajuste é razoável.</li>
+      </ul>
+      <h4>Métricas de validação (R², RMSE, MAE)</h4>
+      <ul>
+        <li><strong>R²</strong> (coeficiente de determinação): quanto do comportamento histórico é explicado pelo modelo. Valores acima de 0,95 indicam bom ajuste.</li>
+        <li><strong>RMSE</strong> (raiz do erro quadrático médio): erro típico em número de habitantes. Quanto menor, melhor.</li>
+        <li><strong>MAE</strong> (erro absoluto médio): semelhante ao RMSE, porém sem penalizar erros grandes.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Adução -->
+  <div class="accordion-item" id="acc-aducao">
+    <button class="accordion-header" onclick="toggleAccordion('acc-aducao')">
+      <span class="accordion-header-left">
+        <span class="module-icon">🔧</span>
+        SAA — Adução e Elevatórias
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>A <strong>adução</strong> é o trecho que conduz água captada (manancial, poço, ETA) até o reservatório de distribuição. Pode funcionar por gravidade ou por bombeamento.</p>
+      <h4>Entradas principais</h4>
+      <ul>
+        <li><strong>Vazão de adução (Q):</strong> quanto de água precisa chegar por segundo (m³/s ou L/s). Normalmente igual ao QMD ou QMH dependendo do tipo de adução.</li>
+        <li><strong>Comprimento (L):</strong> extensão total da tubulação em metros.</li>
+        <li><strong>Diâmetro nominal (DN):</strong> diâmetro interno da tubulação. Um DN maior reduz a perda de carga mas aumenta o custo.</li>
+        <li><strong>Material:</strong> PVC, PEAD, FFD, FFC, concreto ou aço. Cada material tem rugosidade diferente, que influencia a perda de carga.</li>
+        <li><strong>Coeficiente C (Hazen-Williams):</strong> rugosidade interna da tubulação. Maior C = tubulação mais lisa = menor perda. Ex.: PVC ≈ 150, concreto ≈ 100.</li>
+        <li><strong>Desnível (Δh):</strong> diferença de cota entre o ponto de saída e o de chegada. Positivo quando a água sobe (exige bomba), negativo quando desce por gravidade.</li>
+      </ul>
+      <h4>Resultados</h4>
+      <ul>
+        <li><strong>Velocidade (V):</strong> velocidade do escoamento. A NBR 12218 recomenda entre 0,5 e 3,0 m/s para adutoras. Abaixo disso pode haver sedimentação; acima, desgaste excessivo da tubulação.</li>
+        <li><strong>Perda de carga (hf):</strong> quanto de energia (em metros de coluna d'água) a água "perde" ao percorrer a tubulação. Quanto maior a perda, maior a energia necessária para a bomba.</li>
+        <li><strong>Altura manométrica total (Hm):</strong> desnível + perda de carga + perdas singulares. É a "altura" que a bomba precisa vencer.</li>
+        <li><strong>Potência da bomba (kW):</strong> energia elétrica necessária para bombear a vazão com a Hm calculada.</li>
+        <li><strong>Emissão CO₂ equivalente:</strong> estimativa de carbono incorporado à tubulação, útil em estudos de sustentabilidade.</li>
+      </ul>
+      <div class="hint-box yellow">
+        <span class="hint-dot yellow"></span>
+        <span>"Velocidade fora do limite" significa que o DN escolhido não atende às recomendações da NBR. Experimente aumentar ou diminuir o diâmetro.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reservatório -->
+  <div class="accordion-item" id="acc-reservatorio">
+    <button class="accordion-header" onclick="toggleAccordion('acc-reservatorio')">
+      <span class="accordion-header-left">
+        <span class="module-icon">🏗️</span>
+        SAA — Reservatório
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>O reservatório armazena água para garantir o abastecimento em momentos de pico e em emergências. Ele também amortece variações entre a adução (contínua) e o consumo (variável ao longo do dia).</p>
+      <h4>Entradas principais</h4>
+      <ul>
+        <li><strong>Cota do terreno / fundo / tampa:</strong> altitudes absolutas (m) que definem onde o reservatório está posicionado e qual pressão ele gera na rede.</li>
+        <li><strong>Volume de regularização:</strong> capacidade necessária para compensar a diferença entre a entrada contínua de água e o consumo variável durante o dia. O método de Rippl calcula esse volume graficamente.</li>
+        <li><strong>Volume de reserva (combate a incêndio):</strong> volume extra exigido pela NBR 12217 para situações de emergência (tipicamente 5 m³ por hidrante ativo).</li>
+        <li><strong>Horas de bombeamento por dia:</strong> influencia o volume de regularização — quanto menos horas a bomba funciona, maior deve ser o reservatório.</li>
+      </ul>
+      <h4>Resultados</h4>
+      <ul>
+        <li><strong>Volume total:</strong> soma do volume de regularização + reserva de incêndio + volume morto (água que não pode ser utilizada, abaixo do ponto de saída).</li>
+        <li><strong>Cota piezométrica mínima:</strong> nível d'água mínimo que garante pressão adequada nos pontos mais desfavoráveis da rede.</li>
+        <li><strong>Pressão disponível:</strong> diferença entre a cota piezométrica e a cota do nó mais alto da rede. Deve ser ≥ 10 mca (NBR 12218).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SES - Esgoto -->
+  <div class="accordion-item" id="acc-esgoto">
+    <button class="accordion-header" onclick="toggleAccordion('acc-esgoto')">
+      <span class="accordion-header-left">
+        <span class="module-icon">🚰</span>
+        SES — Esgotamento Sanitário
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>O sistema de esgotamento sanitário coleta e conduz os esgotos domésticos (e industriais) até a estação de tratamento (ETE) ou disposição final. A rede funciona em escoamento livre, por gravidade.</p>
+      <h4>Entradas principais</h4>
+      <ul>
+        <li><strong>Taxa de contribuição (C):</strong> fração do consumo de água que retorna como esgoto. Normalmente 0,80 (80% da água consumida vira esgoto).</li>
+        <li><strong>Coeficiente de máxima vazão horária (K2):</strong> relação entre a vazão de pico e a vazão média. Calculado pela fórmula de Babbit em função da população (K2 decresce à medida que a população aumenta).</li>
+        <li><strong>Vazão de infiltração:</strong> água subterrânea que penetra nas juntas da tubulação. Deve ser somada à vazão de esgoto no dimensionamento.</li>
+        <li><strong>Declividade (I):</strong> inclinação da tubulação em m/m ou %. Maior declividade = maior velocidade = menor risco de entupimento.</li>
+        <li><strong>Diâmetro (D):</strong> diâmetro interno. O mínimo para coletores secundários é 150 mm (NBR 9649).</li>
+      </ul>
+      <h4>Resultados</h4>
+      <ul>
+        <li><strong>Lâmina d'água (y/D):</strong> proporção do diâmetro ocupada pelo esgoto. A NBR exige que seja ≤ 0,75 (75% cheio) para garantir escoamento livre e ventilação.</li>
+        <li><strong>Velocidade crítica:</strong> velocidade mínima para arrastar os sólidos suspensos (autolimpeza). NBR exige ≥ 0,6 m/s na vazão máxima.</li>
+        <li><strong>Tensão trativa:</strong> força que o escoamento exerce sobre as paredes da tubulação, necessária para não acumular sedimentos. NBR exige ≥ 1,0 Pa.</li>
+        <li><strong>"Conduto livre":</strong> significa que a tubulação não está completamente cheia (y/D &lt; 1,0), condição obrigatória para escoamento por gravidade com superfície livre.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Rede de Distribuição / Hardy-Cross -->
+  <div class="accordion-item" id="acc-hardy">
+    <button class="accordion-header" onclick="toggleAccordion('acc-hardy')">
+      <span class="accordion-header-left">
+        <span class="module-icon">🕸️</span>
+        Rede de Distribuição (Hardy-Cross)
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>A rede de distribuição conduz água do reservatório até os consumidores. O método de Hardy-Cross resolve iterativamente o balanço de vazões e pressões em redes fechadas (malhas).</p>
+      <h4>Conceitos fundamentais</h4>
+      <ul>
+        <li><strong>Nó:</strong> ponto de conexão entre trechos ou ponto de consumo (casa, hidrante). Cada nó tem uma cota (altitude) e uma demanda (consumo em L/s).</li>
+        <li><strong>Trecho:</strong> segmento de tubulação entre dois nós, caracterizado por comprimento, diâmetro, material e vazão escoada.</li>
+        <li><strong>Malha:</strong> circuito fechado de trechos. Em redes malhadas a água pode chegar a um ponto por mais de um caminho — isso aumenta a confiabilidade do sistema.</li>
+        <li><strong>Reservatório de nível fixo:</strong> nó especial que fornece água à rede com pressão constante (nível d'água conhecido).</li>
+      </ul>
+      <h4>Entradas no editor gráfico</h4>
+      <ul>
+        <li>Adicione <strong>nós</strong> clicando no mapa (a altitude pode ser buscada automaticamente via Open-Elevation).</li>
+        <li>Conecte-os com <strong>trechos</strong>, definindo DN e material de cada trecho.</li>
+        <li>Defina a <strong>demanda</strong> em cada nó de consumo e o nível no reservatório.</li>
+      </ul>
+      <h4>Resultados</h4>
+      <ul>
+        <li><strong>Vazão por trecho (Q):</strong> quanto de água flui em cada trecho após a convergência do método.</li>
+        <li><strong>Velocidade por trecho:</strong> vermelha se fora dos limites NBR (0,5–3,0 m/s para distribuição).</li>
+        <li><strong>Pressão em cada nó (mca):</strong> em metros de coluna d'água. Deve estar entre 10 e 50 mca (NBR 12218). Nós com pressão insuficiente são marcados em vermelho.</li>
+        <li><strong>Convergência:</strong> o método para quando o erro (ΔQ) em todas as malhas é inferior ao critério (padrão: &lt; 0,001 m³/s). Se não convergir, verifique se a rede está bem conectada e se o reservatório tem nível definido.</li>
+      </ul>
+      <div class="hint-box blue">
+        <span class="hint-dot blue"></span>
+        <span>Exporte para <strong>.INP</strong> (EPANET) para realizar simulações com variação horária de consumo e análise de qualidade da água.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Golpe de Aríete -->
+  <div class="accordion-item" id="acc-ariete">
+    <button class="accordion-header" onclick="toggleAccordion('acc-ariete')">
+      <span class="accordion-header-left">
+        <span class="module-icon">⚡</span>
+        Golpe de Aríete
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>O <strong>golpe de aríete</strong> é um fenômeno transitório que ocorre quando uma válvula ou bomba fecha/para abruptamente, gerando uma onda de pressão que percorre a tubulação. Pressões muito altas podem romper a tubulação; pressões muito baixas podem causar colapso.</p>
+      <h4>Por que isso importa?</h4>
+      <p>Em linhas de recalque longas (adutoras por bombeamento), uma falha de energia ou fechamento rápido de válvula pode gerar sobrepressões de centenas de metros de coluna d'água, suficientes para romper tubulações ou danificar equipamentos.</p>
+      <h4>Entradas</h4>
+      <ul>
+        <li><strong>Velocidade de escoamento (V₀):</strong> velocidade da água antes do fechamento.</li>
+        <li><strong>Velocidade de propagação da onda (a):</strong> depende do material e espessura da tubulação. PVC ≈ 300–500 m/s; aço ≈ 900–1200 m/s.</li>
+        <li><strong>Comprimento da adutora (L):</strong> usado para calcular o tempo de reflexão da onda.</li>
+        <li><strong>Tempo de fechamento (Tc):</strong> tempo de fechamento da válvula. Fechamento rápido (Tc &lt; 2L/a) é o caso mais perigoso.</li>
+      </ul>
+      <h4>Resultados</h4>
+      <ul>
+        <li><strong>Sobrepressão de Joukowsky (ΔH):</strong> pico de pressão no fechamento instantâneo. É o valor máximo teórico.</li>
+        <li><strong>Sobrepressão de Michaud:</strong> pico considerando o tempo real de fechamento. Menor que Joukowsky quando Tc é grande.</li>
+        <li><strong>Classificação do resultado:</strong>
+          <ul>
+            <li><span style="color:var(--green);font-weight:600;">✔ Seguro</span> — a sobrepressão não supera a pressão de trabalho da tubulação.</li>
+            <li><span style="color:var(--yellow,#e6a817);font-weight:600;">⚠ Atenção</span> — a sobrepressão se aproxima do limite; considere válvulas de alívio.</li>
+            <li><span style="color:var(--red);font-weight:600;">✖ Crítico</span> — a sobrepressão excede a pressão nominal da tubulação; são necessárias medidas de proteção (ventosas, reservatórios pulmão, fechamento lento).</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Infraestrutura Geral -->
+  <div class="accordion-item" id="acc-infra">
+    <button class="accordion-header" onclick="toggleAccordion('acc-infra')">
+      <span class="accordion-header-left">
+        <span class="module-icon">📐</span>
+        Dimensionamento de Infraestrutura
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>Este módulo reúne o dimensionamento integrado dos elementos do SAA: ETA, reservatórios, elevatórias e ramais, a partir das vazões calculadas na projeção populacional.</p>
+      <h4>Coeficientes de variação</h4>
+      <ul>
+        <li><strong>K1 (coeficiente do dia de maior consumo):</strong> relação entre o consumo do dia mais alto e a média anual. Valor típico: 1,20.</li>
+        <li><strong>K2 (coeficiente da hora de maior consumo):</strong> relação entre a hora de pico e a média diária. Valor típico: 1,50.</li>
+        <li><strong>K3 (coeficiente de inversão noturna):</strong> relação entre a vazão mínima noturna e a média diária. Usado em verificações de pressão mínima. Valor típico: 0,50.</li>
+      </ul>
+      <h4>Perdas no sistema</h4>
+      <ul>
+        <li><strong>Perdas físicas (%):</strong> água que vaza antes de chegar ao consumidor (perdas na rede). O SNIS recomenda meta inferior a 25%.</li>
+        <li><strong>Taxa de cobertura (%):</strong> porcentagem da população servida pelo sistema.</li>
+      </ul>
+    </div>
+  </div>
+
+</div><!-- end card sec-modulos -->
+
+<!-- ========================
+     3. ALERTAS E CORES
+======================== -->
+<div class="card guia-section" id="sec-alertas">
+  <h2><span class="module-icon">🚦</span> 3 — Interpretando alertas e cores</h2>
+  <p>Os resultados do HidroFlow são apresentados com indicadores visuais para facilitar a leitura:</p>
+
+  <div class="hint-box green" style="margin-top:1rem;">
+    <span class="hint-dot green"></span>
+    <strong style="color:var(--green);margin-right:4px;">Verde — OK</strong>
+    O parâmetro atende às normas (NBR/ABNT) e boas práticas de projeto. Nenhuma ação necessária.
+  </div>
+  <div class="hint-box yellow">
+    <span class="hint-dot yellow"></span>
+    <strong style="color:var(--yellow,#e6a817);margin-right:4px;">Amarelo — Atenção</strong>
+    O parâmetro está próximo do limite ou em situação marginal. Avalie se é aceitável para o contexto do projeto.
+  </div>
+  <div class="hint-box red">
+    <span class="hint-dot red"></span>
+    <strong style="color:var(--red);margin-right:4px;">Vermelho — Fora do limite</strong>
+    O parâmetro viola um critério normativo ou técnico. O projeto precisa ser ajustado antes do uso.
+  </div>
+  <div class="hint-box blue">
+    <span class="hint-dot blue"></span>
+    <strong style="color:var(--teal);margin-right:4px;">Azul — Informativo</strong>
+    Informação complementar, referência ou dica de uso.
+  </div>
+
+  <h3>O que fazer quando um resultado está em vermelho?</h3>
+  <ul>
+    <li><strong>Velocidade fora do limite (adução/distribuição):</strong> ajuste o diâmetro — aumente o DN para reduzir a velocidade, ou diminua-o para aumentar.</li>
+    <li><strong>Pressão insuficiente em nó da rede:</strong> eleve a cota do reservatório, instale uma elevatória booster, ou subdivida a zona de pressão.</li>
+    <li><strong>Lâmina d'água &gt; 0,75 (esgoto):</strong> aumente o diâmetro ou a declividade do coletor.</li>
+    <li><strong>Golpe de aríete crítico:</strong> utilize válvulas de fechamento lento, ventosas, caldeiras de ar ou reservatório pulmão.</li>
+    <li><strong>R² baixo na projeção:</strong> verifique se os dados censitários estão corretos; tente outro método de projeção.</li>
+  </ul>
+</div>
+
+<!-- ========================
+     4. GLOSSÁRIO
+======================== -->
+<div class="card guia-section" id="sec-glossario">
+  <h2><span class="module-icon">📖</span> 4 — Glossário de termos</h2>
+  <p style="margin-bottom:0.8rem;font-size:0.84rem;color:var(--text2);">Termos em ordem alfabética.</p>
+  <table class="gloss-table">
+    <thead>
+      <tr>
+        <th>Termo</th>
+        <th>Significado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>a (celeridade)</td><td>Velocidade de propagação da onda de pressão na tubulação (m/s). Depende do material, diâmetro e espessura da parede.</td></tr>
+      <tr><td>Chw (coef. Hazen-Williams)</td><td>Coeficiente de rugosidade interna da tubulação. Quanto maior, mais lisa a tubulação e menor a perda de carga. Ex.: PVC = 150, concreto velho = 90.</td></tr>
+      <tr><td>DN</td><td>Diâmetro Nominal — designação comercial padrão da tubulação (mm). O diâmetro interno real é ligeiramente diferente conforme o fabricante e a classe de pressão.</td></tr>
+      <tr><td>ETA</td><td>Estação de Tratamento de Água — planta onde a água bruta é tratada para consumo humano.</td></tr>
+      <tr><td>ETE</td><td>Estação de Tratamento de Esgoto — planta onde o esgoto coletado é tratado antes da disposição final.</td></tr>
+      <tr><td>Hm (alt. manométrica)</td><td>Altura total que a bomba precisa vencer, em metros. Inclui desnível geométrico, perda de carga e perdas singulares.</td></tr>
+      <tr><td>hf (perda de carga)</td><td>Perda de energia (em metros de coluna d'água) causada pelo atrito da água com as paredes da tubulação ao longo do comprimento.</td></tr>
+      <tr><td>K1</td><td>Coeficiente do dia de maior consumo anual. Relação entre o consumo do dia mais alto e a média diária anual. Valor típico: 1,20.</td></tr>
+      <tr><td>K2</td><td>Coeficiente da hora de maior consumo. Relação entre o consumo da hora de pico e a média horária diária. Valor típico: 1,50.</td></tr>
+      <tr><td>K3</td><td>Coeficiente da hora de menor consumo (consumo noturno mínimo). Usado em verificações de pressão máxima. Valor típico: 0,50.</td></tr>
+      <tr><td>L/hab·dia</td><td>Litros por habitante por dia — unidade de consumo per capita de água.</td></tr>
+      <tr><td>MAE</td><td>Mean Absolute Error — erro absoluto médio entre valores previstos e observados. Mede a qualidade do ajuste da projeção.</td></tr>
+      <tr><td>mca</td><td>Metros de coluna d'água — unidade de pressão hidrostática. 1 mca ≈ 9,81 kPa ≈ 0,098 bar.</td></tr>
+      <tr><td>n (coef. Manning)</td><td>Coeficiente de rugosidade do canal/coletor usado na fórmula de Manning. Quanto maior, maior a resistência ao escoamento. Ex.: PVC = 0,011; concreto = 0,013.</td></tr>
+      <tr><td>NBR 9649</td><td>Norma Brasileira para projeto de redes coletoras de esgoto sanitário.</td></tr>
+      <tr><td>NBR 12211</td><td>Norma Brasileira para estudos de concepção de sistemas públicos de abastecimento de água.</td></tr>
+      <tr><td>NBR 12217</td><td>Norma Brasileira para projeto de reservatório de distribuição de água para abastecimento público.</td></tr>
+      <tr><td>NBR 12218</td><td>Norma Brasileira para projeto de rede de distribuição de água para abastecimento público. Define pressões mínima (10 mca) e máxima (50 mca).</td></tr>
+      <tr><td>PEAD</td><td>Polietileno de Alta Densidade — material termoplástico usado em tubulações. Resistente a impacto e corrosão.</td></tr>
+      <tr><td>Qmd</td><td>Vazão média diária — consumo médio diário da população atendida (m³/s ou L/s).</td></tr>
+      <tr><td>QMD</td><td>Vazão máxima diária = Qmd × K1. Usada para dimensionar adutoras e reservatórios.</td></tr>
+      <tr><td>QMH</td><td>Vazão máxima horária = Qmd × K1 × K2. Usada para dimensionar redes de distribuição.</td></tr>
+      <tr><td>R²</td><td>Coeficiente de determinação — mede o quanto o modelo explica a variação dos dados históricos (0 a 1). Valores próximos de 1 indicam bom ajuste.</td></tr>
+      <tr><td>Re (Reynolds)</td><td>Número adimensional que classifica o escoamento: laminar (Re &lt; 2000), transição (2000–4000) ou turbulento (Re &gt; 4000). Escoamentos em redes de abastecimento são geralmente turbulentos.</td></tr>
+      <tr><td>RMSE</td><td>Root Mean Square Error — raiz do erro quadrático médio. Similar ao MAE, mas penaliza erros grandes de forma mais severa.</td></tr>
+      <tr><td>SAA</td><td>Sistema de Abastecimento de Água — conjunto de obras e equipamentos para captar, tratar e distribuir água potável.</td></tr>
+      <tr><td>SES</td><td>Sistema de Esgotamento Sanitário — conjunto de obras para coletar, transportar e tratar esgotos domésticos.</td></tr>
+      <tr><td>TDH</td><td>Total Dynamic Head — sinônimo de altura manométrica total (Hm), muito utilizado em contextos de bombeamento.</td></tr>
+      <tr><td>V (velocidade)</td><td>Velocidade média do escoamento na seção transversal da tubulação (m/s).</td></tr>
+      <tr><td>y/D (lâmina)</td><td>Relação entre a altura do escoamento (y) e o diâmetro interno (D) em seção circular parcialmente cheia. Usado em coletores de esgoto.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ========================
+     5. EXPORTAÇÃO EPANET
+======================== -->
+<div class="card guia-section" id="sec-epanet">
+  <h2><span class="module-icon">📤</span> 5 — Exportação para EPANET</h2>
+  <p>O HidroFlow pode exportar a rede de distribuição desenhada no editor gráfico para o formato <strong>.INP</strong>, aceito pelo EPANET — o simulador hidráulico oficial da US EPA (Agência de Proteção Ambiental dos EUA), amplamente utilizado em todo o mundo.</p>
+  <h3>O que é possível fazer no EPANET que o HidroFlow não faz?</h3>
+  <ul>
+    <li><strong>Simulação em período extendido:</strong> veja como a rede se comporta ao longo de 24 horas com curva de demanda variável.</li>
+    <li><strong>Análise de qualidade da água:</strong> simule a propagação de cloro residual, idade da água e traçadores.</li>
+    <li><strong>Curvas de bomba:</strong> modele bombas com curvas Q × H reais.</li>
+    <li><strong>Válvulas de controle:</strong> PRV (redutoras de pressão), PSV (sustentadoras), FCV (controladores de vazão).</li>
+  </ul>
+  <h3>Como usar o arquivo .INP exportado?</h3>
+  <ol>
+    <li>Na aba <strong>Rede de Distribuição</strong>, clique em <strong>Exportar .INP</strong> após montar a rede.</li>
+    <li>Abra o arquivo em uma das opções:
+      <ul>
+        <li><a href="https://epanetjs.com" target="_blank" rel="noopener" style="color:var(--accent);">epanet-js.com</a> — versão web, sem instalação.</li>
+        <li>EPANET 2.2 desktop — disponível gratuitamente no site da US EPA.</li>
+        <li>QGIS com plugin EPANET — integração com dados georreferenciados.</li>
+      </ul>
+    </li>
+    <li>Execute a simulação e consulte os resultados detalhados de pressão, velocidade e qualidade.</li>
+  </ol>
+  <div class="hint-box blue">
+    <span class="hint-dot blue"></span>
+    <span>O HidroFlow exporta a rede como simulação estática (snapshot). Para simulação em período extendido, adicione curvas de demanda diretamente no EPANET.</span>
+  </div>
+</div>
+
+</div><!-- end margin-top -->
+</div><!-- end .app -->
+
+<script>
+function toggleAccordion(id) {
+  var item = document.getElementById(id);
+  if (!item) return;
+  item.classList.toggle('open');
+}
+function toggleTheme() {
+  var html = document.documentElement;
+  var current = html.getAttribute('data-theme');
+  var isDark = current === 'dark' || (!current && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  var next = isDark ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  updateThemeIcon();
+}
+function updateThemeIcon() {
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark'
+    || (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  var sun = document.getElementById('theme-icon-sun');
+  var moon = document.getElementById('theme-icon-moon');
+  if (sun) sun.style.display = dark ? 'inline-block' : 'none';
+  if (moon) moon.style.display = dark ? 'none' : 'inline-block';
+}
+updateThemeIcon();
+</script>
+
+<!-- FOOTER -->
+<footer class="site-footer" role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="footer-logo">
+        <span>💧</span>
+        <span class="footer-logo-name">HidroFlow</span>
+      </a>
+      <p class="footer-desc">
+        Ferramenta de suporte à análise e dimensionamento de sistemas de abastecimento de água, integrando projeção populacional, demanda, infraestrutura e simulação hidráulica.
+      </p>
+      <div class="footer-badge-row">
+        <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener" class="footer-badge">GitHub</a>
+        <span class="footer-badge">Client-side</span>
+        <span class="footer-badge">Open Source</span>
+      </div>
+    </div>
+
+    <nav class="footer-nav-group" aria-label="Páginas">
+      <h4>Páginas</h4>
+      <ul>
+        <li>
+          <a href="index.html">
+            <svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Aplicação
+          </a>
+        </li>
+        <li>
+          <a href="metodologia.html">
+            <svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Metodologia
+          </a>
+        </li>
+        <li>
+          <a href="guia.html">
+            <svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Guia de Uso
+          </a>
+        </li>
+        <li>
+          <a href="sobre.html">
+            <svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Sobre
+          </a>
+        </li>
+        <li>
+          <a href="contato.html">
+            <svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Contato
+          </a>
+        </li>
+        <li>
+          <a href="novidades.html">
+            <svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Novidades
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <nav class="footer-nav-group" aria-label="Legal">
+      <h4>Legal</h4>
+      <ul>
+        <li>
+          <a href="privacidade.html">
+            <svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Privacidade
+          </a>
+        </li>
+        <li>
+          <a href="termos.html">
+            <svg class="icon footer-link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Termos de Uso
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-copy">
+      &copy; <span id="footer-year"></span>
+      <a href="https://github.com/JoaoClaudiano/hidroflow" target="_blank" rel="noopener">HidroFlow</a>
+      — Universidade Federal do Ceará (UFC) &mdash; Engenharia Civil
+    </p>
+    <p class="footer-disclaimer">Dados via IBGE/SIDRA &amp; OpenStreetMap. Uso acadêmico.</p>
+  </div>
+</footer>
+<script>document.getElementById('footer-year').textContent=new Date().getFullYear();</script>
+<button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo" title="Voltar ao topo">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+<script>(function(){var b=document.getElementById('scroll-top-btn');function t(){b.classList.toggle('visible',window.scrollY>300);}window.addEventListener('scroll',t,{passive:true});t();})();</script>
+</body>
+</html>
