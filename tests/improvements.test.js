@@ -34,15 +34,15 @@ const infra = loadScript('infra.js', {
 });
 
 describe('harmonPeakFactor', () => {
-  test('P = 1000 hab (P_mil = 1): K = (14+1)/(4+1) = 3.0', () => {
-    expect(infra.harmonPeakFactor(1000)).toBeCloseTo(3.0, 4);
+  test('P = 1000 hab (P_mil = 1): K = (18+1)/(4+1) = 3.8', () => {
+    expect(infra.harmonPeakFactor(1000)).toBeCloseTo(3.8, 4);
   });
 
-  test('P = 10000 hab (P_mil = 10): K ≈ 2.2', () => {
-    // (14 + √10) / (4 + √10) = (14+3.162)/(4+3.162) ≈ 2.396
+  test('P = 10000 hab (P_mil = 10): K ≈ 2.95', () => {
+    // (18 + √10) / (4 + √10) = (18+3.162)/(4+3.162) ≈ 2.953
     const k = infra.harmonPeakFactor(10000);
-    expect(k).toBeGreaterThan(2.0);
-    expect(k).toBeLessThan(2.6);
+    expect(k).toBeGreaterThan(2.7);
+    expect(k).toBeLessThan(3.2);
   });
 
   test('K decreases as population grows', () => {

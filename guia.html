@@ -249,7 +249,8 @@
     <a class="toc-item" href="#sec-modulos"><span class="toc-num">2</span>Módulos — entradas e resultados</a>
     <a class="toc-item" href="#sec-alertas"><span class="toc-num">3</span>Interpretando alertas e cores</a>
     <a class="toc-item" href="#sec-glossario"><span class="toc-num">4</span>Glossário de termos</a>
-    <a class="toc-item" href="#sec-epanet"><span class="toc-num">5</span>Exportação para EPANET</a>
+    <a class="toc-item" href="#sec-pressoes"><span class="toc-num">5</span>Pressões em sistemas de abastecimento</a>
+    <a class="toc-item" href="#sec-epanet"><span class="toc-num">6</span>Exportação para EPANET</a>
   </div>
 </div>
 
@@ -605,10 +606,99 @@
 </div>
 
 <!-- ========================
-     5. EXPORTAÇÃO EPANET
+     5. PRESSÕES
+======================== -->
+<div class="card guia-section" id="sec-pressoes">
+  <h2><span class="module-icon">🌡️</span> 5 — Pressões em sistemas de abastecimento</h2>
+
+  <p style="font-size:0.84rem;color:var(--text2);margin-bottom:1rem;">
+    Compreender os tipos de pressão é fundamental para interpretar corretamente os resultados do HidroFlow e os limites normativos. As pressões em redes de água são <strong>quase sempre expressas como pressão relativa</strong>, em m.c.a. ou kPa, porque o que importa ao engenheiro é a força da água em relação ao ambiente — e não ao vácuo.
+  </p>
+
+  <h3>Os três tipos de pressão</h3>
+  <p style="font-size:0.84rem;color:var(--text2);margin-bottom:0.6rem;">Tudo depende de qual "zero" você escolhe como referência:</p>
+  <table class="gloss-table" style="margin-bottom:1rem;">
+    <thead>
+      <tr><th>Tipo</th><th>Referência ("zero")</th><th>Onde se usa</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Barométrica (Atmosférica)</strong></td>
+        <td>Vácuo absoluto</td>
+        <td>Meteorologia, altitude, cálculo de NPSH e cavitação em bombas</td>
+      </tr>
+      <tr>
+        <td><strong>Relativa (Manométrica)</strong></td>
+        <td>Pressão atmosférica local</td>
+        <td>Projeto de redes de distribuição, adutoras, verificação de pneus — é a pressão do cotidiano da engenharia</td>
+      </tr>
+      <tr>
+        <td><strong>Absoluta</strong></td>
+        <td>Vácuo absoluto</td>
+        <td>Cálculos termodinâmicos e físico-químicos precisos. P_abs = P_relativa + P_atm</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert-note" style="margin-bottom:1rem;">
+    💡 <strong>Regra prática:</strong> quando alguém diz que "a pressão da rua está fraca", está falando de pressão <em>relativa</em>. Se a pressão relativa for zero, a água não sai do cano — mesmo que a pressão atmosférica esteja normal, pois ela age igualmente dentro e fora da tubulação.
+  </div>
+
+  <h3>Por que a pressão barométrica "some" dos cálculos de rede?</h3>
+  <p style="font-size:0.84rem;color:var(--text2);margin-bottom:1rem;">
+    Porque ela atua simultaneamente na superfície livre do reservatório e na saída de qualquer ponto de consumo. Como empurra dos dois lados com o mesmo valor, ela se cancela na equação de Bernoulli — e o cálculo de fluxo passa a depender apenas da diferença de pressão relativa (cota piezométrica) entre os pontos.
+    A exceção fica nas bombas: ao calcular o NPSH disponível para evitar <em>cavitação</em>, a pressão atmosférica entra explicitamente, pois determina quanto a água pode "ser sugada" antes de vaporizar.
+  </p>
+
+  <h3>A unidade m.c.a. (metros de coluna d'água)</h3>
+  <p style="font-size:0.84rem;color:var(--text2);margin-bottom:0.6rem;">
+    No Brasil, projetos de saneamento usam predominantemente o <strong>m.c.a.</strong> (ou mca) como unidade de pressão relativa. A conversão é simples:
+  </p>
+  <table class="gloss-table" style="margin-bottom:1rem;">
+    <thead><tr><th>Unidade</th><th>Equivalência</th></tr></thead>
+    <tbody>
+      <tr><td>1 m.c.a.</td><td>≈ 9,81 kPa ≈ 0,0981 bar ≈ 1,42 psi</td></tr>
+      <tr><td>10 m.c.a.</td><td>≈ 98,1 kPa ≈ 0,981 bar ≈ 14,22 psi</td></tr>
+      <tr><td>1 kPa</td><td>≈ 0,102 m.c.a.</td></tr>
+      <tr><td>1 bar</td><td>≈ 10,2 m.c.a.</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:0.84rem;color:var(--text2);margin-bottom:1rem;">
+    A norma NBR 5626 (instalações prediais) utiliza kPa; a NBR 12218 (rede pública) usa m.c.a. O HidroFlow adota <strong>m.c.a.</strong> como unidade padrão em todos os cálculos de pressão.
+  </p>
+
+  <h3>Limites normativos (pressão relativa)</h3>
+  <p style="font-size:0.84rem;color:var(--text2);margin-bottom:0.6rem;">Duas normas ABNT principais regulam as pressões no Brasil:</p>
+  <table class="param-table" style="margin-bottom:1rem;">
+    <thead>
+      <tr><th>Localização</th><th>Pressão Dinâmica Mínima</th><th>Pressão Estática Máxima</th><th>Norma</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Rede pública (rua)</td>
+        <td>10 m.c.a.</td>
+        <td>50 m.c.a.</td>
+        <td>NBR 12218</td>
+      </tr>
+      <tr>
+        <td>Pontos de uso (edificação)</td>
+        <td>1,0 a 5,0 m.c.a. (variável por aparelho)</td>
+        <td>40 m.c.a.</td>
+        <td>NBR 5626 (rev. 2020)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert-note">
+    💡 O HidroFlow verifica automaticamente os limites da <strong>NBR 12218</strong> (rede pública) no módulo de Hardy-Cross e no módulo de Adução. Nós com pressão abaixo de 10 mca são sinalizados em vermelho; entre 40–50 mca, em amarelo; acima de 50 mca, em vermelho crítico (instalar VRP — válvula redutora de pressão).
+  </div>
+</div>
+
+<!-- ========================
+     6. EXPORTAÇÃO EPANET
 ======================== -->
 <div class="card guia-section" id="sec-epanet">
-  <h2><span class="module-icon">📤</span> 5 — Exportação para EPANET</h2>
+  <h2><span class="module-icon">📤</span> 6 — Exportação para EPANET</h2>
   <p>O HidroFlow pode exportar a rede de distribuição desenhada no editor gráfico para o formato <strong>.INP</strong>, aceito pelo EPANET — o simulador hidráulico oficial da US EPA (Agência de Proteção Ambiental dos EUA), amplamente utilizado em todo o mundo.</p>
   <h3>O que é possível fazer no EPANET que o HidroFlow não faz?</h3>
   <ul>
