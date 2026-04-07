@@ -183,16 +183,20 @@ async function buscarSIDRA(){
 }
 
 /**
- * Fetch municipality territorial area (km²) from IBGE SIDRA table 6579.
- * Tries 2022 first (2022 Censo), then falls back to 2019 (table baseline year).
+ * Fetch municipality territorial area (km²) from IBGE SIDRA.
+ * Uses table 1301 / variable 5930 ("Área da unidade territorial") — the canonical
+ * IBGE territorial-area table available across census years.
  * Returns 0 if unavailable.
  */
 async function fetchAreaMunicipio(cod){
-  const years=['2022','2019'];
-  for(const yr of years){
+  const endpoints=[
+    {table:'1301',variable:'5930',year:'2022'},
+    {table:'1301',variable:'5930',year:'2010'},
+  ];
+  for(const ep of endpoints){
     try{
       const r=await fetchWithRetry(
-        `https://servicodados.ibge.gov.br/api/v3/agregados/6579/periodos/${yr}/variaveis/606?localidades=N6[${cod}]`,
+        `https://servicodados.ibge.gov.br/api/v3/agregados/${ep.table}/periodos/${ep.year}/variaveis/${ep.variable}?localidades=N6[${cod}]`,
         {},
         1
       );
