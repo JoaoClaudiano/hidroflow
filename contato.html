@@ -260,16 +260,16 @@
     <div class="contact-form-wrap">
       <h3>Formulário de Contato</h3>
       <form id="contact-form" novalidate>
-        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+        <input type="text" name="_honey" id="contact-honey" style="display:none" tabindex="-1" autocomplete="off">
 
         <div class="form-row">
           <div class="form-group">
             <label for="contact-name">Nome *</label>
-            <input type="text" id="contact-name" name="nome" placeholder="Seu nome completo" required>
+            <input type="text" id="contact-name" name="nome" placeholder="Seu nome completo" required maxlength="100">
           </div>
           <div class="form-group">
             <label for="contact-email">E-mail *</label>
-            <input type="email" id="contact-email" name="email" placeholder="seu@email.com" required>
+            <input type="email" id="contact-email" name="email" placeholder="seu@email.com" required maxlength="254">
           </div>
         </div>
 
@@ -288,7 +288,7 @@
 
         <div class="form-group">
           <label for="contact-msg">Mensagem *</label>
-          <textarea id="contact-msg" name="mensagem" placeholder="Descreva sua dúvida, sugestão ou mensagem..." required></textarea>
+          <textarea id="contact-msg" name="mensagem" placeholder="Descreva sua dúvida, sugestão ou mensagem..." required maxlength="3000"></textarea>
         </div>
 
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
@@ -423,15 +423,17 @@ document.getElementById('footer-year').textContent = new Date().getFullYear();
     if(!form.checkValidity()){form.reportValidity();return;}
     btn.disabled = true;
     btn.textContent = 'Enviando…';
+    // Honeypot: abort silently if the hidden field was filled by a bot
+    if(form.querySelector('#contact-honey').value){btn.disabled=false;btn.innerHTML='<svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Enviar mensagem';return;}
     var data = {
-      nome: form.nome.value,
-      email: form.email.value,
+      nome: form.nome.value.trim().slice(0,100),
+      email: form.email.value.trim().slice(0,254),
       assunto: form.assunto.value,
-      mensagem: form.mensagem.value,
+      mensagem: form.mensagem.value.trim().slice(0,3000),
       _subject: '[HidroFlow] Mensagem via site',
-      _captcha: 'false'
+      _honey: form.querySelector('#contact-honey').value
     };
-    fetch('https://formsubmit.co/ajax/jooclaudiano@gmail.com', {
+    fetch('https://formsubmit.co/ajax/fa441fa540f3b0e3989f3268b6371e3b', {
       method: 'POST',
       headers: {'Content-Type':'application/json','Accept':'application/json'},
       body: JSON.stringify(data)
