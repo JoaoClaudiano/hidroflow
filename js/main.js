@@ -53,6 +53,14 @@ addEvento();
 document.getElementById('infra-anos').innerHTML=state.infraAnos.map((a,i)=>`<button class="btn btn-sm ${i===0?'btn-primary':''}" onclick="setInfraAno(${i},this)">${a}</button>`).join('');
 renderDimensionamento();
 addAudit('Aplicação iniciada (v5.0)');
+// Init global tooltip system early so data-tip works on all tabs from the start
+if(typeof _initInfoTip==='function')_initInfoTip();
+
+function dismissBannerViabilidade(){
+  var b=document.getElementById('banner-viabilidade');
+  if(b)b.style.display='none';
+  try{sessionStorage.setItem('hf_banner_ok','1');}catch(e){}
+}
 
 // ══════════════════════════════════════════
 // TEMA (DARK / LIGHT MODE)
