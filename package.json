@@ -25,6 +25,6 @@
   },
   "homepage": "https://github.com/JoaoClaudiano/hidroflow#readme",
   "devDependencies": {
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.3"
   }
 }
