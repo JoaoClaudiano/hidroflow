@@ -7,13 +7,33 @@ function atualizarProgressoFluxo(){
     !!(state.r2&&state.r2.geometrico>0),
     !!(state.projData&&state.projData.length>0),
     !!(state.projData&&state.projData.length>0),
-    false
+    !!(state.projData&&state.projData.length>0)
   ];
   for(var i=0;i<steps.length;i++){
     var el=document.getElementById('wp-'+(i+1));
     if(!el)continue;
     if(steps[i]){el.classList.add('wp-done');}else{el.classList.remove('wp-done');}
   }
+}
+
+// Navigate to a workflow step with prerequisite validation
+function navToWorkflowStep(step){
+  var tabMap={1:'dados',2:'dados',3:'projecao',4:'dimensionamento',5:'relatorio'};
+  var prereqOk={
+    1:true,2:true,
+    3:!!(state.censosRaw&&state.censosRaw.length>=2),
+    4:!!(state.projData&&state.projData.length>0),
+    5:!!(state.projData&&state.projData.length>0)
+  };
+  if(!prereqOk[step]){
+    var msgs={3:'Insira pelo menos 2 dados de censo antes de acessar Projecao.',
+              4:'Execute a Projecao + Envelope antes de acessar Dimensionamento.',
+              5:'Execute a Projecao + Envelope antes de acessar o Relatorio.'};
+    var el=document.getElementById('wp-'+step);
+    if(el){el.classList.add('nav-warn');setTimeout(function(){el.classList.remove('nav-warn');},2000);}
+    return;
+  }
+  showTabById(tabMap[step]);
 }
 
 function mostrarTour(){
