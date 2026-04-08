@@ -681,7 +681,7 @@ function renderRedeResults(iters, nLoops){
       const pLabel = n.type!=='junction'?'fonte':n.pressure<10?'⚠ baixa':n.pressure>50?'⚠ muito alta':n.pressure>40?'⚠ alta':'✅ OK';
       return `<tr>
         <td title="${n.id}">${n.label||n.id}</td><td>${n.type}</td>
-        <td>${n.elevation}</td><td>${n.demand.toFixed(3)}</td>
+        <td><input type="number" class="rede-inline-input" value="${n.elevation}" step="0.1" title="Editar cota de ${n.label||n.id}" onchange="_updateNodeElevation('${n.id}',+this.value)"></td><td>${n.demand.toFixed(3)}</td>
         <td class="${pCls}" data-tip="Pressão = ${n.pressure.toFixed(1)} mca. ${n.type!=='junction'?'Fonte de pressão (reservatório/tanque).':n.pressure<10?'Abaixo do mínimo NBR 12218 (10 mca) — risco de falta d\'água.':n.pressure>50?'Acima do máximo NBR 12218 (50 mca) — instalar VRP.':n.pressure>40?'Entre 40–50 mca — atenção: dentro do limite, mas elevado.':'Pressão OK — dentro do intervalo NBR 12218 (10–50 mca).'}">${n.pressure.toFixed(1)}</td>
         <td class="${pCls}">${pLabel}</td>
       </tr>`;
@@ -700,6 +700,16 @@ function renderRedeResults(iters, nLoops){
   document.getElementById('rede-nbr-check').innerHTML = nbrIssues.length === 0
     ? '<div class="alert alert-success" style="margin:0;">✅ Todos os nós e trechos dentro dos limites da NBR 12218.</div>'
     : `<div class="decision-items">${nbrIssues.map(msg=>`<div class="decision-item ${msg.startsWith('🔴')?'crit':'warn'}" style="padding:8px 12px;">${msg}</div>`).join('')}</div>`;
+}
+
+// ── INLINE ELEVATION EDIT ────────────────────────────────────────────────────────
+function _updateNodeElevation(nodeId, value){
+  const n = redeState.nodes.find(x=>x.id===nodeId);
+  if(!n || isNaN(value)) return;
+  n.elevation = value;
+  renderNode(n);
+  runHardyCross();
+  addAudit(`Cota de ${n.label||n.id} alterada para ${value} m — rede recalculada`);
 }
 
 // ── BRESSE ECONOMIC DIAMETERS ────────────────────────────────────────────────────
