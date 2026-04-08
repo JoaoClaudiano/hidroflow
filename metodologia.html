@@ -283,7 +283,11 @@
     <a class="toc-item" href="#sec-pressao"><span class="toc-num">11</span>Mapa de Pressão Pré-EPANET</a>
     <a class="toc-item" href="#sec-racionamento"><span class="toc-num">12</span>Simulação de Racionamento</a>
     <a class="toc-item" href="#sec-q95"><span class="toc-num">13</span>Vazão de Permanência Q95</a>
-    <a class="toc-item" href="#sec-refs"><span class="toc-num">14</span>Referências Bibliográficas</a>
+    <a class="toc-item" href="#sec-comparativo"><span class="toc-num">14</span>Método dos Municípios Comparativos</a>
+    <a class="toc-item" href="#sec-muskingum"><span class="toc-num">15</span>Propagação de Cheias (Muskingum)</a>
+    <a class="toc-item" href="#sec-eta"><span class="toc-num">16</span>ETA Avançada — Decantador e Calha Parshall</a>
+    <a class="toc-item" href="#sec-lcc"><span class="toc-num">17</span>Custo de Ciclo de Vida (LCC)</a>
+    <a class="toc-item" href="#sec-refs"><span class="toc-num">18</span>Referências Bibliográficas</a>
   </div>
 </div>
 
@@ -1119,10 +1123,225 @@ Onde Q_aduc é a vazão de adução configurada no módulo SAA.</span></div>
 </div>
 
 <!-- ============================
-     14. REFERÊNCIAS BIBLIOGRÁFICAS
+     14. MÉTODO DOS MUNICÍPIOS COMPARATIVOS
+     ============================ -->
+<div id="sec-comparativo" class="met-section card">
+  <div class="card-title">14. Método dos Municípios Comparativos <span class="nbr-badge">FUNASA</span></div>
+
+  <p>O Método dos Municípios Comparativos é uma técnica de projeção indireta: quando o município em estudo (A) possui série histórica curta ou pouco confiável, utiliza-se a taxa de crescimento geométrico de um município de referência (B) com perfil socioeconômico similar (porte, região, IDH) para projetar a população de A.</p>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> Disponível na aba <strong>Projeção → Comparação de Municípios</strong>. O município B pode ser buscado pelo IBGE ou inserido manualmente.</div>
+
+  <h3>14.1 Taxa Geométrica do Município B</h3>
+  <div class="formula-block">i_B = (P_B_final / P_B_inicial)^(1 / Δt_B) − 1
+
+<span class="comment">Onde:
+  P_B_inicial = população mais antiga da série de B [hab]
+  P_B_final   = população mais recente da série de B [hab]
+  Δt_B        = número de anos entre os extremos da série de B
+
+Exemplo:
+  Município B: 25.000 hab (2000) → 34.000 hab (2022)  →  Δt = 22
+  i_B = (34000/25000)^(1/22) − 1 = 1,01358 − 1 = 1,358% a.a.</span></div>
+
+  <h3>14.2 Projeção Comparativa de A</h3>
+  <div class="formula-block">P_A(t) = P_A_base × (1 + i_B)^(t − t_base)
+
+<span class="comment">Onde:
+  P_A_base = população mais recente de A [hab]
+  t_base   = ano do dado mais recente de A
+  t        = ano de projeção
+  i_B      = taxa geométrica anual calculada de B
+
+Esta projeção é exibida como terceiro dataset (linha roxa tracejada)
+no gráfico de Comparação, ao lado das séries históricas de A e B.</span></div>
+
+  <h3>14.3 Card de Resumo</h3>
+  <p>O HidroFlow exibe automaticamente um card com:</p>
+  <ul style="font-size:0.84rem;color:var(--text2);margin-left:1.4rem;line-height:1.7;">
+    <li>Tabela comparativa: pop. inicial, pop. recente, crescimento total e taxa geométrica de A e B.</li>
+    <li>Estimativa de A no ano-horizonte pelo método comparativo.</li>
+    <li>Diferença absoluta e percentual em relação ao Best Fit próprio de A.</li>
+  </ul>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> Use este método como estimativa complementar. A confiabilidade é maior quando B possui pelo menos 4 censos e crescimento semelhante ao tendencial esperado para A. Referência: FUNASA — Manual de Saneamento (2014).</div>
+</div>
+
+<!-- ============================
+     15. MUSKINGUM — PROPAGAÇÃO DE CHEIAS
+     ============================ -->
+<div id="sec-muskingum" class="met-section card">
+  <div class="card-title">15. Propagação de Cheias em Canal — Método de Muskingum</div>
+
+  <p>O Método de Muskingum é um modelo hidrológico de propagação (routing) de hidrogramas em trechos de canal ou rio. Transforma o hidrograma de entrada Q_e(t) em um hidrograma de saída Q_s(t) com atenuação do pico e defasagem temporal. É amplamente utilizado em estudos de controle de cheias e dimensionamento de reservatórios de detenção.</p>
+
+  <h3>15.1 Equação de Propagação</h3>
+  <div class="formula-block">Q_s(t+1) = C0 · Q_e(t+1) + C1 · Q_e(t) + C2 · Q_s(t)
+
+<span class="comment">Coeficientes:
+  D     = 2K(1 − X) + Δt    (denominador comum)
+  C0    = (Δt − 2KX) / D
+  C1    = (Δt + 2KX) / D
+  C2    = (2K(1−X) − Δt) / D
+
+Verificação obrigatória: C0 + C1 + C2 = 1
+
+Onde:
+  K   = tempo de percurso da onda de cheia no trecho [h]
+        (geralmente estimado pelo tempo de pico do hidrograma observado)
+  X   = parâmetro de ponderação adimensional [0; 0,5]
+        X = 0 → reservatório puro (máxima atenuação)
+        X = 0,5 → canal com mínima atenuação (onda de translação)
+  Δt  = intervalo de tempo da série [h]
+  Q_e = vazão de entrada no trecho [m³/s]
+  Q_s = vazão de saída no trecho [m³/s]
+
+Condição de estabilidade: Δt ≤ 2K(1−X)
+(garante C0 ≥ 0 e evita oscilações numéricas)
+
+Referência: Muskingum (McCarthy, 1938) apud Chow et al. (1988)</span></div>
+
+  <h3>15.2 Métricas de Resultado</h3>
+  <div class="formula-block"><span class="comment">Atenuação do pico:
+  Aten = (Q_e_max − Q_s_max) / Q_e_max × 100   [%]
+
+Defasagem temporal:
+  Lag  = (t_pico_s − t_pico_e) × Δt            [h]
+
+Q_e_max = máximo do hidrograma de entrada
+Q_s_max = máximo do hidrograma de saída
+t_pico_e, t_pico_s = índices dos picos de entrada e saída</span></div>
+
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> O módulo Muskingum está disponível na aba <strong>Avançados</strong>. Insira os valores de Q de entrada (m³/s) linha a linha, um por intervalo Δt. Os hidrogramas de entrada e saída são plotados automaticamente.</div>
+</div>
+
+<!-- ============================
+     16. ETA AVANÇADA — DECANTADOR E CALHA PARSHALL
+     ============================ -->
+<div id="sec-eta" class="met-section card">
+  <div class="card-title">16. ETA Avançada — Decantador (Stokes) e Calha Parshall <span class="nbr-badge">NBR 9281</span></div>
+
+  <p>O HidroFlow inclui um módulo avançado de pré-dimensionamento de unidades da Estação de Tratamento de Água (ETA): o decantador convencional (via Lei de Stokes) e a calha Parshall de mistura rápida. Esses cálculos são gerados automaticamente no card de ETA do módulo de Infraestrutura quando o usuário expande as <em>Opções Avançadas — ETA</em>.</p>
+
+  <h3>16.1 Velocidade de Sedimentação — Lei de Stokes</h3>
+  <div class="formula-block">v_s = g · (ρ_p − ρ_w) · d² / (18 · μ)    <span class="comment">[m/s]</span>
+
+<span class="comment">Onde:
+  g     = 9,81 m/s²
+  ρ_p   = massa específica da partícula [kg/m³] — típico: 2.650 kg/m³ (argila)
+  ρ_w   = 1.000 kg/m³ (água)
+  d     = diâmetro da partícula [m]
+  μ     = viscosidade dinâmica da água [Pa·s] — função da temperatura:
+            μ(T) = 0,001002 · exp(−0,025 · (T − 20))   [Pa·s]
+            μ(20°C) = 1,002 × 10⁻³ Pa·s
+            μ(30°C) ≈ 0,763 × 10⁻³ Pa·s
+
+Validade: regime laminar de Stokes → Re_Stokes &lt; 0,5
+  Re_Stokes = ρ_w · v_s · d / μ
+
+Se Re_Stokes ≥ 0,5 → usar leis de Allen (0,5–500) ou Newton (&gt;500)
+
+Referência: Stokes (1851); Fair, Geyer &amp; Okun (1968)</span></div>
+
+  <h3>16.2 Área Superficial do Decantador</h3>
+  <div class="formula-block">A_dec = Q / v_s    <span class="comment">[m²] — critério de overflow rate</span>
+
+<span class="comment">Dimensões adotadas (relação L:W = 4:1, profundidade = 3,5 m):
+  L_dec = sqrt(A_dec × 4)     [m]
+  W_dec = L_dec / 4           [m]
+  V_dec = A_dec × 3,5         [m³]
+  TDH   = V_dec / Q           [h] — tempo de detenção hidráulica
+
+Referência: Von Sperling (1996) — Introdução à qualidade das águas e ao
+            tratamento de esgotos; Di Bernardo &amp; Dantas (2005)</span></div>
+
+  <h3>16.3 Calha Parshall — Medição de Vazão</h3>
+  <p>A calha Parshall é utilizada como dispositivo de medição e mistura rápida na entrada da ETA. A equação de vazão depende do tamanho da garganta (W) e da carga hidráulica H_a medida na seção de aproximação:</p>
+  <div class="formula-block">Q = K · H_a^n    <span class="comment">[m³/s] — Q em função da carga H_a</span>
+H_a = (Q / K)^(1/n)   <span class="comment">[m] — carga requerida para a vazão de projeto</span>
+
+<span class="comment">Coeficientes K e n por garganta (NBR 9281 / AWWA M22):
+  3"  (0,076 m)  → K = 0,0342 · n = 1,547
+  6"  (0,152 m)  → K = 0,0703 · n = 1,547
+  9"  (0,229 m)  → K = 0,1225 · n = 1,547
+  12" (0,305 m)  → K = 0,1771 · n = 1,547
+  18" (0,457 m)  → K = 0,3066 · n = 1,547
+  24" (0,610 m)  → K = 0,4376 · n = 1,547
+  36" (0,914 m)  → K = 0,6955 · n = 1,566
+  48" (1,219 m)  → K = 0,9632 · n = 1,578
+  60" (1,524 m)  → K = 1,2278 · n = 1,587
+
+Faixa de escoamento livre: 0,03 m ≤ H_a ≤ 0,75 m
+O HidroFlow seleciona automaticamente a menor garganta que mantém H_a
+dentro da faixa de escoamento livre para a vazão de projeto.
+
+Referência: ABNT NBR 9281 (1986); Parshall (1926); AWWA M22 (2001)</span></div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> Os campos de configuração da ETA (diâmetro e densidade da partícula, temperatura, garganta Parshall) ficam no acordeão <strong>"Opções Avançadas — ETA"</strong> do card de parâmetros de consumo. O resultado aparece no card de dimensionamento da ETA, dentro da seção de Infraestrutura.</div>
+</div>
+
+<!-- ============================
+     17. ANÁLISE DE CUSTO DE CICLO DE VIDA (LCC)
+     ============================ -->
+<div id="sec-lcc" class="met-section card">
+  <div class="card-title">17. Análise de Custo de Ciclo de Vida (LCC) — Comparação de Diâmetros <span class="nbr-badge">ANEEL 2024</span></div>
+
+  <p>A Análise de Custo de Ciclo de Vida (LCC — <em>Life-Cycle Cost</em>) compara dois cenários de diâmetro de adutora (DN atual vs. DN imediatamente superior na série padronizada ABNT) ao longo de um horizonte de 20 anos, considerando tanto o custo de implantação (CAPEX da tubulação) quanto o custo de operação energética (OPEX de bombeamento), descontados a valor presente.</p>
+
+  <h3>17.1 Custo de Implantação — CAPEX da Tubulação</h3>
+  <div class="formula-block">CAPEX_tubo(DN) = DN² · L · f_dn / 10⁶    <span class="comment">[M R$]</span>
+
+<span class="comment">Onde:
+  DN     = diâmetro nominal [mm]
+  L      = comprimento da adutora [m]
+  f_dn   = fator de custo relativo [R$ / (mm² · m)] = 2,0 (simplificado)
+
+Nota: o custo da tubulação é proporcional a DN² pois a massa de material por
+metro linear cresce aproximadamente com o quadrado do diâmetro.
+Para projetos executivos, utilize orçamento detalhado com preços SINAPI.</span></div>
+
+  <h3>17.2 Custo de Operação — OPEX Energético Anual</h3>
+  <div class="formula-block">OPEX_energia(DN) = Pot_kW(DN) · N_h · 365 · t_kWh    <span class="comment">[R$/ano]</span>
+
+<span class="comment">Onde:
+  Pot_kW(DN) = potência da bomba recalculada para o DN em análise [kW]
+               (Hf e Hman são recalculados via Hazen-Williams para o novo DN)
+  N_h        = horas de operação da bomba por dia
+  t_kWh      = tarifa de energia elétrica [R$/kWh]
+               obtida do arquivo estático ANEEL 2024 por UF do município
+               (fallback: R$ 0,68/kWh caso o JSON não seja carregado)
+
+Recálculo da Hman para um dado DN:
+  J(DN) = 10,643 · Q^1,852 / (C^1,852 · DN^4,87)    [m/m]
+  Hf(DN) = J(DN) · L
+  Hman(DN) = Hgeo + Hf(DN) × 1,10     (+10% perdas localizadas)</span></div>
+
+  <h3>17.3 Valor Presente Líquido do OPEX</h3>
+  <div class="formula-block">VPL_OPEX(DN) = OPEX_energia × Σ_{t=1}^{20} 1 / (1 + r)^t
+
+<span class="comment">Onde:
+  r   = taxa de desconto anual = 0,08 (8% a.a.)
+  20  = horizonte de análise [anos]
+
+A soma da série geométrica pode ser calculada como:
+  Σ = [1 − (1+r)^−20] / r = 9,818  (para r = 8%)</span></div>
+
+  <h3>17.4 LCC Total e Recomendação</h3>
+  <div class="formula-block">LCC(DN) = CAPEX_tubo(DN) / 10⁶ + VPL_OPEX(DN) / 10⁶    <span class="comment">[M R$]</span>
+
+<span class="comment">Cenário A: DN atual (calculado na adução)
+Cenário B: DN imediatamente superior na série padronizada ABNT
+
+Recomendação: adotar o cenário com menor LCC total.
+  LCC_A &lt; LCC_B → DN atual tem melhor custo-benefício
+                   (velocidade mais alta compensa menor CAPEX)
+  LCC_B &lt; LCC_A → DN maior tem melhor custo-benefício
+                   (menor OPEX energético justifica maior CAPEX de tubulação)</span></div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> O card de LCC é exibido automaticamente após o dimensionamento da adução, abaixo dos resultados de CAPEX/OPEX. A tarifa de energia é carregada dinamicamente do arquivo <code>data/tarifas-aneel.json</code> com base na UF do município pesquisado.</div>
+</div>
+
+<!-- ============================
+     18. REFERÊNCIAS BIBLIOGRÁFICAS
      ============================ -->
 <div id="sec-refs" class="met-section card">
-  <div class="card-title">14. Referências Bibliográficas</div>
+  <div class="card-title">18. Referências Bibliográficas</div>
 
   <h3>Normas Técnicas ABNT</h3>
   <ul class="ref-list">
@@ -1162,6 +1381,12 @@ Onde Q_aduc é a vazão de adução configurada no módulo SAA.</span></div>
     <li><span class="ref-tag">Buck</span> BUCK, A. L. New equations for computing vapor pressure and enhancement factor. <em>Journal of Applied Meteorology</em>, v. 20, n. 12, p. 1527–1532, 1981. (Equação de pressão de vapor d'água).</li>
     <li><span class="ref-tag">Tsutiya &amp; Alem</span> TSUTIYA, M. T.; ALEM SOBRINHO, P. <em>Coleta e transporte de esgoto sanitário.</em> 3. ed. São Paulo: ABES, 2011.</li>
     <li><span class="ref-tag">Manning</span> MANNING, R. On the flow of water in open channels and pipes. <em>Transactions of the Institution of Civil Engineers of Ireland</em>, v. 20, p. 161–207, 1891.</li>
+    <li><span class="ref-tag">Chow, Maidment &amp; Mays</span> CHOW, V. T.; MAIDMENT, D. R.; MAYS, L. W. <em>Applied Hydrology.</em> New York: McGraw-Hill, 1988. (Método de Muskingum, cap. 8).</li>
+    <li><span class="ref-tag">McCarthy</span> McCARTHY, G. T. The unit hydrograph and flood routing. <em>Conference of the North Atlantic Division, U.S. Corps of Engineers</em>, 1938. apud CHOW et al. (1988). (Formulação original do Muskingum).</li>
+    <li><span class="ref-tag">Di Bernardo &amp; Dantas</span> DI BERNARDO, L.; DANTAS, A. D. B. <em>Métodos e Técnicas de Tratamento de Água.</em> 2. ed. São Carlos: RiMa, 2005. (Dimensionamento de decantadores — velocidade de sedimentação e overflow rate).</li>
+    <li><span class="ref-tag">Parshall</span> PARSHALL, R. L. The improved Venturi flume. <em>Transactions of the American Society of Civil Engineers</em>, v. 89, p. 841–880, 1926. (Calha Parshall — equação Q = K·H^n).</li>
+    <li><span class="ref-tag">NBR 9281</span> ABNT — NBR 9281: <em>Canais de medição de vazão — Calha Parshall — Determinação de vazão.</em> Rio de Janeiro: ABNT, 1986.</li>
+    <li><span class="ref-tag">AWWA M22</span> AMERICAN WATER WORKS ASSOCIATION. <em>Sizing Water Service Lines and Meters (M22).</em> 3. ed. Denver: AWWA, 2001. (Coeficientes da calha Parshall e faixas de operação).</li>
   </ul>
 
   <h3>APIs e Dados Utilizados</h3>
@@ -1173,6 +1398,7 @@ Onde Q_aduc é a vazão de adução configurada no módulo SAA.</span></div>
     <li><span class="ref-tag">EPE 2023</span> EMPRESA DE PESQUISA ENERGÉTICA. <em>Fator de Emissão de CO₂ do Sistema Interligado Nacional (SIN).</em> Brasília: EPE/MME, 2023. Fator médio utilizado: 0,088 kg CO₂e/kWh.</li>
     <li><span class="ref-tag">HidroWeb / ANA</span> AGÊNCIA NACIONAL DE ÁGUAS E SANEAMENTO BÁSICO. <em>HidroWeb — Sistema de Informações Hidrológicas.</em> Brasília: ANA, 2024. Disponível em: &lt;https://hidroweb.ana.gov.br&gt;. (API experimental de séries de vazão diária, usada para cálculo de Q95).</li>
     <li><span class="ref-tag">SINAPI 2024</span> CAIXA ECONÔMICA FEDERAL / IBGE. <em>Sistema Nacional de Pesquisa de Custos e Índices da Construção Civil (SINAPI).</em> Brasília: CEF, 2024. (Preços de referência para tubulações e reservatórios usados em estimativas CAPEX).</li>
+    <li><span class="ref-tag">ANEEL 2024</span> AGÊNCIA NACIONAL DE ENERGIA ELÉTRICA. <em>Tarifas de energia elétrica por estado.</em> Brasília: ANEEL, 2024. (Tarifas residenciais/comerciais utilizadas no cálculo do OPEX de bombeamento no módulo LCC). Disponível em: &lt;https://www.aneel.gov.br&gt;.</li>
   </ul>
 
   <div class="alert-note" style="margin-top:1.2rem;">
@@ -1274,7 +1500,11 @@ updateThemeIcon();
     {id:'sec-pressao',label:'11 — Pressão'},
     {id:'sec-racionamento',label:'12 — Racionamento'},
     {id:'sec-q95',label:'13 — Q95'},
-    {id:'sec-refs',label:'14 — Referências'}
+    {id:'sec-comparativo',label:'14 — Comparativo'},
+    {id:'sec-muskingum',label:'15 — Muskingum'},
+    {id:'sec-eta',label:'16 — ETA Avançada'},
+    {id:'sec-lcc',label:'17 — LCC'},
+    {id:'sec-refs',label:'18 — Referências'}
   ];
   var bar=document.createElement('div');bar.id='rdg-progress';document.body.insertBefore(bar,document.body.firstChild);
   var toc=document.createElement('nav');toc.id='rdg-toc';toc.setAttribute('aria-label','Índice de seções');

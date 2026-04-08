@@ -745,6 +745,129 @@
     </div>
   </div>
 
+  <!-- Método dos Municípios Comparativos -->
+  <div class="accordion-item" id="acc-comparativo">
+    <button class="accordion-header" onclick="toggleAccordion('acc-comparativo')">
+      <span class="accordion-header-left">
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        Projeção — Método dos Municípios Comparativos
+        <span class="nbr-badge">FUNASA</span>
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>O Método dos Municípios Comparativos projeta a população do município em estudo (A) usando a taxa de crescimento geométrico de um município de referência (B) com perfil socioeconômico similar. É indicado quando A possui poucos dados históricos.</p>
+      <h4>Como usar</h4>
+      <ol>
+        <li>Na aba <strong>Projeção</strong>, clique em <strong>Comparação de Municípios</strong>.</li>
+        <li>Pesquise o município de referência (B) pelo nome ou código IBGE e carregue seus censos.</li>
+        <li>O HidroFlow calcula automaticamente a taxa geométrica de B e plota a curva de projeção comparativa de A (linha roxa tracejada) junto aos históricos de ambos.</li>
+      </ol>
+      <h4>Resultados</h4>
+      <ul>
+        <li><strong>Taxa i_B (% a.a.):</strong> taxa de crescimento geométrico anual calculada de B a partir de toda a série histórica disponível.</li>
+        <li><strong>Projeção comparativa de A:</strong> população de A no horizonte usando i_B — útil como estimativa alternativa ao melhor ajuste próprio de A.</li>
+        <li><strong>Tabela comparativa:</strong> população inicial, recente, crescimento total e taxa de A e B lado a lado.</li>
+      </ul>
+      <div class="hint-box yellow">
+        <span class="hint-dot yellow"></span>
+        <span>Use este método como verificação cruzada. Escolha B com porte, região e IDH similares a A para resultados mais confiáveis (Ref.: FUNASA — Manual de Saneamento).</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Muskingum -->
+  <div class="accordion-item" id="acc-muskingum">
+    <button class="accordion-header" onclick="toggleAccordion('acc-muskingum')">
+      <span class="accordion-header-left">
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M2 7c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/></svg></span>
+        Propagação de Cheias — Método de Muskingum
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>O Método de Muskingum propaga um hidrograma de entrada ao longo de um trecho de canal ou rio, calculando o hidrograma de saída com atenuação do pico de cheia e defasagem temporal. É utilizado em estudos de controle de cheias e dimensionamento de reservatórios de detenção.</p>
+      <h4>Entradas</h4>
+      <ul>
+        <li><strong>K (h):</strong> tempo de percurso da onda de cheia no trecho. Aproximado como o tempo entre os picos de entrada e saída observados.</li>
+        <li><strong>X (adimensional, 0–0,5):</strong> parâmetro de ponderação. X = 0 representa comportamento de lago (máxima atenuação); X = 0,5 representa translação pura sem amortecimento.</li>
+        <li><strong>Δt (h):</strong> intervalo de tempo da série do hidrograma. Deve satisfazer Δt ≤ 2K(1−X) para estabilidade.</li>
+        <li><strong>Q0 saída (m³/s):</strong> vazão inicial na saída do trecho (condição de contorno).</li>
+        <li><strong>Hidrograma de entrada:</strong> série de vazões Q_e em m³/s, um valor por linha, cada linha correspondendo a um intervalo Δt.</li>
+      </ul>
+      <h4>Resultados</h4>
+      <ul>
+        <li><strong>Coeficientes C0, C1, C2:</strong> calculados automaticamente a partir de K, X e Δt. A soma C0+C1+C2 deve ser igual a 1.</li>
+        <li><strong>Q pico de entrada vs. saída:</strong> permite avaliar a atenuação do pico (em %).</li>
+        <li><strong>Defasagem temporal:</strong> em horas, entre o pico de entrada e o de saída.</li>
+        <li><strong>Gráfico:</strong> hidrogramas de entrada e saída sobrepostos para análise visual.</li>
+      </ul>
+      <div class="hint-box blue">
+        <span class="hint-dot blue"></span>
+        <span>Disponível na aba <strong>Avançados</strong>. Para obter K e X, calibre o modelo com dados de cheias observadas no trecho de interesse.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ETA Avançada -->
+  <div class="accordion-item" id="acc-eta-avancada">
+    <button class="accordion-header" onclick="toggleAccordion('acc-eta-avancada')">
+      <span class="accordion-header-left">
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11m0 0H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4m0-4h6m0 0h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4m-6 0v-4"/></svg></span>
+        ETA — Decantador (Stokes) e Calha Parshall
+        <span class="nbr-badge">NBR 9281</span>
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>O HidroFlow inclui dimensionamento avançado de unidades da ETA: o <strong>decantador convencional</strong> (pela Lei de Stokes) e a <strong>calha Parshall</strong> de mistura rápida/medição de vazão. Esses resultados aparecem dentro do card de ETA ao expandir <em>"Opções Avançadas — ETA"</em>.</p>
+      <h4>Decantador — Lei de Stokes</h4>
+      <ul>
+        <li><strong>Diâmetro da partícula (mm):</strong> tamanho típico das partículas a remover. Argilas: 0,001–0,01 mm; silte fino: 0,01–0,05 mm.</li>
+        <li><strong>Densidade da partícula (kg/m³):</strong> argila ≈ 2.650 kg/m³; areia ≈ 2.650 kg/m³.</li>
+        <li><strong>Temperatura da água (°C):</strong> afeta a viscosidade dinâmica e, portanto, a velocidade de sedimentação.</li>
+        <li><strong>v_s calculada:</strong> velocidade de queda da partícula pela Lei de Stokes. Válida para Re_Stokes &lt; 0,5.</li>
+        <li><strong>Área superficial (m²):</strong> A = Q / v_s. O HidroFlow assume relação L:W = 4:1 e profundidade = 3,5 m.</li>
+        <li><strong>TDH (h):</strong> tempo de detenção hidráulica do decantador.</li>
+      </ul>
+      <h4>Calha Parshall</h4>
+      <ul>
+        <li><strong>Garganta W:</strong> dimensão da seção de contração da calha (3", 6", 9" … 60"). O HidroFlow sugere automaticamente a menor garganta que mantém escoamento livre (H_a entre 3 e 75 cm).</li>
+        <li><strong>H_a calculado (cm):</strong> carga hidráulica necessária para a vazão de projeto. Se H_a &gt; 75 cm, o escoamento pode ser afogado — selecione garganta maior.</li>
+      </ul>
+      <div class="hint-box yellow">
+        <span class="hint-dot yellow"></span>
+        <span>Para partículas com Re_Stokes ≥ 0,5, a Lei de Stokes superestima a velocidade de sedimentação — use as leis de Allen (0,5 &lt; Re &lt; 500) ou Newton (Re &gt; 500) nesse caso.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LCC — Custo de Ciclo de Vida -->
+  <div class="accordion-item" id="acc-lcc">
+    <button class="accordion-header" onclick="toggleAccordion('acc-lcc')">
+      <span class="accordion-header-left">
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+        Custo de Ciclo de Vida (LCC) — Comparação de Diâmetros
+        <span class="nbr-badge">ANEEL 2024</span>
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>A análise de Custo de Ciclo de Vida (LCC) compara o DN dimensionado com o DN imediatamente superior na série padronizada ABNT, somando o custo de implantação da tubulação (CAPEX) ao valor presente do custo de energia de bombeamento em 20 anos (OPEX). O resultado indica qual diâmetro é economicamente mais vantajoso no longo prazo.</p>
+      <h4>Como interpretar</h4>
+      <ul>
+        <li><strong>CAPEX da tubulação:</strong> proporcional a DN² — diâmetros maiores custam mais para implantar.</li>
+        <li><strong>OPEX de energia (VPL):</strong> proporcional à perda de carga, que cresce com o aumento de velocidade. Diâmetros menores têm maiores perdas e, portanto, mais custo de bombeamento.</li>
+        <li><strong>LCC total = CAPEX + VPL(OPEX).</strong> O cenário com menor LCC é marcado com ⭐.</li>
+        <li><strong>Tarifa de energia:</strong> carregada automaticamente do arquivo ANEEL 2024 conforme a UF do município pesquisado (fallback: R$ 0,68/kWh).</li>
+      </ul>
+      <div class="hint-box blue">
+        <span class="hint-dot blue"></span>
+        <span>O card de LCC é exibido automaticamente após o dimensionamento da adução, abaixo do resultado de CAPEX/OPEX. Taxa de desconto padrão: 8% a.a. | Horizonte: 20 anos.</span>
+      </div>
+    </div>
+  </div>
+
 </div><!-- end card sec-modulos -->
 
 <!-- ========================
@@ -990,6 +1113,10 @@
     <li><span class="ref-tag">Wylie & Streeter</span> WYLIE, E. B.; STREETER, V. L. <em>Fluid Transients in Systems.</em> Prentice Hall, 1993. — <em>Celeridade da onda de pressão (golpe de aríete), fórmulas de Joukowsky e Michaud.</em></li>
     <li><span class="ref-tag">Tsutiya & Alem</span> TSUTIYA, M. T.; ALEM SOBRINHO, P. <em>Coleta e transporte de esgoto sanitário.</em> 3. ed. São Paulo: ABES, 2011. — <em>Infiltração em redes coletoras, Manning em seções circulares parcialmente cheias.</em></li>
     <li><span class="ref-tag">Metcalf & Eddy</span> METCALF &amp; EDDY. <em>Wastewater Engineering: Treatment and Resource Recovery.</em> 5. ed. McGraw-Hill, 2014. — <em>Fórmula de Harmon para coeficiente de ponta de esgoto.</em></li>
+    <li><span class="ref-tag">Chow, Maidment &amp; Mays</span> CHOW, V. T.; MAIDMENT, D. R.; MAYS, L. W. <em>Applied Hydrology.</em> New York: McGraw-Hill, 1988. — <em>Método de Muskingum para propagação de cheias em canais (cap. 8).</em></li>
+    <li><span class="ref-tag">Di Bernardo &amp; Dantas</span> DI BERNARDO, L.; DANTAS, A. D. B. <em>Métodos e Técnicas de Tratamento de Água.</em> 2. ed. São Carlos: RiMa, 2005. — <em>Dimensionamento de decantadores pela Lei de Stokes e overflow rate.</em></li>
+    <li><span class="ref-tag">NBR 9281</span> ABNT — NBR 9281: <em>Canais de medição de vazão — Calha Parshall.</em> Rio de Janeiro: ABNT, 1986. — <em>Coeficientes K e n para medição de vazão na calha Parshall.</em></li>
+    <li><span class="ref-tag">ANEEL 2024</span> AGÊNCIA NACIONAL DE ENERGIA ELÉTRICA. <em>Tarifas de energia elétrica por estado.</em> Brasília: ANEEL, 2024. — <em>Tarifas utilizadas no cálculo do OPEX de bombeamento (módulo LCC).</em></li>
   </ul>
 
   <div class="alert-note" style="margin-top:1.2rem;">
