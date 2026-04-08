@@ -260,7 +260,11 @@
     <a class="toc-item" href="#sec-rede"><span class="toc-num">7</span>Rede de Distribuição (Hardy-Cross)</a>
     <a class="toc-item" href="#sec-saturacao"><span class="toc-num">8</span>População de Saturação</a>
     <a class="toc-item" href="#sec-decisao"><span class="toc-num">9</span>Motor de Decisão Automatizado</a>
-    <a class="toc-item" href="#sec-refs"><span class="toc-num">10</span>Referências Bibliográficas</a>
+    <a class="toc-item" href="#sec-custos"><span class="toc-num">10</span>Estimativa CAPEX/OPEX</a>
+    <a class="toc-item" href="#sec-pressao"><span class="toc-num">11</span>Mapa de Pressão Pré-EPANET</a>
+    <a class="toc-item" href="#sec-racionamento"><span class="toc-num">12</span>Simulação de Racionamento</a>
+    <a class="toc-item" href="#sec-q95"><span class="toc-num">13</span>Vazão de Permanência Q95</a>
+    <a class="toc-item" href="#sec-refs"><span class="toc-num">14</span>Referências Bibliográficas</a>
   </div>
 </div>
 
@@ -754,6 +758,17 @@ Exemplo:
 
 Referência: Michaud (1878) apud Wylie & Streeter (1993)</span></div>
   <div class="alert-note">💡 O campo <strong>"Tempo de fechamento da válvula T_c (s)"</strong> é opcional. Quando deixado em branco, o sistema usa Joukowsky (comportamento original). O limiar 2L/a e a fórmula aplicada são exibidos no painel de resultados e no memorial de cálculo.</div>
+
+  <h3>5.4 Recomendações de Proteção — VAO e Outros Dispositivos</h3>
+  <p>Quando a sobrepressão é classificada como <strong>Crítica</strong> (ΔH &gt; 50% da Hm), o HidroFlow recomenda automaticamente dispositivos de proteção contra golpe de aríete:</p>
+  <ul style="font-size:0.84rem;color:var(--text2);margin-left:1.4rem;margin-bottom:0.8rem;line-height:1.7;">
+    <li><strong>VAO — Válvula Antecipadora de Onda:</strong> actua antes da chegada da onda de pressão, abrindo para dissipar a sobrepressão. Especialmente indicada em recalques com perfil desfavorável.</li>
+    <li><strong>Volante de inércia:</strong> reduz a desaceleração brusca do grupo moto-bomba em caso de falta de energia.</li>
+    <li><strong>Ventosas / válvulas de alívio:</strong> liberam ar ou pressão excessiva nos pontos altos da adutora.</li>
+    <li><strong>Reservatório pulmão (surge tank):</strong> absorve variações de pressão ao longo da linha.</li>
+    <li><strong>Fechamento lento de válvula:</strong> aumentar T_c além de 2L/a para enquadrar no regime de Michaud.</li>
+  </ul>
+  <div class="alert-note">💡 A exibição do comprimento da adutora em km e da comparação explícita T_c vs. 2L/a no alerta de saída facilita a decisão do engenheiro sobre qual dispositivo aplicar.</div>
 </div>
 
 <!-- ============================
@@ -956,10 +971,139 @@ ou recarregar a página (o sistema retorna ao modelo de maior score).</span></di
 </div>
 
 <!-- ============================
-     10. REFERÊNCIAS BIBLIOGRÁFICAS
+     10. ESTIMATIVA DE CUSTOS (CAPEX/OPEX)
+     ============================ -->
+<div id="sec-custos" class="met-section card">
+  <div class="card-title">10. Estimativa de Custos CAPEX/OPEX <span class="nbr-badge">SINAPI 2024</span></div>
+
+  <p>O HidroFlow fornece estimativas de custo de implantação (CAPEX) e de operação e manutenção anual (OPEX) para adutoras, redes de distribuição e reservatórios, com base em preços de referência SINAPI 2024.</p>
+
+  <h3>10.1 Custo da Adutora — <code>estimarCustoAdutora(DN, L)</code></h3>
+  <div class="formula-block">C_adu = preco_por_metro[DN] * L     <span class="comment">[R$]</span>
+
+<span class="comment">Onde:
+  DN             = diâmetro nominal da tubulação [mm] (ex.: 100, 150, 200, 300, 400, 500 mm)
+  L              = comprimento da adutora [m]
+  preco_por_metro = custo unitário SINAPI 2024 [R$/m] por DN (TABELA_CUSTOS.adutora_rm)
+
+Exemplo: DN 200 mm, L = 5000 m → C_adu = 380 * 5000 = R$ 1.900.000</span></div>
+
+  <h3>10.2 Custo da Rede de Distribuição — <code>estimarCustoRede(DN, L)</code></h3>
+  <div class="formula-block">C_rede = preco_por_metro[DN] * L    <span class="comment">[R$]</span>
+
+<span class="comment">Utiliza a mesma estrutura de TABELA_CUSTOS, com preços diferenciados para rede (menor
+que adutora para mesmos DNs, por considerar valas em vias urbanas já abertas).</span></div>
+
+  <h3>10.3 Custo do Reservatório</h3>
+  <div class="formula-block">C_res = TABELA_CUSTOS.reservatorio_m3 * V_total    <span class="comment">[R$]</span>
+
+<span class="comment">Onde:
+  reservatorio_m3 = custo por m³ construído [R$/m³] (referência SINAPI 2024)
+  V_total         = volume total dimensionado [m³]</span></div>
+
+  <h3>10.4 OPEX Anual</h3>
+  <div class="formula-block">OPEX_ano = TABELA_CUSTOS.opex_pct * CAPEX_total   <span class="comment">[R$/ano]</span>
+
+<span class="comment">opex_pct = percentual de O&M sobre o CAPEX (padrão: 3% a.a., faixa típica FUNASA: 2–5%)
+CAPEX_total = C_adu + C_rede + C_res</span></div>
+</div>
+
+<!-- ============================
+     11. MAPA DE PRESSÃO PRÉ-EPANET
+     ============================ -->
+<div id="sec-pressao" class="met-section card">
+  <div class="card-title">11. Mapa de Pressão Pré-EPANET — <code>calcPressaoRede()</code> <span class="nbr-badge">NBR 12.218</span></div>
+
+  <p>Verificação simplificada de pressões estática e residual nos pontos extremos da adutora, usando apenas as cotas do ponto baixo e do ponto alto como entradas opcionais.</p>
+
+  <h3>11.1 Pressão Estática</h3>
+  <div class="formula-block">P_est = cota_reservatorio - cota_ponto_baixo    <span class="comment">[m.c.a.]</span>
+
+<span class="comment">Pressão disponível com o sistema em repouso (sem escoamento).
+Reflete a energia potencial da coluna d'água do reservatório até o ponto mais baixo.</span></div>
+
+  <h3>11.2 Pressão Residual</h3>
+  <div class="formula-block">P_res = cota_reservatorio - cota_ponto_alto - hf    <span class="comment">[m.c.a.]</span>
+
+<span class="comment">Pressão disponível no ponto mais desfavoravel (maior cota) com a vazão de projeto escoando.
+hf = perda de carga calculada pelo metodo de Hazen-Williams (secao 4.2).</span></div>
+
+  <h3>11.3 Alertas Automáticos NBR 12218</h3>
+  <div class="formula-block"><span class="comment">Alerta VRP (Válvula Redutora de Pressão):
+  Se P_est > 50 m.c.a. → recomendado instalar VRP no ponto baixo
+
+Alerta de pressão insuficiente:
+  Se P_res < 10 m.c.a. → pressão insuficiente no ponto alto da rede
+
+Limites NBR 12218:
+  Pressão minima residual:  10 m.c.a.
+  Pressão maxima estatica:  50 m.c.a.</span></div>
+</div>
+
+<!-- ============================
+     12. SIMULAÇÃO DE RACIONAMENTO
+     ============================ -->
+<div id="sec-racionamento" class="met-section card">
+  <div class="card-title">12. Simulação de Racionamento — <code>calcTempoEsvaziamento()</code></div>
+
+  <p>Estima a autonomia do sistema de abastecimento em cenários de escassez hídrica, calculando o tempo até o esvaziamento do reservatório para um dado percentual de redução da vazão captada.</p>
+
+  <h3>12.1 Fórmula de Esvaziamento</h3>
+  <div class="formula-block">T_esv = V / (Q_cons - Q_cap_red)    <span class="comment">[s] → convertido para horas</span>
+
+<span class="comment">Onde:
+  V          = volume útil do reservatório [m³]
+  Q_cons     = vazão de consumo (demanda) [m³/s]  = Q_md calculado na projeção
+  Q_cap_red  = vazão captada reduzida [m³/s]      = Q_cap * (1 - pct/100)
+  pct        = percentual de reducao aplicado pelo slider (0–100 %)
+
+Condicao:
+  Se Q_cap_red >= Q_cons → sistema em equilibrio, T_esv = infinito (sem esvaziamento)
+  Se Q_cap_red <  Q_cons → T_esv = V / (Q_cons - Q_cap_red)</span></div>
+
+  <h3>12.2 Classificação de Resiliência</h3>
+  <div class="formula-block"><span class="comment">T_esv >= 24 h  → Verde  — sistema resiliente para secas de curta duração
+12 h <= T_esv < 24 h  → Âmbar — atenção: planejar racionamento imediato
+T_esv < 12 h   → Vermelho — intervenção urgente necessária</span></div>
+</div>
+
+<!-- ============================
+     13. VAZÃO DE PERMANÊNCIA Q95 (HidroWeb / ANA)
+     ============================ -->
+<div id="sec-q95" class="met-section card">
+  <div class="card-title">13. Vazão de Permanência Q95 — <code>calcQ95()</code> <span class="nbr-badge">Experimental</span></div>
+
+  <p>A vazão Q95 é aquela que é igualada ou superada em 95% do tempo de observação. É o indicador padrão brasileiro de vazão de referência para outorga e gestão de recursos hídricos.</p>
+
+  <h3>13.1 Cálculo de Q95</h3>
+  <div class="formula-block"><span class="comment">Passo 1 — Ordenar a série histórica de vazões em ordem decrescente
+  Q_ord = sort(Q_serie, decrescente)
+
+Passo 2 — Determinar o índice correspondente a 95% de permanência
+  idx = round(0.95 * n)   onde n = comprimento da série
+
+Passo 3 — Q95 = Q_ord[idx]
+
+Nota: para series com n < 10 pontos, o resultado é marcado como "insuficiente"
+      e o sistema exibe alerta recomendando entrada manual.
+
+Referência: ANA — Caderno de Recursos Hídricos: Disponibilidade e Demandas, 2005.</span></div>
+
+  <h3>13.2 Comparação com a Demanda do Projeto</h3>
+  <div class="formula-block"><span class="comment">Q_projeto = Q_md * K1   [m³/s] — vazão máxima diária do projeto
+
+Se Q95 < Q_projeto:
+  → Alerta de déficit hídrico em anos de seca
+  → Sugestão de ativar simulação de racionamento com pct = (1 - Q95/Q_aduc) * 100
+
+Onde Q_aduc é a vazão de adução configurada no módulo SAA.</span></div>
+</div>
+
+<!-- ============================
+     14. REFERÊNCIAS BIBLIOGRÁFICAS
      ============================ -->
 <div id="sec-refs" class="met-section card">
-  <div class="card-title">10. Referências Bibliográficas</div>
+  <div class="card-title">14. Referências Bibliográficas</div>
 
   <h3>Normas Técnicas ABNT</h3>
   <ul class="ref-list">
@@ -1008,6 +1152,8 @@ ou recarregar a página (o sistema retorna ao modelo de maior score).</span></di
     <li><span class="ref-tag">OpenStreetMap</span> OpenStreetMap contributors — Tiles via Leaflet.js 1.9.4. Licença © OpenStreetMap contributors, ODbL.</li>
     <li><span class="ref-tag">Open-Elevation</span> Open-Elevation — API de altimetria baseada em dados SRTM-90 (NASA Shuttle Radar Topography Mission). Disponível em: &lt;https://api.open-elevation.com&gt;.</li>
     <li><span class="ref-tag">EPE 2023</span> EMPRESA DE PESQUISA ENERGÉTICA. <em>Fator de Emissão de CO₂ do Sistema Interligado Nacional (SIN).</em> Brasília: EPE/MME, 2023. Fator médio utilizado: 0,088 kg CO₂e/kWh.</li>
+    <li><span class="ref-tag">HidroWeb / ANA</span> AGÊNCIA NACIONAL DE ÁGUAS E SANEAMENTO BÁSICO. <em>HidroWeb — Sistema de Informações Hidrológicas.</em> Brasília: ANA, 2024. Disponível em: &lt;https://hidroweb.ana.gov.br&gt;. (API experimental de séries de vazão diária, usada para cálculo de Q95).</li>
+    <li><span class="ref-tag">SINAPI 2024</span> CAIXA ECONÔMICA FEDERAL / IBGE. <em>Sistema Nacional de Pesquisa de Custos e Índices da Construção Civil (SINAPI).</em> Brasília: CEF, 2024. (Preços de referência para tubulações e reservatórios usados em estimativas CAPEX).</li>
   </ul>
 
   <div class="alert-note" style="margin-top:1.2rem;">

@@ -551,9 +551,151 @@
           <ul>
             <li><span style="color:var(--green);font-weight:600;">✔ Seguro</span> — a sobrepressão não supera a pressão de trabalho da tubulação.</li>
             <li><span style="color:var(--yellow,#e6a817);font-weight:600;">⚠ Atenção</span> — a sobrepressão se aproxima do limite; considere válvulas de alívio.</li>
-            <li><span style="color:var(--red);font-weight:600;">✖ Crítico</span> — a sobrepressão excede a pressão nominal da tubulação; são necessárias medidas de proteção (ventosas, reservatórios pulmão, fechamento lento).</li>
+            <li><span style="color:var(--red);font-weight:600;">✖ Crítico</span> — a sobrepressão excede a pressão nominal da tubulação; são necessárias medidas de proteção (ventosas, reservatórios pulmão, fechamento lento, <strong>VAO — Válvula Antecipadora de Onda</strong>).</li>
           </ul>
         </li>
+      </ul>
+      <div class="hint-box yellow">
+        <span class="hint-dot yellow"></span>
+        <span>O alerta exibe o comprimento da adutora (km), o limiar T_c = 2L/a e a fórmula utilizada (Joukowsky ou Michaud). Em casos críticos, a recomendação de VAO é exibida automaticamente.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estimativa de Custos (CAPEX/OPEX) -->
+  <div class="accordion-item" id="acc-custos">
+    <button class="accordion-header" onclick="toggleAccordion('acc-custos')">
+      <span class="accordion-header-left">
+        <span class="module-icon">💰</span>
+        Estimativa de Custos — CAPEX / OPEX
+        <span class="nbr-badge">SINAPI 2024</span>
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>O HidroFlow estima os custos de implantação (CAPEX) e de operação anual (OPEX) das obras dimensionadas, com base na tabela de referência SINAPI 2024.</p>
+      <h4>Como funciona</h4>
+      <ul>
+        <li>Após calcular a adução, cada dim-card exibe um <strong>badge de custo estimado</strong> (em R$) para a tubulação dimensionada.</li>
+        <li>Um card de resumo apresenta o CAPEX discriminado (adutora, rede, reservatório) e o OPEX estimado em R$/ano.</li>
+        <li>Os valores são calculados pelas funções <code>estimarCustoAdutora(DN, L)</code> e <code>estimarCustoRede(DN, L)</code>, usando preços médios por DN e metro linear.</li>
+      </ul>
+      <h4>Interpretação</h4>
+      <ul>
+        <li>As estimativas são <strong>indicativas</strong> e se baseiam em preços de referência SINAPI. Para projetos executivos, use orçamento detalhado.</li>
+        <li>O OPEX considera o percentual padrão de operação e manutenção anual sobre o CAPEX total.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Mapa de Pressão Pré-EPANET -->
+  <div class="accordion-item" id="acc-pressao">
+    <button class="accordion-header" onclick="toggleAccordion('acc-pressao')">
+      <span class="accordion-header-left">
+        <span class="module-icon">🗺️</span>
+        Mapa de Pressão Pré-EPANET
+        <span class="nbr-badge">NBR 12.218</span>
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>Antes de exportar para o EPANET, o HidroFlow permite verificar as pressões estática e residual nos pontos extremos da adutora usando apenas dois campos opcionais de cota.</p>
+      <h4>Entradas</h4>
+      <ul>
+        <li><strong>Cota do ponto baixo (m):</strong> menor altitude ao longo da adutora.</li>
+        <li><strong>Cota do ponto alto (m):</strong> maior altitude ao longo da adutora.</li>
+      </ul>
+      <h4>Resultados e alertas NBR 12218</h4>
+      <ul>
+        <li><strong>Pressão estática:</strong> coluna d'água disponível com o sistema em repouso.</li>
+        <li><strong>Pressão residual:</strong> pressão disponível com a vazão de projeto escoando.</li>
+        <li><span style="color:var(--red);font-weight:600;">Alerta VRP</span> — emitido quando a pressão supera 50 mca; recomenda-se instalar Válvula Redutora de Pressão.</li>
+        <li><span style="color:var(--red);font-weight:600;">Alerta de pressão insuficiente</span> — emitido quando a pressão cai abaixo de 10 mca no ponto alto.</li>
+      </ul>
+      <div class="hint-box blue">
+        <span class="hint-dot blue"></span>
+        <span>Para análise completa de pressões em todos os nós da rede, exporte para EPANET (.INP).</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Biblioteca de Bombas Padrão -->
+  <div class="accordion-item" id="acc-bombas">
+    <button class="accordion-header" onclick="toggleAccordion('acc-bombas')">
+      <span class="accordion-header-left">
+        <span class="module-icon">⚡</span>
+        Biblioteca de Bombas Padrão
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>O HidroFlow inclui uma biblioteca de 6 modelos de bombas centrífugas para pré-dimensionamento, disponível na aba <strong>Avançados</strong> (Curva do Sistema vs. Curva da Bomba).</p>
+      <h4>Como usar</h4>
+      <ul>
+        <li>Selecione um modelo na lista suspensa "Biblioteca de Bombas Padrão" e clique em <strong>"Carregar"</strong> para preencher a curva Q × H.</li>
+        <li>Ou clique em <strong>"⚡ Sugerir bomba para adução"</strong> para que o sistema selecione automaticamente o modelo mais adequado com base na Hm e na Q calculadas na aba Adução.</li>
+        <li>A função <code>interpBombaCurva()</code> interpola linearmente os pontos da curva para encontrar a altura manométrica em qualquer vazão.</li>
+      </ul>
+      <h4>Entradas da curva do sistema</h4>
+      <ul>
+        <li><strong>H estático (m):</strong> desnível geométrico total a vencer.</li>
+        <li><strong>K (m/(m³/h)²):</strong> coeficiente de perda de carga da instalação.</li>
+        <li>O ponto de operação é a intersecção entre a curva da bomba e a curva do sistema.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Simulação de Racionamento -->
+  <div class="accordion-item" id="acc-racionamento">
+    <button class="accordion-header" onclick="toggleAccordion('acc-racionamento')">
+      <span class="accordion-header-left">
+        <span class="module-icon">🚱</span>
+        Simulação de Racionamento — Resiliência Hídrica
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>Em cenários de seca severa, o HidroFlow simula por quanto tempo o sistema consegue abastecer a população com uma determinada redução de vazão captada.</p>
+      <h4>Como funciona</h4>
+      <ul>
+        <li>Use o slider de 0% a 100% para definir o percentual de redução da vazão de entrada no reservatório.</li>
+        <li>A função <code>calcTempoEsvaziamento(V, Q_cap, Q_cons)</code> calcula em <strong>horas</strong> até o esvaziamento do reservatório.</li>
+      </ul>
+      <h4>Semáforo de resiliência</h4>
+      <ul>
+        <li><span style="color:var(--green);font-weight:600;">Verde</span> — Autonomia &ge; 24 horas. Sistema resiliente.</li>
+        <li><span style="color:var(--yellow,#e6a817);font-weight:600;">Âmbar</span> — Autonomia entre 12 e 24 horas. Atenção: planejar racionamento.</li>
+        <li><span style="color:var(--red);font-weight:600;">Vermelho</span> — Autonomia &lt; 12 horas. Intervenção urgente.</li>
+      </ul>
+      <div class="hint-box yellow">
+        <span class="hint-dot yellow"></span>
+        <span>O alerta climático HidroWeb pode preencher automaticamente a redução de vazão com base no Q95 da estação fluviométrica informada.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerta Climático HidroWeb / ANA -->
+  <div class="accordion-item" id="acc-hidroweb">
+    <button class="accordion-header" onclick="toggleAccordion('acc-hidroweb')">
+      <span class="accordion-header-left">
+        <span class="module-icon">🌊</span>
+        Alerta Climático — HidroWeb / ANA (Q95)
+        <span class="nbr-badge">Experimental</span>
+      </span>
+      <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="accordion-body">
+      <p>Funcionalidade experimental que consulta a API HidroWeb da ANA para obter a <strong>vazão de permanência Q95</strong> de uma estação fluviométrica e comparar com a vazão de projeto.</p>
+      <h4>Como usar</h4>
+      <ul>
+        <li>Informe o <strong>código da estação fluviométrica</strong> (disponível em <a href="https://hidroweb.ana.gov.br" target="_blank" rel="noopener">hidroweb.ana.gov.br</a>).</li>
+        <li>Clique em "Buscar Q95 na HidroWeb". Se a API estiver disponível, Q95 é calculado automaticamente pela função <code>calcQ95(série)</code>.</li>
+        <li>Em caso de falha por CORS ou indisponibilidade, use a <strong>entrada manual de Q95</strong>.</li>
+      </ul>
+      <h4>Resultado</h4>
+      <ul>
+        <li>Q95 é comparado com a vazão de projeto Q·K1. Se Q95 &lt; Q·K1, o sistema emite alerta de déficit hídrico e sugere ativar a simulação de racionamento.</li>
+        <li>O valor de Q95 pode preencher automaticamente o slider de racionamento.</li>
       </ul>
     </div>
   </div>
