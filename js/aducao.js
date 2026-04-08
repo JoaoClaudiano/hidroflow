@@ -105,6 +105,12 @@ function calcAducao(){
   const eta=(+document.getElementById('ad-eta').value||72)/100;
   const e_mm=+document.getElementById('ad-esp').value||8;
 
+  // Mapa de pressões — campos opcionais
+  const cotaPontoBaixoEl=document.getElementById('ad-cota-ponto-baixo');
+  const cotaPontoBaixo=cotaPontoBaixoEl&&cotaPontoBaixoEl.value.trim()?+cotaPontoBaixoEl.value:null;
+  const cotaPontoAltoEl=document.getElementById('ad-cota-ponto-alto');
+  const cotaPontoAlto=cotaPontoAltoEl&&cotaPontoAltoEl.value.trim()?+cotaPontoAltoEl.value:null;
+
   const Qb=QK1*(24/N);
 
   const kBresseInput=document.getElementById('ad-k-bresse').value;
@@ -282,15 +288,34 @@ function calcAducao(){
   addNBR('NBR 5648','Golpe de aríete ΔH ≤ 50% Hman',delta_H<=Hman*0.5,
     `ΔH = ${delta_H.toFixed(1)} m · P_max = ${P_max.toFixed(1)} mca — ${delta_H>Hman*0.5?'⚠ Instalar válvula antichoque':'✅ OK'}`);
 
+  // Mapa de pressões — verificações adicionais (campos opcionais)
+  if(cotaPontoBaixo!==null){
+    const P_baixo=cotaRes-cotaPontoBaixo;
+    const vrp_necessaria=P_baixo>50;
+    addNBR('NBR 12218',`Pressão estática no ponto baixo (cota ${cotaPontoBaixo} m)`,!vrp_necessaria,
+      `P_baixo = ${cotaRes}−${cotaPontoBaixo} = ${P_baixo.toFixed(1)} mca — ${vrp_necessaria?'⚠️ > 50 mca — instalar VRP (Válvula Redutora de Pressão)':'✅ OK'}`);
+  }
+  if(cotaPontoAlto!==null){
+    const P_alto=cotaRes-cotaPontoAlto-Hf;
+    const pressao_insuf=P_alto<10;
+    addNBR('NBR 12218',`Pressão residual no ponto alto (cota ${cotaPontoAlto} m)`,!pressao_insuf,
+      `P_alto = ${cotaRes}−${cotaPontoAlto}−${Hf.toFixed(1)} = ${P_alto.toFixed(1)} mca — ${pressao_insuf?'⚠️ < 10 mca — pressão insuficiente no ponto mais alto':'✅ OK'}`);
+  }
+
   const nbrOk=nbrChecks.filter(c=>c.ok).length;
   const nbrFail=nbrChecks.filter(c=>!c.ok).length;
   const vColor=v_real<0.6||v_real>3?'red':v_real<1?'amber':'green';
   const arieteCls=risco_ariete==='crit'?'alert-danger':risco_ariete==='warn'?'alert-warning':'alert-success';
-  const arieteMsg=risco_ariete==='crit'?
-    `🚨 RISCO ELEVADO: ΔH = ${delta_H.toFixed(1)} m > 50% Hman. Instalar válvula de alívio/volante de inércia. Adotar PN ${PN_rec} m.c.a.`:
-    risco_ariete==='warn'?
-    `⚠️ ATENÇÃO: ΔH = ${delta_H.toFixed(1)} m (25–50% Hman). Recomendar válvula antichoque. PN ${PN_rec} m.c.a.`:
-    `✅ Baixo risco de golpe de aríete (ΔH = ${delta_H.toFixed(1)} m < 25% Hman). Classe PN ${PN_rec} adequada.`;
+  // Feature 7 — mensagem enriquecida com km, 2L/a e VAO
+  const L_km=(L/1000).toFixed(1);
+  const tcInfo=T_c>0
+    ?(T_c<=T_critico?`T_c = ${T_c}s ≤ 2L/a = ${T_critico.toFixed(1)}s (fechamento rápido)`:`T_c = ${T_c}s > 2L/a = ${T_critico.toFixed(1)}s (Michaud aplicado)`)
+    :`2L/a = ${T_critico.toFixed(1)}s`;
+  const arieteMsg=risco_ariete==='crit'
+    ?`🚨 RISCO ELEVADO: Com ${L_km} km de adutora DN${DN}mm e ${tcInfo}, ΔH = ${delta_H.toFixed(1)} m > 50% Hman. Instalar Válvula Antecipadora de Onda (VAO) ou Volante de Inércia. Adotar PN ${PN_rec} m.c.a.`
+    :risco_ariete==='warn'
+    ?`⚠️ ATENÇÃO: Com ${L_km} km de adutora e ${tcInfo}, ΔH = ${delta_H.toFixed(1)} m (25–50% Hman). Recomendar válvula antichoque ou VAO. PN ${PN_rec} m.c.a.`
+    :`✅ Baixo risco de golpe de aríete: Com ${L_km} km de adutora e ${tcInfo}, ΔH = ${delta_H.toFixed(1)} m < 25% Hman. Classe PN ${PN_rec} adequada.`;
 
   document.getElementById('ad-nbr-alerts').innerHTML=`
     <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius);background:var(--bg);border:1px solid var(--border);margin-bottom:0;">
@@ -403,6 +428,31 @@ function calcAducao(){
     </tbody></table>`;
 
   addAudit(`Hidráulica: DN${DN}mm · Hman=${Hman.toFixed(1)}m · ${useFatorServico?Pot_motor_cv_fs:Pot_motor_cv}cv · V=${V_total}m³ · PN${PN_rec}`);
+
+  // Salvar resultado para o slider de racionamento e painel público
+  state._aducaoResult={V_total,Qmed,QK1,Qb,N,L,DN,Hman,Hf,cotaRes};
+
+  // Mapa de pressões pré-EPANET — renderiza se campos informados
+  const pressaoEl=document.getElementById('ad-pressao-display');
+  const pressaoCard=document.getElementById('ad-pressao-card');
+  if(pressaoEl&&(cotaPontoBaixo!==null||cotaPontoAlto!==null)){
+    if(pressaoCard)pressaoCard.style.display='';
+    const P_baixo=cotaPontoBaixo!==null?cotaRes-cotaPontoBaixo:null;
+    const P_alto=cotaPontoAlto!==null?cotaRes-cotaPontoAlto-Hf:null;
+    const clsBaixo=P_baixo===null?'':P_baixo>50?'red':P_baixo>40?'amber':'green';
+    const clsAlto=P_alto===null?'':P_alto<10?'red':P_alto<15?'amber':'green';
+    pressaoEl.innerHTML=`
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:10px;">
+        ${cotaRes!==null?`<div class="hyd-step"><div class="hyd-label">Nível reservatório</div><div class="hyd-value">${cotaRes}</div><div class="hyd-unit">m (cota piezométrica)</div></div>`:''}
+        ${P_baixo!==null?`<div class="hyd-step ${clsBaixo}"><div class="hyd-label">P estática — ponto baixo</div><div class="hyd-value">${P_baixo.toFixed(1)}</div><div class="hyd-unit">mca · cota=${cotaPontoBaixo}m</div></div>`:''}
+        ${P_alto!==null?`<div class="hyd-step ${clsAlto}"><div class="hyd-label">P residual — ponto alto</div><div class="hyd-value">${P_alto.toFixed(1)}</div><div class="hyd-unit">mca · cota=${cotaPontoAlto}m (−Hf)</div></div>`:''}
+      </div>
+      ${P_baixo!==null&&P_baixo>50?`<div class="alert alert-warning" style="font-size:12px;font-family:var(--mono);">⚠️ Pressão estática no ponto mais baixo (${P_baixo.toFixed(1)} mca) ultrapassa 50 mca. Risco de ruptura — instalar <strong>VRP (Válvula Redutora de Pressão)</strong> antes da zona de baixa cota. NBR 12218.</div>`:''}
+      ${P_alto!==null&&P_alto<10?`<div class="alert alert-danger" style="font-size:12px;font-family:var(--mono);">🚨 Pressão residual no ponto mais alto (${P_alto.toFixed(1)} mca) abaixo de 10 mca. Pressão insuficiente — revisar topografia, aumentar DN ou elevar reservatório. NBR 12218.</div>`:''}
+      <div class="hyd-formula" style="margin-top:6px;font-size:10px;">P_baixo = Z_res − Z_baixo = ${cotaRes}−${cotaPontoBaixo??'—'} = ${P_baixo!==null?P_baixo.toFixed(1):'—'} mca (estática) · P_alto = Z_res − Z_alto − Hf = ${cotaRes}−${cotaPontoAlto??'—'}−${Hf.toFixed(1)} = ${P_alto!==null?P_alto.toFixed(1):'—'} mca (dinâmica)</div>`;
+  }else if(pressaoCard){
+    pressaoCard.style.display='none';
+  }
 
   // LCC (async — não bloqueia a renderização principal)
   renderLCC({DN,Qb,Hman,Hf,L,C,eta,N_h_dia:N,Pot_kw,series_dn}).catch(()=>{});

@@ -66,3 +66,101 @@ function materialOptions(selectedChw){
     `<option value="${k}" ${m.chw===selectedChw?'selected':''}>${m.chw} — ${m.label}</option>`
   ).join('');
 }
+
+// ══════════════════════════════════════════
+// TABELA DE CUSTOS ESTIMADOS — SINAPI / SABESP 2024
+// ══════════════════════════════════════════
+// Custos unitários de referência (material + assentamento/instalação).
+// Fonte: SINAPI / SABESP / FUNASA — valores médios para Nordeste/Sudeste 2024.
+// NOTA: apenas para estimativa de viabilidade — consultar orçamentista para projeto.
+// var (não const) para ser acessível em testes via vm.runInContext
+var TABELA_CUSTOS = {
+  // Adutora — custo por metro (R$/m) por DN nominal (mm).
+  // Inclui: material PVC/PEAD, escavação, assentamento, reaterro e berço de areia.
+  adutora_rm: {
+    50:180, 75:230, 100:290, 125:360, 150:450, 200:570,
+    250:720, 300:910, 350:1140, 400:1420, 450:1750, 500:2130,
+    600:3000, 700:4050, 800:5300, 900:6750, 1000:8400
+  },
+  // Rede de distribuição — custo por metro (R$/m) por DN nominal (mm)
+  rede_rm: {
+    50:160, 75:200, 100:260, 125:325, 150:405,
+    200:510, 250:645, 300:810, 350:995, 400:1200
+  },
+  // Reservatório de concreto armado elevado/apoiado — R$/m³ de volume
+  reservatorio_m3: 1800,
+  // ETA filtro rápido — R$/m² de área de filtração
+  eta_m2: 8500,
+  // ETE lagoa facultativa — R$/m³ de volume útil
+  ete_m3: 95,
+  // OPEX como fração do CAPEX por ano (tipicamente 3–5%)
+  opex_pct: 0.04,
+};
+
+/**
+ * Estima o custo total da adutora (material + assentamento).
+ * @param {number} DN_mm  - Diâmetro nominal (mm)
+ * @param {number} L_m    - Comprimento (m)
+ * @returns {number} custo em R$
+ */
+function estimarCustoAdutora(DN_mm, L_m) {
+  var tbl = TABELA_CUSTOS.adutora_rm;
+  var dnsDisp = Object.keys(tbl).map(Number).sort(function(a,b){return a-b;});
+  var dnKey = dnsDisp.find(function(d){return d>=DN_mm;}) || dnsDisp[dnsDisp.length-1];
+  return tbl[dnKey] * L_m;
+}
+
+/**
+ * Estima o custo total da rede de distribuição (material + assentamento).
+ * @param {number} DN_mm  - Diâmetro nominal (mm)
+ * @param {number} L_m    - Comprimento (m)
+ * @returns {number} custo em R$
+ */
+function estimarCustoRede(DN_mm, L_m) {
+  var tbl = TABELA_CUSTOS.rede_rm;
+  var dnsDisp = Object.keys(tbl).map(Number).sort(function(a,b){return a-b;});
+  var dnKey = dnsDisp.find(function(d){return d>=DN_mm;}) || dnsDisp[dnsDisp.length-1];
+  return tbl[dnKey] * L_m;
+}
+
+/**
+ * Formata valor em R$ com sufixo Mi / mil.
+ * @param {number} val - valor em R$
+ * @returns {string}
+ */
+function formatBRL(val) {
+  if(val >= 1e9) return 'R$ ' + (val/1e9).toFixed(2).replace('.',',') + ' Bi';
+  if(val >= 1e6) return 'R$ ' + (val/1e6).toFixed(2).replace('.',',') + ' Mi';
+  if(val >= 1e3) return 'R$ ' + (val/1e3).toFixed(0) + ' mil';
+  return 'R$ ' + Math.round(val).toLocaleString('pt-BR');
+}
+
+/**
+ * Calcula pressões estáticas em pontos extremos da rede de distribuição (Pré-EPANET).
+ * P_baixo = cota_reservatório − cota_ponto_mais_baixo  (pressão estática máxima)
+ * P_alto  = cota_reservatório − cota_ponto_mais_alto − Hf (pressão residual mínima)
+ * @param {number}      cotaRes   - Cota do nível do reservatório (m)
+ * @param {number|null} cotaBaixo - Cota do ponto mais baixo da rede (m), null se não informado
+ * @param {number|null} cotaAlto  - Cota do ponto mais alto da rede (m), null se não informado
+ * @param {number}      Hf        - Perda de carga total na adutora (m) — usada como estimativa conservadora
+ * @returns {{ P_baixo: number|null, P_alto: number|null }}
+ */
+function calcPressaoRede(cotaRes, cotaBaixo, cotaAlto, Hf) {
+  var P_baixo = cotaBaixo !== null ? cotaRes - cotaBaixo : null;
+  var P_alto  = cotaAlto  !== null ? cotaRes - cotaAlto - Hf : null;
+  return { P_baixo: P_baixo, P_alto: P_alto };
+}
+
+/**
+ * Calcula o tempo de esvaziamento do reservatório em cenário de racionamento.
+ * @param {number} V_m3          - Volume útil do reservatório (m³)
+ * @param {number} Q_captacao_ls - Vazão captável com a restrição aplicada (L/s)
+ * @param {number} Q_consumo_ls  - Vazão de consumo máximo no período (L/s)
+ * @returns {number} tempo de esvaziamento em horas (Infinity se captação ≥ consumo)
+ */
+function calcTempoEsvaziamento(V_m3, Q_captacao_ls, Q_consumo_ls) {
+  var deficit_ls = Q_consumo_ls - Q_captacao_ls;
+  if(deficit_ls <= 0) return Infinity;
+  // T_h = V(m³) × 1000(L/m³) / (déficit(L/s) × 3600(s/h))
+  return (V_m3 * 1000) / (deficit_ls * 3600);
+}
