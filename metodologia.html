@@ -1025,8 +1025,8 @@ Reflete a energia potencial da coluna d'água do reservatório até o ponto mais
   <h3>11.2 Pressão Residual</h3>
   <div class="formula-block">P_res = cota_reservatorio - cota_ponto_alto - hf    <span class="comment">[m.c.a.]</span>
 
-<span class="comment">Pressão disponível no ponto mais desfavoravel (maior cota) com a vazão de projeto escoando.
-hf = perda de carga calculada pelo metodo de Hazen-Williams (secao 4.2).</span></div>
+<span class="comment">Pressão disponível no ponto mais desfavorável (maior cota) com a vazão de projeto escoando.
+hf = perda de carga calculada pelo método de Hazen-Williams (seção 4.2).</span></div>
 
   <h3>11.3 Alertas Automáticos NBR 12218</h3>
   <div class="formula-block"><span class="comment">Alerta VRP (Válvula Redutora de Pressão):
@@ -1036,8 +1036,8 @@ Alerta de pressão insuficiente:
   Se P_res < 10 m.c.a. → pressão insuficiente no ponto alto da rede
 
 Limites NBR 12218:
-  Pressão minima residual:  10 m.c.a.
-  Pressão maxima estatica:  50 m.c.a.</span></div>
+  Pressão mínima residual:  10 m.c.a.
+  Pressão máxima estática:  50 m.c.a.</span></div>
 </div>
 
 <!-- ============================
@@ -1055,9 +1055,9 @@ Limites NBR 12218:
   V          = volume útil do reservatório [m³]
   Q_cons     = vazão de consumo (demanda) [m³/s]  = Q_md calculado na projeção
   Q_cap_red  = vazão captada reduzida [m³/s]      = Q_cap * (1 - pct/100)
-  pct        = percentual de reducao aplicado pelo slider (0–100 %)
+  pct        = percentual de redução aplicado pelo slider (0–100 %)
 
-Condicao:
+Condição:
   Se Q_cap_red >= Q_cons → sistema em equilibrio, T_esv = infinito (sem esvaziamento)
   Se Q_cap_red <  Q_cons → T_esv = V / (Q_cons - Q_cap_red)</span></div>
 
