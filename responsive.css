@@ -75,6 +75,10 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
   .dim-card { padding: 10px 12px; }
 
+  /* Workflow progress: hide text labels, show only numbered circles */
+  .wp-label { display: none; }
+  .wp-sep   { width: 12px; margin: 0 2px; }
+
   /* Network editor is hard to use on very small screens — show a notice */
   #rede-map-wrap::before {
     content: "⚠ O editor de rede é otimizado para telas maiores. Use em tablet ou desktop para melhor experiência.";
@@ -119,6 +123,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
 /* ── Tab bar: always scrollable on narrow screens ── */
 @media (max-width: 900px) {
   .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;          /* Firefox */
   }
