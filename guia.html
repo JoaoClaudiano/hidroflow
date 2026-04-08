@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HidroFlow — Guia de Uso e Glossário</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%231a4fd6' d='M12 2C8.5 7 5 12 5 16a7 7 0 0 0 14 0c0-4-3.5-9-7-14z'/></svg>">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="theme-color" content="#1a4fd6" media="(prefers-color-scheme: light)">
@@ -74,7 +74,7 @@
     margin-bottom: 0.6rem;
   }
   .module-icon {
-    font-size: 1.1rem;
+    display: inline-flex; align-items: center;
     line-height: 1;
   }
   .toc-grid {
@@ -318,7 +318,7 @@
      1. O QUE É O HIDROFLOW
 ======================== -->
 <div class="card guia-section" id="sec-visao">
-  <h2><span class="module-icon">💧</span> 1 — O que é o HidroFlow</h2>
+  <h2><span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.5 7 5 12 5 16a7 7 0 0 0 14 0c0-4-3.5-9-7-14z"/></svg></span> 1 — O que é o HidroFlow</h2>
   <p>
     O <strong>HidroFlow</strong> é uma ferramenta de suporte ao dimensionamento e análise de sistemas hidráulicos urbanos, desenvolvida como projeto acadêmico na Universidade Federal do Ceará (UFC) — Engenharia Civil.
   </p>
@@ -343,14 +343,14 @@
      2. MÓDULOS
 ======================== -->
 <div class="card guia-section" id="sec-modulos">
-  <h2><span class="module-icon">🧩</span> 2 — Módulos — entradas e resultados</h2>
+  <h2><span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span> 2 — Módulos — entradas e resultados</h2>
   <p style="margin-bottom:1rem;font-size:0.84rem;color:var(--text2);">Clique em cada módulo para expandir a explicação.</p>
 
   <!-- Projeção Populacional -->
   <div class="accordion-item" id="acc-projecao">
     <button class="accordion-header" onclick="toggleAccordion('acc-projecao')">
       <span class="accordion-header-left">
-        <span class="module-icon">👥</span>
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
         Projeção Populacional
         <span class="nbr-badge">NBR 12.211</span>
       </span>
@@ -393,7 +393,7 @@
   <div class="accordion-item" id="acc-aducao">
     <button class="accordion-header" onclick="toggleAccordion('acc-aducao')">
       <span class="accordion-header-left">
-        <span class="module-icon">🔧</span>
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
         SAA — Adução e Elevatórias
         <span class="nbr-badge">NBR 12.218</span>
       </span>
@@ -429,7 +429,7 @@
   <div class="accordion-item" id="acc-reservatorio">
     <button class="accordion-header" onclick="toggleAccordion('acc-reservatorio')">
       <span class="accordion-header-left">
-        <span class="module-icon">🏗️</span>
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
         SAA — Reservatório
         <span class="nbr-badge">NBR 12.217</span>
       </span>
@@ -457,7 +457,7 @@
   <div class="accordion-item" id="acc-esgoto">
     <button class="accordion-header" onclick="toggleAccordion('acc-esgoto')">
       <span class="accordion-header-left">
-        <span class="module-icon">🚰</span>
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h3v12H3z"/><path d="M6 10h10a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6"/><path d="M18 10h1a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-1"/></svg></span>
         SES — Esgotamento Sanitário
         <span class="nbr-badge">NBR 9649</span>
       </span>
@@ -487,7 +487,7 @@
   <div class="accordion-item" id="acc-hardy">
     <button class="accordion-header" onclick="toggleAccordion('acc-hardy')">
       <span class="accordion-header-left">
-        <span class="module-icon">🕸️</span>
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="6" y2="17"/><line x1="12" y1="12" x2="18" y2="17"/></svg></span>
         Rede de Distribuição (Hardy-Cross)
         <span class="nbr-badge">NBR 12.218</span>
       </span>
@@ -526,7 +526,7 @@
   <div class="accordion-item" id="acc-ariete">
     <button class="accordion-header" onclick="toggleAccordion('acc-ariete')">
       <span class="accordion-header-left">
-        <span class="module-icon">⚡</span>
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
         Golpe de Aríete
         <span class="nbr-badge">NBR 5648</span>
       </span>
@@ -566,7 +566,7 @@
   <div class="accordion-item" id="acc-custos">
     <button class="accordion-header" onclick="toggleAccordion('acc-custos')">
       <span class="accordion-header-left">
-        <span class="module-icon">💰</span>
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><path d="M14.5 9.5a2.5 2.5 0 0 0-5 0c0 2.5 5 2.5 5 5a2.5 2.5 0 0 1-5 0"/></svg></span>
         Estimativa de Custos — CAPEX / OPEX
         <span class="nbr-badge">SINAPI 2024</span>
       </span>
@@ -592,7 +592,7 @@
   <div class="accordion-item" id="acc-pressao">
     <button class="accordion-header" onclick="toggleAccordion('acc-pressao')">
       <span class="accordion-header-left">
-        <span class="module-icon">🗺️</span>
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
         Mapa de Pressão Pré-EPANET
         <span class="nbr-badge">NBR 12.218</span>
       </span>
@@ -623,7 +623,7 @@
   <div class="accordion-item" id="acc-bombas">
     <button class="accordion-header" onclick="toggleAccordion('acc-bombas')">
       <span class="accordion-header-left">
-        <span class="module-icon">⚡</span>
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
         Biblioteca de Bombas Padrão
       </span>
       <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -633,7 +633,7 @@
       <h4>Como usar</h4>
       <ul>
         <li>Selecione um modelo na lista suspensa "Biblioteca de Bombas Padrão" e clique em <strong>"Carregar"</strong> para preencher a curva Q × H.</li>
-        <li>Ou clique em <strong>"⚡ Sugerir bomba para adução"</strong> para que o sistema selecione automaticamente o modelo mais adequado com base na Hm e na Q calculadas na aba Adução.</li>
+        <li>Ou clique em <strong>"Sugerir bomba para adução"</strong> para que o sistema selecione automaticamente o modelo mais adequado com base na Hm e na Q calculadas na aba Adução.</li>
         <li>A função <code>interpBombaCurva()</code> interpola linearmente os pontos da curva para encontrar a altura manométrica em qualquer vazão.</li>
       </ul>
       <h4>Entradas da curva do sistema</h4>
@@ -649,7 +649,7 @@
   <div class="accordion-item" id="acc-racionamento">
     <button class="accordion-header" onclick="toggleAccordion('acc-racionamento')">
       <span class="accordion-header-left">
-        <span class="module-icon">🚱</span>
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></span>
         Simulação de Racionamento — Resiliência Hídrica
       </span>
       <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -678,7 +678,7 @@
   <div class="accordion-item" id="acc-hidroweb">
     <button class="accordion-header" onclick="toggleAccordion('acc-hidroweb')">
       <span class="accordion-header-left">
-        <span class="module-icon">🌊</span>
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M2 17c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/></svg></span>
         Alerta Climático — HidroWeb / ANA (Q95)
         <span class="nbr-badge">Experimental</span>
       </span>
@@ -704,7 +704,7 @@
   <div class="accordion-item" id="acc-infra">
     <button class="accordion-header" onclick="toggleAccordion('acc-infra')">
       <span class="accordion-header-left">
-        <span class="module-icon">📐</span>
+        <span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="3 20 12 4 21 20"/><line x1="7" y1="14" x2="17" y2="14"/></svg></span>
         Dimensionamento de Infraestrutura
         <span class="nbr-badge">NBR 12.211 / FUNASA</span>
       </span>
@@ -732,7 +732,7 @@
      3. ALERTAS E CORES
 ======================== -->
 <div class="card guia-section" id="sec-alertas">
-  <h2><span class="module-icon">🚦</span> 3 — Interpretando alertas e cores</h2>
+  <h2><span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="7" y="2" width="10" height="18" rx="2"/><circle cx="12" cy="7" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="17" r="2"/></svg></span> 3 — Interpretando alertas e cores</h2>
   <p>Os resultados do HidroFlow são apresentados com indicadores visuais para facilitar a leitura:</p>
 
   <div class="hint-box green" style="margin-top:1rem;">
@@ -770,7 +770,7 @@
      4. GLOSSÁRIO
 ======================== -->
 <div class="card guia-section" id="sec-glossario">
-  <h2><span class="module-icon">📖</span> 4 — Glossário de termos</h2>
+  <h2><span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span> 4 — Glossário de termos</h2>
   <p style="margin-bottom:0.8rem;font-size:0.84rem;color:var(--text2);">Termos em ordem alfabética.</p>
   <table class="gloss-table">
     <thead>
@@ -818,7 +818,7 @@
      5. PRESSÕES
 ======================== -->
 <div class="card guia-section" id="sec-pressoes">
-  <h2><span class="module-icon">🌡️</span> 5 — Pressões em sistemas de abastecimento</h2>
+  <h2><span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></span> 5 — Pressões em sistemas de abastecimento</h2>
 
   <p style="font-size:0.84rem;color:var(--text2);margin-bottom:1rem;">
     Compreender os tipos de pressão é fundamental para interpretar corretamente os resultados do HidroFlow e os limites normativos. As pressões em redes de água são <strong>quase sempre expressas como pressão relativa</strong>, em m.c.a. ou kPa, porque o que importa ao engenheiro é a força da água em relação ao ambiente — e não ao vácuo.
@@ -850,7 +850,7 @@
   </table>
 
   <div class="alert-note" style="margin-bottom:1rem;">
-    💡 <strong>Regra prática:</strong> quando alguém diz que "a pressão da rua está fraca", está falando de pressão <em>relativa</em>. Se a pressão relativa for zero, a água não sai do cano — mesmo que a pressão atmosférica esteja normal, pois ela age igualmente dentro e fora da tubulação.
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> <strong>Regra prática:</strong> quando alguém diz que "a pressão da rua está fraca", está falando de pressão <em>relativa</em>. Se a pressão relativa for zero, a água não sai do cano — mesmo que a pressão atmosférica esteja normal, pois ela age igualmente dentro e fora da tubulação.
   </div>
 
   <h3>Por que a pressão barométrica "some" dos cálculos de rede?</h3>
@@ -899,7 +899,7 @@
   </table>
 
   <div class="alert-note">
-    💡 O HidroFlow verifica automaticamente os limites da <strong>NBR 12218</strong> (rede pública) no módulo de Hardy-Cross e no módulo de Adução. Nós com pressão abaixo de 10 mca são sinalizados em vermelho; entre 40–50 mca, em amarelo; acima de 50 mca, em vermelho crítico (instalar VRP — válvula redutora de pressão).
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> O HidroFlow verifica automaticamente os limites da <strong>NBR 12218</strong> (rede pública) no módulo de Hardy-Cross e no módulo de Adução. Nós com pressão abaixo de 10 mca são sinalizados em vermelho; entre 40–50 mca, em amarelo; acima de 50 mca, em vermelho crítico (instalar VRP — válvula redutora de pressão).
   </div>
 </div>
 
@@ -907,7 +907,7 @@
      6. EXPORTAÇÃO EPANET
 ======================== -->
 <div class="card guia-section" id="sec-epanet">
-  <h2><span class="module-icon">📤</span> 6 — Exportação para EPANET</h2>
+  <h2><span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span> 6 — Exportação para EPANET</h2>
   <p>O HidroFlow pode exportar a rede de distribuição desenhada no editor gráfico para o formato <strong>.INP</strong>, aceito pelo EPANET — o simulador hidráulico oficial da US EPA (Agência de Proteção Ambiental dos EUA), amplamente utilizado em todo o mundo.</p>
   <h3>O que é possível fazer no EPANET que o HidroFlow não faz?</h3>
   <ul>
@@ -938,7 +938,7 @@
      7. REFERÊNCIAS BIBLIOGRÁFICAS
 ======================== -->
 <div class="card guia-section" id="sec-refs">
-  <h2><span class="module-icon">📚</span> 7 — Referências Bibliográficas</h2>
+  <h2><span class="module-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span> 7 — Referências Bibliográficas</h2>
   <p style="margin-bottom:1rem;font-size:0.84rem;color:var(--text2);">
     Para as equações e fundamentos matemáticos completos, consulte a <a href="metodologia.html" style="color:var(--accent);">Metodologia</a>. As normas e publicações a seguir embasam os módulos do HidroFlow.
   </p>
@@ -974,7 +974,7 @@
   </ul>
 
   <div class="alert-note" style="margin-top:1.2rem;">
-    📄 Para o memorial de cálculo completo com equações e demonstrações matemáticas, acesse a <a href="metodologia.html" style="color:var(--accent);">Metodologia</a>. O código-fonte está disponível em <strong>github.com/JoaoClaudiano/hidroflow</strong>.
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Para o memorial de cálculo completo com equações e demonstrações matemáticas, acesse a <a href="metodologia.html" style="color:var(--accent);">Metodologia</a>. O código-fonte está disponível em <strong>github.com/JoaoClaudiano/hidroflow</strong>.
   </div>
 </div>
 
@@ -1012,7 +1012,7 @@ updateThemeIcon();
   <div class="footer-inner">
     <div class="footer-brand">
       <a href="index.html" class="footer-logo">
-        <span>💧</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--accent)" aria-hidden="true"><path d="M12 2C8.5 7 5 12 5 16a7 7 0 0 0 14 0c0-4-3.5-9-7-14z"/></svg>
         <span class="footer-logo-name">HidroFlow</span>
       </a>
       <p class="footer-desc">
