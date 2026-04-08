@@ -81,6 +81,17 @@ function updateSlider(tipo){
   if(state.projData?.length)calcAducao();
 }
 
+function renderAnaliseSensibilidade(popBase,p){
+  var cenarios=[-0.2,-0.1,0,0.1,0.2];
+  var rows=cenarios.map(function(delta){
+    var pop=Math.round(popBase*(1+delta));
+    var v=calcInfra(pop,p);
+    var label=delta===0?'Base (0%)':'('+(delta>0?'+':'')+(delta*100).toFixed(0)+'%)';
+    return '<tr'+(delta===0?' class="highlight"':'')+'><td>'+label+'</td><td>'+pop.toLocaleString('pt-BR')+'</td><td>'+(v.QK1).toFixed(2)+'</td><td>'+(v.QK2).toFixed(2)+'</td><td>'+Math.round(v.vol_res_m3).toLocaleString('pt-BR')+'</td><td>'+Math.round(v.m3dia).toLocaleString('pt-BR')+'</td></tr>';
+  });
+  return '<table class="tbl"><thead><tr><th>Cenario</th><th>Pop (hab)</th><th>QK1 (L/s)</th><th>QK2 (L/s)</th><th>Vol.Res (m3)</th><th>Demanda (m3/dia)</th></tr></thead><tbody>'+rows.join('')+'</tbody></table>';
+}
+
 function setInfraAno(idx,btn){
   state.infraAnoIdx=idx;
   document.querySelectorAll('#infra-anos .btn').forEach(b=>b.classList.remove('btn-primary'));
@@ -127,8 +138,12 @@ function renderDimensionamento(){
       ${p.extra1Nome&&p.extra1Val>0?`<div class="infra-card green">${ic(SVG_FLOW,'green')}<div class="infra-title">${p.extra1Nome}</div><div class="infra-value">${p.extra1Val.toFixed(2)}</div><div class="infra-unit">L/s (fixo)</div></div>`:''}
     </div>`;
 
+  var sensEl=document.getElementById('sensibilidade-table');
+  if(sensEl)sensEl.innerHTML=renderAnaliseSensibilidade(pop,p);
   renderObras(pop,v,p,ano);
   renderChartDemanda(p);
+  agendarAutoSave();
+  atualizarProgressoFluxo();
 }
 
 function renderObras(pop,v,p,ano){

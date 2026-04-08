@@ -46,10 +46,18 @@ const PRECACHE_URLS = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './data/tarifas-aneel.json',
+  './guia.html',
+  './novidades.html',
+  './disclaimer.html',
+  './js/pdf.js',
+  './js/worker-hardy-cross.js',
+  './js/avancados.js',
 ];
 
 /* External CDN resources cached on first use */
 const CDN_CACHE = 'hidroflow-cdn';
+
+var MAX_CDN_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 const CDN_ORIGINS = [
   'cdnjs.cloudflare.com',
@@ -77,6 +85,25 @@ self.addEventListener('activate', (event) => {
           .map((k) => caches.delete(k))
       )
     ).then(() => self.clients.claim())
+    .then(() => {
+      // BACKGROUND_SYNC: Future enhancement - use Background Sync API for offline save queuing
+      // Clear CDN cache entries older than 7 days
+      return caches.open(CDN_CACHE).then((cache) =>
+        cache.keys().then((keys) =>
+          Promise.all(keys.map((req) =>
+            cache.match(req).then((res) => {
+              if(!res) return cache.delete(req);
+              var dateHeader = res.headers.get('date');
+              if(dateHeader){
+                var age = Date.now() - new Date(dateHeader).getTime();
+                if(age > MAX_CDN_AGE_MS) return cache.delete(req);
+              }
+              return Promise.resolve();
+            })
+          ))
+        )
+      );
+    })
   );
 });
 

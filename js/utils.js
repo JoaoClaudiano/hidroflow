@@ -164,3 +164,18 @@ function calcTempoEsvaziamento(V_m3, Q_captacao_ls, Q_consumo_ls) {
   // T_h = V(m³) × 1000(L/m³) / (déficit(L/s) × 3600(s/h))
   return (V_m3 * 1000) / (deficit_ls * 3600);
 }
+
+function validarCampoNumerico(el,min,max,unidade){
+  var v=parseFloat(el.value);
+  el.classList.remove('input-error','input-ok');
+  var msg=el.nextElementSibling;
+  if(!msg||!msg.classList.contains('campo-hint')){
+    msg=document.createElement('span');
+    msg.className='campo-hint';
+    el.parentNode.insertBefore(msg,el.nextSibling);
+  }
+  if(isNaN(v)){el.classList.add('input-error');msg.textContent='Valor invalido';msg.style.color='var(--red)';return false;}
+  if(min!==null&&v<min){el.classList.add('input-error');msg.textContent='Min: '+min+(unidade?' '+unidade:'');msg.style.color='var(--red)';return false;}
+  if(max!==null&&v>max){el.classList.add('input-error');msg.textContent='Max: '+max+(unidade?' '+unidade:'');msg.style.color='var(--red)';return false;}
+  el.classList.add('input-ok');msg.textContent='';return true;
+}

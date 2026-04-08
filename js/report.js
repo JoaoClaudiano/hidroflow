@@ -294,3 +294,30 @@ function exportarExcel(){
     alert('Erro ao gerar o arquivo Excel: '+err.message);
   }
 }
+
+function gerarURLCompartilhamento(){
+  var data={municipioNome:state.municipioNome,municipioCod:state.municipioCod,municipioUF:state.municipioUF,censosRaw:state.censosRaw,bestModel:state.bestModel,r2:state.r2,coefs:state.coefs,projData:state.projData,config:state.config};
+  try{
+    var json=JSON.stringify(data);
+    var encoded=btoa(unescape(encodeURIComponent(json)));
+    window.location.hash='share='+encoded;
+    var url=window.location.href;
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){alert('Link copiado para a area de transferencia!\n\n'+url);}).catch(function(){alert('Link gerado:\n\n'+url);});
+    } else {
+      alert('Link gerado:\n\n'+url);
+    }
+  }catch(e){alert('Erro ao gerar link: '+e.message);}
+}
+
+function carregarDeURL(){
+  var hash=window.location.hash;
+  if(!hash||hash.indexOf('share=')!==1)return;
+  var encoded=hash.slice(7);
+  if(!encoded)return;
+  try{
+    var json=decodeURIComponent(escape(atob(encoded)));
+    var data=JSON.parse(json);
+    if(data.municipioNome)Object.assign(state,{municipioNome:data.municipioNome,municipioCod:data.municipioCod||'',municipioUF:data.municipioUF||'',censosRaw:data.censosRaw||null,bestModel:data.bestModel||'geometrico',r2:data.r2||state.r2,coefs:data.coefs||state.coefs,projData:data.projData||[],config:data.config||state.config});
+  }catch(e){console.warn('carregarDeURL: parse error',e);}
+}

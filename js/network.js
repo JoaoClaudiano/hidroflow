@@ -8,6 +8,25 @@ const redeState = {
   layers: { nodes: {}, pipes: {} },
   calculated: false
 };
+redeState.history = [];
+redeState.maxHistory = 30;
+
+function _pushUndo(){
+  redeState.history.push({nodes:JSON.parse(JSON.stringify(redeState.nodes)),pipes:JSON.parse(JSON.stringify(redeState.pipes))});
+  if(redeState.history.length>redeState.maxHistory)redeState.history.shift();
+}
+
+function undoRede(){
+  if(!redeState.history.length){showRedeToast('Sem acoes para desfazer');return;}
+  var snap=redeState.history.pop();
+  Object.values(redeState.layers.nodes).forEach(function(l){l.remove();});
+  Object.values(redeState.layers.pipes).forEach(function(l){l.remove();});
+  redeState.layers.nodes={};redeState.layers.pipes={};
+  redeState.nodes=snap.nodes;redeState.pipes=snap.pipes;
+  redeState.nodes.forEach(function(n){renderNode(n);});
+  redeState.pipes.forEach(function(p){renderPipe(p);});
+  updateRedeStatus('Acao desfeita. Historico restante: '+redeState.history.length);
+}
 
 function initRede(){
   _initInfoTip();
@@ -93,6 +112,7 @@ function nodeIcon(type, color, selected){
 }
 
 function addNode(latlng){
+  _pushUndo();
   const id = uid('N');
   const node = {
     id, type: redeState.nodeType,
@@ -165,6 +185,7 @@ function findNearestNode(latlng, pixelThreshold){
 }
 
 function addPipe(fromId, toId){
+  _pushUndo();
   const existing = redeState.pipes.find(p=>(p.from===fromId&&p.to===toId)||(p.from===toId&&p.to===fromId));
   if(existing){ updateRedeStatus('Trecho já existe entre esses nós.'); return; }
   const id = uid('P');
@@ -301,6 +322,7 @@ function selectElement(type, id){
 }
 
 function applyEdit(){
+  _pushUndo();
   if(!redeState.selectedId) return;
   const {type, id} = redeState.selectedId;
   const wasCalc = redeState.calculated;
@@ -329,6 +351,7 @@ function applyEdit(){
 }
 
 function deleteSelected(){
+  _pushUndo();
   if(!redeState.selectedId) return;
   const {type, id} = redeState.selectedId;
   redeState.selectedId = null;
@@ -349,6 +372,7 @@ function deleteSelected(){
 }
 
 function clearRede(){
+  _pushUndo();
   if(!confirm('Limpar toda a rede?')) return;
   redeState.nodes.forEach(n=>{if(redeState.layers.nodes[n.id])redeState.layers.nodes[n.id].remove();});
   redeState.pipes.forEach(p=>{if(redeState.layers.pipes[p.id])redeState.layers.pipes[p.id].remove();});
@@ -370,6 +394,28 @@ function hwHeadloss(R, Q){
 }
 
 function runHardyCross(){
+  if(typeof Worker !== 'undefined'){
+    try{
+      var worker=new Worker('js/worker-hardy-cross.js');
+      worker.onmessage=function(e){
+        if(e.data.error){showRedeToast(e.data.error);worker.terminate();_runHardyCrossSync();return;}
+        e.data.nodes.forEach(function(wn){var n=redeState.nodes.find(function(x){return x.id===wn.id;});if(n)Object.assign(n,wn);});
+        e.data.pipes.forEach(function(wp){var p=redeState.pipes.find(function(x){return x.id===wp.id;});if(p)Object.assign(p,wp);});
+        redeState.calculated=true;
+        redeState.nodes.forEach(function(n){renderNode(n);});
+        redeState.pipes.forEach(function(p){renderPipe(p);});
+        renderRedeResults(e.data.iters,e.data.nLoops);
+        worker.terminate();
+      };
+      worker.onerror=function(){worker.terminate();_runHardyCrossSync();};
+      worker.postMessage({nodes:JSON.parse(JSON.stringify(redeState.nodes)),pipes:JSON.parse(JSON.stringify(redeState.pipes))});
+      return;
+    }catch(e){/* fallback */}
+  }
+  _runHardyCrossSync();
+}
+
+function _runHardyCrossSync(){
   const nodes = redeState.nodes;
   const pipes = redeState.pipes;
 
@@ -390,7 +436,7 @@ function runHardyCross(){
     if(junctions.length > 0){
       const qPerNode = Qmed_Ls / junctions.length;
       junctions.forEach(n=>{ n.demand = +qPerNode.toFixed(4); });
-      updateRedeStatus(`Demanda distribuída automaticamente: ${Qmed_Ls.toFixed(3)} L/s total (${junctions.length} nós × ${qPerNode.toFixed(3)} L/s)`);
+      updateRedeStatus('Demanda distribuída automaticamente: '+Qmed_Ls.toFixed(3)+' L/s total ('+junctions.length+' nós x '+qPerNode.toFixed(3)+' L/s)');
     }
   }
 
@@ -441,7 +487,7 @@ function runHardyCross(){
   redeState.nodes.forEach(renderNode);
   redeState.pipes.forEach(renderPipe);
   renderRedeResults(iter, loops.length);
-  addAudit(`Hardy-Cross: ${pipes.length} trechos, ${nodes.length} nós, ${iter} iter`);
+  addAudit('Hardy-Cross: '+pipes.length+' trechos, '+nodes.length+' nós, '+iter+' iter');
 }
 
 function initFlows(nodes, pipes, source){

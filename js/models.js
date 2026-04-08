@@ -212,6 +212,8 @@ function calcularBestFit(){
   document.getElementById('cmp-a-nome').textContent=state.municipioNome;
   document.getElementById('cmp-a-pop').textContent=`Pop. ${d[d.length-1].ano}: ${d[d.length-1].pop.toLocaleString('pt-BR')} hab`;
   addAudit(`Best Fit: ${modelLabel[state.bestModel]} R²=${(state.r2[state.bestModel]*100).toFixed(1)}%`);
+  agendarAutoSave();
+  atualizarProgressoFluxo();
 }
 
 function confiabilidadeLabel(r2,loo){
