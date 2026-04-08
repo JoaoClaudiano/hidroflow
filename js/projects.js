@@ -6,6 +6,9 @@
 const _PROJ_PREFIX = 'projecaopop_';
 const _QUOTA_WARN_BYTES = 4 * 1024 * 1024; // warn at ~4 MB used
 
+var _AUTO_SAVE_KEY = 'hidroflow_autosave';
+var _autoSaveTimer = null;
+
 /** Estimate current localStorage usage in bytes. */
 function _lsUsedBytes() {
   let total = 0;
@@ -123,3 +126,33 @@ function carregarProjeto(key){
 }
 
 function excluirProjeto(key){if(!confirm('Excluir este projeto?'))return;localStorage.removeItem(key);renderProjetosSalvos();}
+
+function autoSalvarProjeto(){
+  var snap={ts:Date.now(),municipioNome:state.municipioNome,municipioCod:state.municipioCod,municipioUF:state.municipioUF,censosData:state.censosData,bestModel:state.bestModel,r2:state.r2,coefs:state.coefs,projData:state.projData,censosRaw:state.censosRaw,K:state.K,config:state.config,infraAnos:state.infraAnos};
+  try{localStorage.setItem(_AUTO_SAVE_KEY,JSON.stringify(snap));}catch(e){return;}
+  addAudit('Auto-save realizado');
+  var el=document.getElementById('autosave-toast');
+  if(!el){el=document.createElement('div');el.id='autosave-toast';el.style.cssText='position:fixed;bottom:16px;right:16px;background:var(--accent);color:#fff;padding:6px 14px;border-radius:var(--radius);font-size:11px;font-family:var(--mono);z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;';document.body.appendChild(el);}
+  el.textContent='Auto-save realizado';el.style.opacity='1';
+  clearTimeout(el._t);el._t=setTimeout(function(){el.style.opacity='0';},2000);
+}
+
+function agendarAutoSave(){
+  clearTimeout(_autoSaveTimer);
+  _autoSaveTimer=setTimeout(autoSalvarProjeto,3000);
+}
+
+function restaurarAutoSave(){
+  var raw=null;
+  try{raw=localStorage.getItem(_AUTO_SAVE_KEY);}catch(e){alert('Erro ao ler auto-save: '+e.message);return;}
+  if(!raw){alert('Nenhum auto-save encontrado.');return;}
+  var p=null;
+  try{p=JSON.parse(raw);}catch(e){alert('Auto-save corrompido.');return;}
+  try{
+    Object.assign(state,{censosData:p.censosData,municipioNome:p.municipioNome,municipioCod:p.municipioCod,municipioUF:p.municipioUF,bestModel:p.bestModel,r2:p.r2||state.r2,coefs:p.coefs||state.coefs,projData:p.projData||[],censosRaw:p.censosRaw||null,K:p.K||null,config:p.config||state.config,infraAnos:p.infraAnos||state.infraAnos});
+    renderCensusRows();
+    addAudit('Auto-save restaurado');
+    alert('Auto-save restaurado de '+new Date(p.ts).toLocaleString('pt-BR'));
+    showTab('dados',document.querySelectorAll('.tab')[1]);
+  }catch(e){alert('Erro ao restaurar auto-save: '+e.message);}
+}

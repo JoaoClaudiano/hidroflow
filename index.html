@@ -81,7 +81,26 @@
 <script>(function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
 <body>
-<div class="app">
+<a href="#main-content" class="skip-link">Ir para o conteudo principal</a>
+<!-- GUIDED TOUR MODAL -->
+<div id="modal-tour" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="tour-title">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-title" id="tour-title">Bem-vindo ao HidroFlow</div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px;">Ferramenta gratuita para dimensionamento de Sistemas de Abastecimento de Agua conforme ABNT NBR 12.211.</p>
+    <ol style="font-size:12px;color:var(--text2);line-height:1.9;font-family:var(--mono);padding-left:18px;margin:0 0 12px;">
+      <li><strong>Dados &amp; Best Fit</strong> &mdash; Insira os censos IBGE e calcule o melhor modelo de crescimento.</li>
+      <li><strong>Projecao + Envelope</strong> &mdash; Projete a populacao ate o ano horizonte com intervalos de confianca.</li>
+      <li><strong>Dimensionamento</strong> &mdash; Calcule vazoes, volumes de reservatorio e obras necessarias.</li>
+      <li><strong>Aducao</strong> &mdash; Dimensione tubulacoes, bombas e verifique golpe de ariete.</li>
+      <li><strong>Relatorio</strong> &mdash; Gere o memorial de calculo completo em PDF.</li>
+    </ol>
+    <div style="display:flex;gap:8px;margin-top:1rem;">
+      <button class="btn btn-primary" onclick="fecharTour()">Comecar</button>
+      <button class="btn" onclick="fecharTour()">Pular</button>
+    </div>
+  </div>
+</div>
+<div class="app" id="main-content" role="main">
 
 <!-- HEADER -->
 <div class="topbar">
@@ -91,7 +110,7 @@
   </div>
   <div class="topbar-right">
     <span class="version-badge" id="responsavel-badge">Responsável: —</span>
-    <button class="btn btn-sm btn-icon-only" id="theme-toggle" onclick="toggleTheme()" title="Alternar tema claro/escuro">
+    <button class="btn btn-sm btn-icon-only" id="theme-toggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">
       <svg id="theme-icon-sun" class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       <svg id="theme-icon-moon" class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
@@ -107,7 +126,7 @@
       <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       Configurações
     </button>
-    <button class="btn btn-sm btn-primary" onclick="salvarProjeto()">
+    <button class="btn btn-sm btn-primary" onclick="salvarProjeto()" title="Salvar projeto (Ctrl+S)">
       <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
       Salvar projeto
     </button>
@@ -130,7 +149,20 @@
 </div>
 
 <!-- TABS -->
-<div class="tabs">
+<!-- WORKFLOW PROGRESS -->
+<div class="workflow-progress" id="workflow-progress" aria-label="Progresso do fluxo de trabalho" role="progressbar">
+  <div class="wp-step" id="wp-1" title="Dados censo"><span class="wp-circle">1</span><span class="wp-label">Dados</span></div>
+  <div class="wp-sep"></div>
+  <div class="wp-step" id="wp-2" title="Best Fit"><span class="wp-circle">2</span><span class="wp-label">Best Fit</span></div>
+  <div class="wp-sep"></div>
+  <div class="wp-step" id="wp-3" title="Projecao"><span class="wp-circle">3</span><span class="wp-label">Projecao</span></div>
+  <div class="wp-sep"></div>
+  <div class="wp-step" id="wp-4" title="Infra"><span class="wp-circle">4</span><span class="wp-label">Infra</span></div>
+  <div class="wp-sep"></div>
+  <div class="wp-step" id="wp-5" title="Relatorio"><span class="wp-circle">5</span><span class="wp-label">Relatorio</span></div>
+</div>
+<!-- TABS -->
+<div class="tabs" role="tablist" aria-label="Abas principais">
   <button class="tab" onclick="showTab('decisao',this)">
     <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Diagnóstico & Decisão
   </button>
@@ -267,7 +299,9 @@
       <div><label>Taxa otimista (%/ano)</label><input type="number" id="env-otim" value="3.2" step="0.1" oninput="if(state.projData?.length)projetarEEnvelope()"></div>
     </div>
     <button class="btn btn-primary" onclick="projetarEEnvelope()">Projetar + Gerar Envelope</button>
+    <button class="btn btn-sm" onclick="adicionarCenarioAlternativo()" style="margin-left:8px;">Comparar cenarios</button>
   </div>
+  <div id="cenario-alternativo"></div>
   <div id="proj-result" style="display:none;">
     <div id="proj-cards" class="grid-4" style="margin-bottom:1rem;"></div>
     <div id="conf-horizonte" style="margin-bottom:1rem;"></div>
@@ -315,7 +349,7 @@
     <div id="custom-params" class="custom-param" style="display:none;margin-top:10px;">
       <div class="custom-param-title">Parâmetros personalizados — sobrescrevem os sliders acima se preenchidos</div>
       <div class="grid-3">
-        <div><label>Água per capita (L/hab/dia)</label><input type="number" id="cp-agua" placeholder="Ex: 350" min="1" step="1"></div>
+        <div><label>Água per capita (L/hab/dia)</label><input type="number" id="cp-agua" placeholder="Ex: 350" min="1" step="1" oninput="validarCampoNumerico(this,0.1,null,'L/hab/dia')"></div>
         <div><label>Retorno esgoto (%)</label><input type="number" id="cp-esgoto" placeholder="Ex: 92" min="1" max="100" step="1"></div>
         <div><label>Resíduos (kg/hab/dia)</label><input type="number" id="cp-residuos" placeholder="Ex: 2.0" min="0.01" step="0.01"></div>
         <div><label>Energia (kWh/hab/mês)</label><input type="number" id="cp-energia" placeholder="Ex: 600" min="1" step="1"></div>
@@ -328,9 +362,9 @@
     <div class="separator"></div>
     <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Coeficientes de ponta (NBR 12211 / FUNASA)</div>
     <div class="grid-3">
-      <div><label>K1 — dia de maior consumo</label><input type="number" id="k1" value="1.2" step="0.01" min="1" max="1.5" oninput="renderDimensionamento()"></div>
-      <div><label>K2 — hora de maior consumo</label><input type="number" id="k2" value="1.5" step="0.01" min="1" max="2" oninput="renderDimensionamento()"></div>
-      <div><label>K3 — hora de menor consumo</label><input type="number" id="k3" value="0.5" step="0.01" min="0.1" max="1" oninput="renderDimensionamento()"></div>
+      <div><label>K1 — dia de maior consumo</label><input type="number" id="k1" value="1.2" step="0.01" min="1" max="1.5" oninput="renderDimensionamento();validarCampoNumerico(this,1.0,1.5,'K1')"></div>
+      <div><label>K2 — hora de maior consumo</label><input type="number" id="k2" value="1.5" step="0.01" min="1" max="2" oninput="renderDimensionamento();validarCampoNumerico(this,1.2,2.5,'K2')"></div>
+      <div><label>K3 — hora de menor consumo</label><input type="number" id="k3" value="0.5" step="0.01" min="0.1" max="1" oninput="renderDimensionamento();validarCampoNumerico(this,0.3,0.7,'K3')"></div>
     </div>
 
     <!-- OPÇÕES AVANÇADAS — ESGOTO -->
@@ -439,6 +473,13 @@
     <div class="card-title">Dimensionamento de obras — output de projeto</div>
     <div id="dim-display">
       <div class="alert alert-info">Execute a Projeção + Envelope para gerar o dimensionamento completo.</div>
+    </div>
+    <details style="margin-top:12px;">
+      <summary style="cursor:pointer;font-weight:600;font-size:12px;font-family:var(--mono);color:var(--text2);">Analise de Sensibilidade (+/-20%)</summary>
+      <div id="sensibilidade-table" style="margin-top:8px;overflow-x:auto;"></div>
+    </details>
+    <div style="margin-top:10px;">
+      <button class="btn btn-sm" onclick="exportarExcel()">Exportar Excel</button>
     </div>
   </div>
 
@@ -727,7 +768,10 @@
             <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><polyline points="10 4 4 4 4 10"/><polyline points="14 20 20 20 20 14"/></svg> Medir
           </button>
           <div style="width:1px;height:20px;background:var(--border2);margin:0 4px;"></div>
-          <button class="btn btn-sm btn-danger" onclick="deleteSelected()" title="Apagar selecionado">
+          <button class="btn btn-sm" onclick="undoRede()" id="btn-undo-rede" title="Desfazer ultima acao (Ctrl+Z)" aria-label="Desfazer">
+            <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/></svg>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteSelected()" title="Apagar selecionado" aria-label="Apagar selecionado">
             <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
           </button>
           <button class="btn btn-sm" onclick="clearRede()" title="Limpar tudo">Limpar</button>
@@ -952,9 +996,11 @@
       <button class="btn" onclick="copiarRelatorio()">Copiar texto</button>
       <button class="btn" onclick="exportarCSV()">Exportar CSV</button>
       <button class="btn" onclick="exportarExcel()" title="Exportar para Excel (.xlsx) com SheetJS">
-        <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
         Exportar Excel
       </button>
+      <button class="btn" onclick="gerarPDFTemplate()" title="PDF com layout tecnico pre-formatado">PDF Modelo Tecnico</button>
+      <button class="btn" onclick="gerarURLCompartilhamento()">Copiar link</button>
     </div>
     <p style="font-size:11px;color:var(--text3);margin-top:8px;font-family:var(--mono);">Ctrl+P → "Salvar como PDF" para layout otimizado A4.</p>
   </div>
@@ -984,6 +1030,9 @@
   <div class="card">
     <div class="card-title">Projetos salvos localmente</div>
     <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:14px;">Armazenados no navegador via localStorage.</p>
+    <div style="margin-bottom:12px;">
+      <button class="btn btn-sm" onclick="restaurarAutoSave()">Restaurar auto-save</button>
+    </div>
     <div id="proj-list-container"><div class="alert alert-info">Nenhum projeto salvo ainda.</div></div>
   </div>
   <div class="card">
@@ -1156,6 +1205,7 @@
 <script src="js/projects.js"></script>
 <script src="js/decision.js"></script>
 <script src="js/avancados.js"></script>
+<script src="js/pdf.js"></script>
 <script src="js/main.js"></script>
 <script>
 // Popula o select de biblioteca de bombas após carregar avancados.js

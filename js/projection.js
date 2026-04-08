@@ -102,4 +102,17 @@ function projetarEEnvelope(){
   renderDecisao();
   gerarRelatorio();
   addAudit(`Projeção: ${modelLabel[modelo]} até ${horizonte}, pop=${popH.toLocaleString('pt-BR')} hab`);
+  agendarAutoSave();
+  atualizarProgressoFluxo();
+}
+
+function adicionarCenarioAlternativo(){
+  if(!state.projData||!state.projData.length){alert('Execute a projeção primeiro.');return;}
+  var el=document.getElementById('cenario-alternativo');
+  if(!el){alert('Elemento cenario-alternativo não encontrado.');return;}
+  var horizonte=state.projData[state.projData.length-1].ano;
+  var popH=state.projData[state.projData.length-1].pop;
+  var pop20pct=Math.round(popH*1.2);
+  var pop20neg=Math.round(popH*0.8);
+  el.innerHTML='<div class="card" style="margin-top:10px;"><div class="card-title">Cenarios alternativos (per capita +/-20%)</div><table class="tbl"><thead><tr><th>Cenario</th><th>Pop '+horizonte+' (hab)</th><th>Variacao per capita</th></tr></thead><tbody><tr><td>Pessimista (-20%)</td><td>'+pop20neg.toLocaleString('pt-BR')+'</td><td>-20%</td></tr><tr class="highlight"><td>Base</td><td>'+popH.toLocaleString('pt-BR')+'</td><td>0%</td></tr><tr><td>Otimista (+20%)</td><td>'+pop20pct.toLocaleString('pt-BR')+'</td><td>+20%</td></tr></tbody></table></div>';
 }
