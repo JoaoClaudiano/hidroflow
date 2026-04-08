@@ -7,13 +7,7 @@
 .version-badge{font-family:var(--mono);font-size:11px;padding:3px 8px;border:1px solid var(--border2);border-radius:4px;color:var(--text3);}
 
 /* TABS */
-.tabs{border-bottom:1px solid var(--border2);margin-bottom:1.5rem;}
-.tab-group-bar{display:flex;flex-wrap:wrap;background:var(--bg2);border-bottom:2px solid var(--border2);}
-.tab-grp{padding:7px 16px;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-size:11px;font-weight:600;font-family:var(--mono);cursor:pointer;background:transparent;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:color .15s,border-color .15s;}
-.tab-grp:hover{color:var(--text);background:var(--bg3);}
-.tab-grp.active-grp{color:var(--accent);border-bottom-color:var(--accent);}
-.tab-items{display:none;flex-wrap:wrap;border-bottom:1px solid var(--border);}
-.tab-items.open{display:flex;}
+.tabs{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--border2);margin-bottom:1.5rem;}
 .tab{padding:9px 14px;border:none;border-bottom:2px solid transparent;font-size:12px;font-family:var(--font);cursor:pointer;background:transparent;color:var(--text3);margin-bottom:-1px;white-space:nowrap;transition:color .15s;display:flex;align-items:center;gap:5px;}
 .tab:hover{color:var(--text);}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500;}
