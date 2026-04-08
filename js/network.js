@@ -10,6 +10,7 @@ const redeState = {
 };
 
 function initRede(){
+  _initInfoTip();
   if(redeState.map){
     redeState.map.invalidateSize();
     if(state.municipioLat&&state.municipioLon){
@@ -116,7 +117,7 @@ function renderNode(node){
   }).addTo(redeState.map);
 
   const popupContent = `<div style="font-family:monospace;font-size:11px;min-width:160px;">
-    <strong>${node.id}</strong> — ${node.type}<br>
+    <strong>${node.label||node.id}</strong> — ${node.type}<br>
     Cota: ${node.elevation} m | Demanda: ${node.demand.toFixed(3)} L/s
     ${node.calculated?`<br><strong style="color:${color};">Pressão: ${node.pressure.toFixed(1)} mca</strong>`:''}
   </div>`;
@@ -209,7 +210,7 @@ function renderPipe(pipe){
   const line = L.polyline([[nA.lat,nA.lng],[nB.lat,nB.lng]],
     {color, weight, opacity:0.85}).addTo(redeState.map);
   const popupContent = `<div style="font-family:monospace;font-size:11px;min-width:180px;">
-    <strong>${pipe.id}</strong>: ${pipe.from} → ${pipe.to}<br>
+    <strong>${pipe.label||pipe.id}</strong>: ${pipe.from} → ${pipe.to}<br>
     DN ${pipe.dn} mm | C=${pipe.c} | L=${pipe.length.toFixed(0)} m
     ${pipe.calculated?`<br>Q=${pipe.flow.toFixed(3)} L/s | v=<strong style="color:${color}">${pipe.velocity.toFixed(2)} m/s</strong> | Hf=${pipe.headloss.toFixed(3)} m`:''}
   </div>`;
@@ -250,14 +251,19 @@ function selectElement(type, id){
   panel.style.display = 'block';
   if(type==='node'){
     const n = redeState.nodes.find(x=>x.id===id);
-    title.textContent = `Nó ${id} (${n.type})`;
+    title.textContent = `Nó ${n.label||id} (${n.type})`;
+    const color = n.calculated
+      ? (n.pressure < 10 || n.pressure > 50 ? '#ef4444' : n.pressure > 40 ? '#f59e0b' : '#22c55e')
+      : '';
     const miniCard = `<table class="rede-mini-card"><tbody>
-      <tr><td>Cota</td><td>${n.elevation} m</td></tr>
-      <tr><td>Demanda</td><td>${n.demand.toFixed(3)} L/s</td></tr>
-      ${n.type==='reservoir'?`<tr><td>Nível</td><td>${n.head||50} m</td></tr>`:''}
-      ${n.calculated?`<tr><td>Pressão</td><td>${n.pressure.toFixed(1)} mca</td></tr>`:''}
+      <tr><td>Cota</td><td data-tip="Cota altimétrica do nó (m). Usada para calcular a pressão disponível: P = H − Z.">${n.elevation} m</td></tr>
+      <tr><td>Demanda</td><td data-tip="Demanda de água no nó (L/s). Deve refletir o consumo per capita × população da área atendida.">${n.demand.toFixed(3)} L/s</td></tr>
+      ${n.type==='reservoir'?`<tr><td>Nível</td><td data-tip="Nível piezométrico fixo do reservatório (m). Define a carga de pressão disponível para toda a rede.">${n.head||50} m</td></tr>`:''}
+      ${n.calculated?`<tr><td>Pressão</td><td data-tip="Pressão hidráulica disponível (mca). NBR 12218: mín. 10 mca e máx. 50 mca. Valor = Carga piezométrica − Cota." style="color:${color};font-weight:600;">${n.pressure.toFixed(1)} mca</td></tr>`:''}
     </tbody></table>`;
     fields.innerHTML = miniCard + `
+      <div style="margin-bottom:8px;"><label style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;">Rótulo</label>
+      <input type="text" id="edit-label" value="${n.label||n.id}" style="width:100%;padding:6px 8px;font-size:12px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);"></div>
       <div style="margin-bottom:8px;"><label style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;">Cota (m)</label>
       <input type="number" id="edit-elevation" value="${n.elevation}" step="0.1" style="width:100%;padding:6px 8px;font-size:12px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);"></div>
       <div style="margin-bottom:8px;"><label style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;">Demanda base (L/s)</label>
@@ -267,17 +273,19 @@ function selectElement(type, id){
     `;
   } else {
     const p = redeState.pipes.find(x=>x.id===id);
-    title.textContent = `Trecho ${id}`;
+    title.textContent = `Trecho ${p.label||id}`;
     const bresseD = Math.sqrt(p.flow/1000)*1.5*1000; // mm, Bresse formula
     const miniCard = `<table class="rede-mini-card"><tbody>
-      <tr><td>De → Para</td><td>${p.from} → ${p.to}</td></tr>
-      <tr><td>DN</td><td>${p.dn} mm</td></tr>
-      <tr><td>Comprimento</td><td>${p.length.toFixed(0)} m</td></tr>
-      ${p.calculated?`<tr><td>Vazão</td><td>${p.flow.toFixed(3)} L/s</td></tr>`:''}
-      ${p.calculated?`<tr><td>Velocidade</td><td>${p.velocity.toFixed(3)} m/s</td></tr>`:''}
-      ${p.calculated?`<tr><td>DN Bresse</td><td>${bresseD.toFixed(0)} mm</td></tr>`:''}
+      <tr><td>De → Para</td><td data-tip="Sentido original do trecho (pode ser invertido pelo solvedor Hardy-Cross se a vazão ficar negativa).">${p.from} → ${p.to}</td></tr>
+      <tr><td>DN</td><td data-tip="Diâmetro Nominal da tubulação (mm). Afeta diretamente velocidade e perda de carga por Hazen-Williams.">${p.dn} mm</td></tr>
+      <tr><td>Comprimento</td><td data-tip="Comprimento real do trecho (m). Calculado automaticamente pela distância geográfica entre os nós.">${p.length.toFixed(0)} m</td></tr>
+      ${p.calculated?`<tr><td>Vazão</td><td data-tip="Vazão convergida pelo Hardy-Cross (L/s). Valor negativo indica escoamento no sentido inverso ao cadastrado.">${p.flow.toFixed(3)} L/s</td></tr>`:''}
+      ${p.calculated?`<tr><td>Velocidade</td><td data-tip="Velocidade média de escoamento v = Q/A (m/s). NBR 12218 recomenda 0,6–3,0 m/s. Abaixo: risco de deposição; acima: risco de erosão.">${p.velocity.toFixed(3)} m/s</td></tr>`:''}
+      ${p.calculated?`<tr><td>DN Bresse</td><td data-tip="Diâmetro econômico de Bresse: D = 1,5·√Q (m³/s). Sugere o DN mais eficiente para a vazão calculada.">${bresseD.toFixed(0)} mm</td></tr>`:''}
     </tbody></table>`;
     fields.innerHTML = miniCard + `
+      <div style="margin-bottom:8px;"><label style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;">Rótulo</label>
+      <input type="text" id="edit-label" value="${p.label||p.id}" style="width:100%;padding:6px 8px;font-size:12px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);"></div>
       <div style="margin-bottom:8px;"><label style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;">DN (mm)</label>
       <select id="edit-dn" style="width:100%;padding:6px 8px;font-size:12px;font-family:var(--mono);border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);">
         ${[50,75,100,125,150,200,250,300,350,400].map(d=>`<option value="${d}" ${p.dn===d?'selected':''}>${d} mm</option>`).join('')}
@@ -295,21 +303,29 @@ function selectElement(type, id){
 function applyEdit(){
   if(!redeState.selectedId) return;
   const {type, id} = redeState.selectedId;
+  const wasCalc = redeState.calculated;
   if(type==='node'){
     const n = redeState.nodes.find(x=>x.id===id);
+    n.label = document.getElementById('edit-label').value.trim() || n.id;
     n.elevation = +document.getElementById('edit-elevation').value;
     n.demand = +document.getElementById('edit-demand').value;
     if(n.type==='reservoir') n.head = +document.getElementById('edit-head').value||50;
     renderNode(n);
   } else {
     const p = redeState.pipes.find(x=>x.id===id);
+    p.label = document.getElementById('edit-label').value.trim() || p.id;
     p.dn = +document.getElementById('edit-dn').value;
     p.c = +document.getElementById('edit-c').value;
     p.length = +document.getElementById('edit-length').value;
     renderPipe(p);
   }
   redeState.calculated = false;
-  updateRedeStatus('Propriedades atualizadas.');
+  if(wasCalc){
+    updateRedeStatus('Propriedades atualizadas — recalculando...');
+    runHardyCross();
+  } else {
+    updateRedeStatus('Propriedades atualizadas. Clique em Calcular para processar a rede.');
+  }
 }
 
 function deleteSelected(){
@@ -612,39 +628,61 @@ function renderRedeResults(iters, nLoops){
   document.getElementById('rede-results-panel').style.display='block';
   document.getElementById('rede-results-summary').innerHTML=`
     <div style="font-size:11px;font-family:var(--mono);line-height:1.8;">
-      <div>Iterações H-C: <strong>${iters}</strong> | Anéis: <strong>${nLoops}</strong></div>
-      <div>Nós OK (10–40 mca): <span class="status-ok">${okP}</span> | Atenção: <span class="status-warn">${warnP}</span> | Crítico: <span class="status-crit">${critP}</span></div>
-      <div>Trechos v OK: <span class="status-ok">${okV}</span> | Fora NBR: <span class="status-crit">${critV}</span></div>
+      <div>Iterações H-C: <strong data-tip="Número de iterações até convergência (tolerância 0,0001 L/s). Redes mais complexas exigem mais iterações.">${iters}</strong> | Anéis: <strong data-tip="Número de anéis (malhas) independentes detectados pelo método da árvore geradora. Cada anel gera uma equação de Hardy-Cross.">${nLoops}</strong></div>
+      <div>Nós OK (10–40 mca): <span class="status-ok" data-tip="Pressão dentro do intervalo ótimo NBR 12218 (10–40 mca).">${okP}</span> | Atenção: <span class="status-warn" data-tip="Pressão entre 40–50 mca — acima do recomendado, mas ainda dentro do limite máximo NBR 12218.">${warnP}</span> | Crítico: <span class="status-crit" data-tip="Pressão fora dos limites NBR 12218 (&lt;10 ou &gt;50 mca). Requer intervenção: redimensionamento ou VRP.">${critP}</span></div>
+      <div>Trechos v OK: <span class="status-ok" data-tip="Velocidade dentro do intervalo recomendado NBR 12218 (0,6–3,0 m/s).">${okV}</span> | Fora NBR: <span class="status-crit" data-tip="Velocidade fora do intervalo NBR 12218. Abaixo de 0,6 m/s: risco de deposição; acima de 3,0 m/s: risco de erosão e golpe de aríete.">${critV}</span></div>
     </div>
-    <button class="btn btn-sm" style="margin-top:6px;width:100%;" onclick="aplicarBresse()" title="Aplica D = 1,5 × √Q (Bresse) como DN sugerido">⚙ Aplicar DN Econômico (Bresse)</button>`;
+    <div style="display:flex;gap:6px;margin-top:6px;">
+      <button class="btn btn-sm" style="flex:1;" onclick="aplicarBresse()" title="Aplica D = 1,5 × √Q (Bresse) como DN sugerido">⚙ DN Econômico (Bresse)</button>
+      <button class="btn btn-sm" style="flex:1;" onclick="exportRedeXLSX()" title="Exportar resultados para planilha Excel (.xlsx)">
+        <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg> Excel
+      </button>
+    </div>`;
 
   document.getElementById('rede-results-full').style.display='block';
   document.getElementById('rede-pipe-table').innerHTML=`<table class="rede-results-table">
-    <thead><tr><th>ID</th><th>De→Para</th><th>DN (mm)</th><th>DN Bresse</th><th>L (m)</th><th>Q (L/s)</th><th>v (m/s)</th><th>Hf (m)</th><th>Status</th></tr></thead>
+    <thead><tr>
+      <th data-tip="Identificador do trecho (ID interno).">ID</th>
+      <th data-tip="Nós de origem e destino do trecho.">De→Para</th>
+      <th data-tip="Diâmetro Nominal da tubulação (mm). Afeta velocidade e perda de carga.">DN (mm)</th>
+      <th data-tip="Diâmetro econômico de Bresse: D = 1,5·√Q (m³/s). Referência para escolha do DN mais eficiente.">DN Bresse</th>
+      <th data-tip="Comprimento real do trecho (m).">L (m)</th>
+      <th data-tip="Vazão calculada pelo Hardy-Cross (L/s). Negativo = sentido invertido.">Q (L/s)</th>
+      <th data-tip="Velocidade de escoamento v = Q/A (m/s). NBR 12218 recomenda 0,6–3,0 m/s.">v (m/s)</th>
+      <th data-tip="Perda de carga distribuída (Hazen-Williams, m). Indica energia dissipada ao longo do trecho.">Hf (m)</th>
+      <th data-tip="Verificação NBR 12218: velocidade dentro dos limites recomendados.">Status</th>
+    </tr></thead>
     <tbody>${pipes.map(p=>{
       const vCls = p.velocity<0.6||p.velocity>3?'status-crit':p.velocity>1.5?'status-warn':'status-ok';
       const vLabel = p.velocity<0.6?'⚠ deposição':p.velocity>3?'⚠ erosão':'✅ OK';
       const bresseD = (Math.sqrt(Math.abs(p.flow)/1000)*1.5*1000).toFixed(0); // Bresse: D(m)=1.5√Q(m³/s), Q_m³/s = Q_L/s / 1000
       return `<tr>
-        <td>${p.id}</td><td style="font-size:10px;">${p.from}→${p.to}</td>
-        <td>${p.dn}</td><td style="color:var(--text3)">${bresseD}</td>
+        <td title="${p.id}">${p.label||p.id}</td><td style="font-size:10px;">${p.from}→${p.to}</td>
+        <td>${p.dn}</td><td style="color:var(--text3)" data-tip="Bresse: D=1,5·√Q → ${bresseD} mm">${bresseD}</td>
         <td>${p.length.toFixed(0)}</td>
         <td>${p.flow.toFixed(3)}</td>
-        <td class="${vCls}">${p.velocity.toFixed(3)}</td>
-        <td>${p.headloss.toFixed(4)}</td>
+        <td class="${vCls}" data-tip="v = Q/A = ${p.velocity.toFixed(3)} m/s. ${p.velocity<0.6?'Abaixo de 0,6: risco de deposição (NBR 12218).':p.velocity>3?'Acima de 3,0: risco de erosão e golpe de aríete (NBR 12218).':'Dentro do intervalo recomendado 0,6–3,0 m/s (NBR 12218).'}">${p.velocity.toFixed(3)}</td>
+        <td data-tip="Perda de carga = R·Q^1,852 pelo método Hazen-Williams.">${p.headloss.toFixed(4)}</td>
         <td class="${vCls}">${vLabel}</td>
       </tr>`;
     }).join('')}</tbody></table>`;
 
   document.getElementById('rede-node-table').innerHTML=`<table class="rede-results-table">
-    <thead><tr><th>ID</th><th>Tipo</th><th>Cota (m)</th><th>Demanda (L/s)</th><th>Pressão (mca)</th><th>Status</th></tr></thead>
+    <thead><tr>
+      <th data-tip="Identificador do nó (ID interno).">ID</th>
+      <th data-tip="Tipo do nó: junction (consumo), reservoir (fonte de pressão fixa) ou tank (caixa d'água).">Tipo</th>
+      <th data-tip="Cota altimétrica do nó (m). Usada para calcular a pressão disponível: P = H − Z.">Cota (m)</th>
+      <th data-tip="Demanda de água no nó (L/s). Deve refletir o consumo per capita × população da área atendida.">Demanda (L/s)</th>
+      <th data-tip="Pressão hidráulica disponível (mca). NBR 12218: mín. 10 mca e máx. 50 mca. Valor = Carga piezométrica − Cota.">Pressão (mca)</th>
+      <th data-tip="Verificação NBR 12218: pressão dentro dos limites (10–50 mca).">Status</th>
+    </tr></thead>
     <tbody>${nodes.map(n=>{
       const pCls = n.type!=='junction'?'':n.pressure<10||n.pressure>50?'status-crit':n.pressure>40?'status-warn':'status-ok';
       const pLabel = n.type!=='junction'?'fonte':n.pressure<10?'⚠ baixa':n.pressure>50?'⚠ muito alta':n.pressure>40?'⚠ alta':'✅ OK';
       return `<tr>
-        <td>${n.id}</td><td>${n.type}</td>
+        <td title="${n.id}">${n.label||n.id}</td><td>${n.type}</td>
         <td>${n.elevation}</td><td>${n.demand.toFixed(3)}</td>
-        <td class="${pCls}">${n.pressure.toFixed(1)}</td>
+        <td class="${pCls}" data-tip="Pressão = ${n.pressure.toFixed(1)} mca. ${n.type!=='junction'?'Fonte de pressão (reservatório/tanque).':n.pressure<10?'Abaixo do mínimo NBR 12218 (10 mca) — risco de falta d\'água.':n.pressure>50?'Acima do máximo NBR 12218 (50 mca) — instalar VRP.':n.pressure>40?'Entre 40–50 mca — atenção: dentro do limite, mas elevado.':'Pressão OK — dentro do intervalo NBR 12218 (10–50 mca).'}">${n.pressure.toFixed(1)}</td>
         <td class="${pCls}">${pLabel}</td>
       </tr>`;
     }).join('')}</tbody></table>`;
@@ -908,6 +946,62 @@ function _buildExampleNet(){
 function updateRedeStatus(msg){
   const el = document.getElementById('rede-status');
   if(el) el.textContent = msg;
+}
+
+// ── INFORMATIVE TOOLTIP ──────────────────────────────────────────────────────
+function _initInfoTip(){
+  if(document.getElementById('rede-infotip')) return;
+  const tip = document.createElement('div');
+  tip.id = 'rede-infotip';
+  tip.className = 'rede-infotip';
+  document.body.appendChild(tip);
+  document.addEventListener('mouseover', function(e){
+    const el = e.target.closest('[data-tip]');
+    if(!el){ tip.style.display='none'; return; }
+    tip.textContent = el.getAttribute('data-tip');
+    tip.style.display = 'block';
+    const rect = el.getBoundingClientRect();
+    const tipW = 250;
+    tip.style.left = Math.max(4, Math.min(rect.left, window.innerWidth - tipW - 4)) + 'px';
+    tip.style.top = (rect.bottom + 6) + 'px';
+  });
+  document.addEventListener('mouseout', function(e){
+    if(e.target.closest('[data-tip]')) tip.style.display='none';
+  });
+}
+
+// ── EXPORT EXCEL (.xlsx) ─────────────────────────────────────────────────────
+function exportRedeXLSX(){
+  if(!redeState.calculated){ alert('Calcule a rede primeiro.'); return; }
+  const wb = XLSX.utils.book_new();
+
+  const pipeRows = [['ID','Rótulo','De','Para','DN (mm)','L (m)','Q (L/s)','v (m/s)','Hf (m)','Status']];
+  redeState.pipes.forEach(p=>{
+    const vLabel = p.velocity<0.6?'Deposição':p.velocity>3?'Erosão':'OK';
+    pipeRows.push([p.id, p.label||p.id, p.from, p.to, p.dn,
+      +(p.length||0).toFixed(0), +(p.flow||0).toFixed(3),
+      +(p.velocity||0).toFixed(3), +(p.headloss||0).toFixed(4), vLabel]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(pipeRows), 'Trechos');
+
+  const nodeRows = [['ID','Rótulo','Tipo','Cota (m)','Demanda (L/s)','Pressão (mca)','Status']];
+  redeState.nodes.forEach(n=>{
+    const pLabel = n.type!=='junction'?'fonte':n.pressure<10?'Baixa':n.pressure>50?'Muito alta':n.pressure>40?'Alta':'OK';
+    nodeRows.push([n.id, n.label||n.id, n.type, n.elevation,
+      +(n.demand||0).toFixed(3), +(n.pressure||0).toFixed(1), pLabel]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(nodeRows), 'Nós');
+
+  const name = (typeof state!=='undefined'&&state.municipioNome) ? state.municipioNome : 'rede';
+  const fileName = `rede_${name.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`;
+  const wbOut = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+  const blob = new Blob([wbOut], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1000);
+  addAudit(`Excel rede exportado — ${redeState.pipes.length} trechos, ${redeState.nodes.length} nós`);
 }
 
 let _toastTimer = null;

@@ -53,6 +53,9 @@
 .rede-mini-card{width:100%;font-size:11px;font-family:var(--mono);border-collapse:collapse;margin-bottom:10px;background:var(--bg2);border-radius:var(--radius);overflow:hidden;}
 .rede-mini-card td{padding:4px 8px;border-bottom:1px solid var(--border);}
 .rede-mini-card td:first-child{color:var(--text3);width:90px;}
+/* Informative tooltip for result values */
+.rede-infotip{position:fixed;z-index:9999;background:rgba(20,20,30,.92);color:#fff;padding:8px 12px;border-radius:6px;font-size:11px;font-family:var(--mono);max-width:250px;line-height:1.55;display:none;pointer-events:none;box-shadow:0 2px 10px rgba(0,0,0,.35);}
+[data-tip]{cursor:help;border-bottom:1px dotted var(--text3);}
 
 /* HYDRAULIC STEPS */
 .hyd-step{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:6px;}
