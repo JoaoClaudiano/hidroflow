@@ -198,6 +198,15 @@ function calcMuskingum() {
     resultEl.innerHTML = '<div class="alert alert-info">X deve estar entre 0 e 0,5.</div>';
     return;
   }
+  // Stability conditions: C0 ≥ 0 requires Δt ≥ 2KX; C2 ≥ 0 requires 2K(1−X) ≥ Δt
+  if (dt < 2 * K * X) {
+    resultEl.innerHTML = '<div class="alert alert-warning">⚠ Instabilidade numérica: Δt (' + dt + 'h) &lt; 2KX (' + (2*K*X).toFixed(2) + 'h) — C0 negativo. Aumente Δt ou reduza K ou X.</div>';
+    return;
+  }
+  if (2 * K * (1 - X) < dt) {
+    resultEl.innerHTML = '<div class="alert alert-warning">⚠ Instabilidade numérica: 2K(1−X) (' + (2*K*(1-X)).toFixed(2) + 'h) &lt; Δt (' + dt + 'h) — C2 negativo. Reduza Δt ou aumente K.</div>';
+    return;
+  }
 
   var denom = 2 * K * (1 - X) + dt;
   var C0 = (dt - 2 * K * X) / denom;
@@ -247,7 +256,7 @@ function calcMuskingum() {
 /* ─────────────────────────────────────────────
    CURVA SISTEMA vs. BOMBA
    H_sis(Q) = Hman + hf(Q) + hloc
-   hf via Hazen-Williams: hf = 10.67 · L · Q^1.852 / (C^1.852 · D^4.87)
+   hf via Hazen-Williams: hf = 10.643 · L · Q^1.852 / (C^1.852 · D^4.87)
      Q em m³/s, D em m
    Curva bomba: interpolação cúbica (spline natural simplificada — Lagrange nos N pontos fornecidos)
    Ponto de operação: bissecção em H_bomba(Q) - H_sis(Q) = 0
@@ -286,7 +295,7 @@ function calcPumpCurve() {
   // H_sis(Q) — Q em m³/h → converter para m³/s internamente
   function H_sis(Q_m3h) {
     var Q_m3s = Q_m3h / 3600;
-    var hf = 10.67 * L * Math.pow(Q_m3s, 1.852) / (Math.pow(C, 1.852) * Math.pow(D_m, 4.87));
+    var hf = 10.643 * L * Math.pow(Q_m3s, 1.852) / (Math.pow(C, 1.852) * Math.pow(D_m, 4.87));
     return Hman + hf + hloc;
   }
 

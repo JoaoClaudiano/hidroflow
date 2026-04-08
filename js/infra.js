@@ -168,7 +168,7 @@ function renderDimensionamento(){
 
 function renderObras(pop,v,p,ano){
   const diam_adut=Math.sqrt((4*(v.QK1/1000))/(Math.PI*1.5))*1000;
-  const diam_rede=Math.sqrt((4*(v.QK2/0.7)/1000)/(Math.PI*2.0))*1000;
+  const diam_rede=Math.sqrt((4*(v.QK2/1000))/(Math.PI*2.0))*1000;
   const vol_res=v.vol_res_m3;
   const area_eta=v.m3dia/600;
   const vol_ete=v.vol_ete_m3;

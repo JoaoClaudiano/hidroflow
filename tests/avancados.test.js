@@ -100,11 +100,15 @@ describe('calcMuskingum', () => {
   });
 
   test('K maior → defasagem maior', () => {
-    const htmlK6  = runMuskingum(6,  0.2, 3, 10, inflow);
-    const htmlK24 = runMuskingum(24, 0.2, 3, 10, inflow);
+    // Use Δt=6 h which satisfies stability for both K=6 and K=12 (X=0.2):
+    //   K=6 : 2KX=2.4 ≤ 6 ≤ 2K(1-X)=9.6  ✓
+    //   K=12: 2KX=4.8 ≤ 6 ≤ 2K(1-X)=19.2 ✓
+    // K=24 with Δt=3 is unstable (2KX=9.6 > Δt=3) and is correctly rejected.
+    const htmlK6  = runMuskingum(6,  0.2, 6, 10, inflow);
+    const htmlK12 = runMuskingum(12, 0.2, 6, 10, inflow);
     const lagK6  = parseFloat((htmlK6.match(/Defasagem.*?(\d+\.?\d*)\s*h/)  || [])[1] || -1);
-    const lagK24 = parseFloat((htmlK24.match(/Defasagem.*?(\d+\.?\d*)\s*h/) || [])[1] || -1);
-    expect(lagK24).toBeGreaterThanOrEqual(lagK6);
+    const lagK12 = parseFloat((htmlK12.match(/Defasagem.*?(\d+\.?\d*)\s*h/) || [])[1] || -1);
+    expect(lagK12).toBeGreaterThanOrEqual(lagK6);
   });
 
   test('entrada inválida (menos de 2 valores) mostra alerta', () => {
