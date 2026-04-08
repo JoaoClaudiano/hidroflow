@@ -184,7 +184,7 @@ const api = loadScript('api.js', {
   renderCensusRows: () => {},
   renderComparacao: () => {},
   removeAcentos: (s) => s,
-  escHtml: (s) => s,
+  safeHtml: (s) => s, escHtml: (s) => s,
   fetchAreaMunicipio: async () => 0,
   calcRacionamento: () => {},
 });

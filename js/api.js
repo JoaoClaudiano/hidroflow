@@ -282,7 +282,7 @@ async function fetchHidroweb(codEstacao){
   }else if(data&&Array.isArray(data.valores)){
     serie=data.valores.filter(function(v){return typeof v==='number'&&v>=0;});
   }
-  if(!serie.length) throw new Error('Sem dados de vazão para a estação '+codEstacao+' — verifique o código');
+  if(!serie.length) throw new Error('Sem dados de vazão para a estação '+safeHtml(codEstacao)+' — verifique o código');
   var Q95=calcQ95(serie);
   var Q_media=serie.reduce(function(s,v){return s+v;},0)/serie.length;
   return{estacao:codEstacao,serie_m3s:serie,Q95_m3s:Q95,Q_media_m3s:Q_media};
@@ -302,9 +302,10 @@ async function buscarVazaoHidroweb(){
     const dados=await fetchHidroweb(cod);
     _avaliarQ95(dados.Q95_m3s,dados.Q_media_m3s,dados.serie_m3s.length,cod);
   }catch(e){
-    // Fallback: entrada manual de Q95
+    // Fallback: entrada manual de Q95 — escape error message to prevent XSS
+    const safeMsg=safeHtml(String(e.message));
     if(resultEl)resultEl.innerHTML=`
-      <div class="alert alert-warning" style="font-size:12px;font-family:var(--mono);">⚠️ ${e.message}<br>Insira Q95 manualmente:</div>
+      <div class="alert alert-warning" style="font-size:12px;font-family:var(--mono);">⚠️ ${safeMsg}<br>Insira Q95 manualmente:</div>
       <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <label style="font-size:11px;color:var(--text3);">Q95 manual (m³/s):</label>
         <input type="number" id="hidroweb-q95-manual" step="0.001" min="0" placeholder="Ex: 0.250" style="width:130px;padding:4px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;background:var(--input-bg);color:var(--text);">
@@ -324,12 +325,14 @@ function _avaliarQ95(Q95_m3s,Q_media_m3s,nRegistros,codEstacao){
       ?`✅ Viável: Q95 (${Q95_m3s.toFixed(3)} m³/s) ≥ Q·K1 projeto (${QK1_m3s.toFixed(3)} m³/s). Outorga preliminarmente viável.`
       :`🚫 Insustentável: Q95 (${Q95_m3s.toFixed(3)} m³/s) < Q·K1 projeto (${QK1_m3s.toFixed(3)} m³/s). Sugere-se reservatório de acumulação ou captação subterrânea.`)
     :'Execute o módulo de Adução para comparar com Q·K1 do projeto.';
+  // Escape user-controlled codEstacao to prevent XSS when inserted into innerHTML
+  const safeEstacao=safeHtml(String(codEstacao));
   resultEl.innerHTML=`
     <div class="alert ${viavel===false?'alert-danger':viavel===true?'alert-success':'alert-info'}" style="font-family:var(--mono);font-size:12px;">${msg}</div>
     <div style="margin-top:8px;font-size:11px;font-family:var(--mono);color:var(--text3);">
       Q95 (excedida 95% do tempo) = <strong>${Q95_m3s.toFixed(3)} m³/s</strong> · Q média = ${Q_media_m3s.toFixed(3)} m³/s · ${nRegistros} registros
     </div>
-    <div style="font-size:10px;color:var(--text3);margin-top:4px;">Fonte: HidroWeb / ANA · Estação ${codEstacao}</div>`;
+    <div style="font-size:10px;color:var(--text3);margin-top:4px;">Fonte: HidroWeb / ANA · Estação ${safeEstacao}</div>`;
   // Atualiza slider de racionamento com percentual Q95
   if(ad&&ad.Qmed&&Q95_m3s>0){
     const pct=Math.min(100,Math.round(Q95_m3s*1000/ad.Qmed*100));
