@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Novidades &amp; Roadmap — HidroFlow</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%231a4fd6' d='M12 2C8.5 7 5 12 5 16a7 7 0 0 0 14 0c0-4-3.5-9-7-14z'/></svg>">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="theme-color" content="#1a4fd6" media="(prefers-color-scheme: light)">
@@ -211,7 +211,7 @@
     border-color: var(--accent);
     background: var(--accent-bg);
   }
-  .roadmap-item-icon { font-size: 20px; margin-bottom: 6px; }
+  .roadmap-item-icon { display: flex; align-items: center; margin-bottom: 6px; }
   .roadmap-item-title {
     font-size: 0.84rem; font-weight: 600; color: var(--text);
     margin-bottom: 4px;
@@ -256,7 +256,7 @@
 
   <div class="inst-topbar">
     <div class="inst-topbar-left">
-      <a href="index.html">💧 HidroFlow</a>
+      <a href="index.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent)" aria-hidden="true"><path d="M12 2C8.5 7 5 12 5 16a7 7 0 0 0 14 0c0-4-3.5-9-7-14z"/></svg> HidroFlow</a>
     </div>
     <nav class="inst-breadcrumb" aria-label="Navegação">
       <a href="index.html">Início</a>
@@ -280,7 +280,7 @@
     <!-- Stats summary -->
     <div class="stats-row">
       <div class="stat-box">
-        <span class="stat-value">5</span>
+        <span class="stat-value">8</span>
         <div class="stat-label">Versões principais</div>
       </div>
       <div class="stat-box">
@@ -288,7 +288,7 @@
         <div class="stat-label">Pull Requests</div>
       </div>
       <div class="stat-box">
-        <span class="stat-value">71</span>
+        <span class="stat-value">203</span>
         <div class="stat-label">Testes unitários</div>
       </div>
       <div class="stat-box">
@@ -315,7 +315,7 @@
           <div class="tl-header">
             <span class="tl-version">v5.0</span>
             <span class="ver-chip current">Versão atual</span>
-            <span class="tl-date">2025–2026</span>
+            <span class="tl-date">08 abr 2026</span>
             <span class="status-pill released">✓ Lançado</span>
           </div>
           <div class="tl-title">Plataforma de Decisão + 7 Novas Funcionalidades de Engenharia</div>
@@ -328,7 +328,7 @@
               <li>Footer institucional profissional presente em todas as páginas;</li>
               <li><strong>Estimativa CAPEX/OPEX</strong> — tabela de custos SINAPI 2024 (<code>TABELA_CUSTOS</code>); funções <code>estimarCustoAdutora()</code>, <code>estimarCustoRede()</code> e <code>formatBRL()</code>; badge de custo em cada dim-card de obras;</li>
               <li><strong>Mapa de Pressão Pré-EPANET</strong> — <code>calcPressaoRede()</code> calcula pressão estática/residual a partir das cotas inseridas; alertas automáticos NBR 12218 (VRP se P &gt; 50 mca; pressão insuficiente se P &lt; 10 mca);</li>
-              <li><strong>Biblioteca de Bombas Padrão</strong> — <code>BOMBAS_PADRAO</code> (6 modelos), <code>interpBombaCurva()</code> e <code>sugerirBomba()</code>; botão "⚡ Sugerir bomba" preenche automaticamente a curva e os parâmetros do sistema a partir dos resultados de Adução;</li>
+              <li><strong>Biblioteca de Bombas Padrão</strong> — <code>BOMBAS_PADRAO</code> (6 modelos), <code>interpBombaCurva()</code> e <code>sugerirBomba()</code>; botão "Sugerir bomba" preenche automaticamente a curva e os parâmetros do sistema a partir dos resultados de Adução;</li>
               <li><strong>Simulação de Racionamento / Resiliência Hídrica</strong> — <code>calcTempoEsvaziamento()</code> calcula horas até o esgotamento do reservatório; slider 0–100% de redução de vazão com semáforo visual (verde ≥ 24 h, âmbar 12–24 h, vermelho &lt; 12 h);</li>
               <li><strong>Painel Público de Infraestrutura</strong> — <code>gerarPainelPublico()</code> gera uma página Leaflet via Blob URL com reservatório, adutora e ETE nos popups — sem backend;</li>
               <li><strong>Alerta Climático HidroWeb / ANA (experimental)</strong> — <code>fetchHidroweb()</code> + <code>calcQ95()</code>; compara Q95 com Q·K1 do projeto; fallback de entrada manual quando a API estiver indisponível por CORS;</li>
@@ -345,6 +345,7 @@
           <div class="tl-header">
             <span class="tl-version">v4.4</span>
             <span class="ver-chip stable">Estável</span>
+            <span class="tl-date">01 abr 2026</span>
             <span class="status-pill released">✓ Lançado</span>
           </div>
           <div class="tl-title">Páginas Institucionais &amp; Footer Profissional</div>
@@ -366,6 +367,7 @@
           <div class="tl-header">
             <span class="tl-version">v4.2</span>
             <span class="ver-chip stable">Estável</span>
+            <span class="tl-date">27 mar 2026</span>
             <span class="status-pill released">✓ Lançado</span>
           </div>
           <div class="tl-title">Exportação Excel &amp; Fallbacks de API</div>
@@ -387,6 +389,7 @@
           <div class="tl-header">
             <span class="tl-version">v4.1</span>
             <span class="ver-chip stable">Estável</span>
+            <span class="tl-date">26 mar 2026</span>
             <span class="status-pill released">✓ Lançado</span>
           </div>
           <div class="tl-title">Correção de Bugs Críticos</div>
@@ -408,6 +411,7 @@
           <div class="tl-header">
             <span class="tl-version">v4.0</span>
             <span class="ver-chip stable">Estável</span>
+            <span class="tl-date">25 mar 2026</span>
             <span class="status-pill released">✓ Lançado</span>
           </div>
           <div class="tl-title">Motor de Decisão, Hardy-Cross &amp; EPANET</div>
@@ -433,6 +437,7 @@
           <div class="tl-header">
             <span class="tl-version">v3.0</span>
             <span class="ver-chip stable">Estável</span>
+            <span class="tl-date">18 mar 2026</span>
             <span class="status-pill released">✓ Lançado</span>
           </div>
           <div class="tl-title">Testes Unitários, CI/CD &amp; Qualidade de Código</div>
@@ -458,6 +463,7 @@
           <div class="tl-header">
             <span class="tl-version">v2.0</span>
             <span class="ver-chip stable">Estável</span>
+            <span class="tl-date">11 mar 2026</span>
             <span class="status-pill released">✓ Lançado</span>
           </div>
           <div class="tl-title">Modularização do Código &amp; Dark Mode</div>
@@ -480,6 +486,7 @@
           <div class="tl-header">
             <span class="tl-version">v1.0</span>
             <span class="ver-chip stable">Inicial</span>
+            <span class="tl-date">04 mar 2026</span>
             <span class="status-pill released">✓ Lançado</span>
           </div>
           <div class="tl-title">Lançamento Inicial — HidroFlow</div>
@@ -509,84 +516,84 @@
     <div class="roadmap-grid">
 
       <div class="roadmap-item in-progress">
-        <div class="roadmap-item-icon">🏗️</div>
+        <div class="roadmap-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="14" width="20" height="7" rx="1"/><path d="M6 14V8h12v6"/><path d="M10 8V4h4v4"/></svg></div>
         <div class="roadmap-item-title">Microsimulação Hidráulica Dinâmica</div>
         <div class="roadmap-item-desc">Simulação transiente de redes ao estilo EPANET, com variação temporal de demanda e pressão (EPS — Extended Period Simulation).</div>
         <div class="roadmap-item-footer"><span class="status-pill progress">Em desenvolvimento</span></div>
       </div>
 
       <div class="roadmap-item">
-        <div class="roadmap-item-icon">⚡</div>
+        <div class="roadmap-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
         <div class="roadmap-item-title">Consumo Energético de ETEs e ETAs</div>
         <div class="roadmap-item-desc">Cálculo de energia consumida por estações elevatórias, ETAs e ETEs, com estimativa de custo operacional e índice de eficiência energética.</div>
         <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
       </div>
 
       <div class="roadmap-item">
-        <div class="roadmap-item-icon">🌊</div>
+        <div class="roadmap-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M2 17c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/></svg></div>
         <div class="roadmap-item-title">Balanço Hídrico com Variáveis Climáticas</div>
         <div class="roadmap-item-desc">Integração com dados de precipitação, evapotranspiração e disponibilidade de mananciais para análise de balanço hídrico regional.</div>
         <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
       </div>
 
       <div class="roadmap-item">
-        <div class="roadmap-item-icon">🏭</div>
+        <div class="roadmap-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="8" y1="12" x2="8" y2="17"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="16" y1="12" x2="16" y2="17"/></svg></div>
         <div class="roadmap-item-title">Análise de Demanda por Setores</div>
         <div class="roadmap-item-desc">Decomposição do consumo em categorias: doméstico, industrial, comercial, público e perdas físicas/comerciais (coeficientes NRW).</div>
         <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
       </div>
 
       <div class="roadmap-item">
-        <div class="roadmap-item-icon">♻️</div>
+        <div class="roadmap-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a9 9 0 0 1-9 9m0-18a9 9 0 0 1 9 9"/><polyline points="21 3 21 9 15 9"/><path d="M3 12a9 9 0 0 1 9-9"/><polyline points="3 21 3 15 9 15"/></svg></div>
         <div class="roadmap-item-title">Gestão de Resíduos Sólidos</div>
         <div class="roadmap-item-desc">Interface para geração de resíduos, vida útil de aterros sanitários, coleta seletiva e indicadores SINISA/SNIS integrados à análise urbana.</div>
         <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
       </div>
 
       <div class="roadmap-item">
-        <div class="roadmap-item-icon">🌡️</div>
+        <div class="roadmap-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
         <div class="roadmap-item-title">Cenários de Mudança Climática</div>
         <div class="roadmap-item-desc">Análise de impacto de cenários RCP 4.5 / RCP 8.5 sobre a demanda e disponibilidade hídrica, com projeções de longo prazo.</div>
         <div class="roadmap-item-footer"><span class="status-pill research">Pesquisa</span></div>
       </div>
 
       <div class="roadmap-item">
-        <div class="roadmap-item-icon">📡</div>
+        <div class="roadmap-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg></div>
         <div class="roadmap-item-title">Telemetria e SCADA Simplificado</div>
         <div class="roadmap-item-desc">Painel de monitoramento em tempo real com importação de dados de sensores IoT e dashboard de indicadores operacionais.</div>
         <div class="roadmap-item-footer"><span class="status-pill research">Pesquisa</span></div>
       </div>
 
       <div class="roadmap-item">
-        <div class="roadmap-item-icon">📐</div>
+        <div class="roadmap-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="3 20 12 4 21 20"/><line x1="7" y1="14" x2="17" y2="14"/></svg></div>
         <div class="roadmap-item-title">Dimensionamento de Estações Elevatórias</div>
         <div class="roadmap-item-desc">Seleção de bombas, curva do sistema, ponto de operação, NPSH e análise de cavitação com integração ao módulo hidráulico.</div>
         <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
       </div>
 
       <div class="roadmap-item">
-        <div class="roadmap-item-icon">🗂️</div>
+        <div class="roadmap-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
         <div class="roadmap-item-title">Projetos Salvos &amp; Multi-cenário</div>
         <div class="roadmap-item-desc">Persistência completa de projetos com suporte a múltiplos cenários de análise, comparação lado a lado e exportação consolidada.</div>
         <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
       </div>
 
       <div class="roadmap-item">
-        <div class="roadmap-item-icon">🌍</div>
+        <div class="roadmap-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
         <div class="roadmap-item-title">Internacionalização (i18n)</div>
         <div class="roadmap-item-desc">Suporte a inglês e espanhol para ampliar o uso acadêmico internacional da ferramenta, com suporte a diferentes normas técnicas regionais.</div>
         <div class="roadmap-item-footer"><span class="status-pill planned">Planejado</span></div>
       </div>
 
       <div class="roadmap-item">
-        <div class="roadmap-item-icon">🤝</div>
+        <div class="roadmap-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
         <div class="roadmap-item-title">API Pública de Cálculos</div>
         <div class="roadmap-item-desc">Exposição dos módulos de cálculo como biblioteca npm, permitindo integração com outros projetos e automação de análises em lote.</div>
         <div class="roadmap-item-footer"><span class="status-pill research">Pesquisa</span></div>
       </div>
 
       <div class="roadmap-item">
-        <div class="roadmap-item-icon">📱</div>
+        <div class="roadmap-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
         <div class="roadmap-item-title">App Nativo (Capacitor/PWA+)</div>
         <div class="roadmap-item-desc">Publicação nas lojas App Store e Google Play como aplicativo nativo via Capacitor, com suporte offline completo e notificações.</div>
         <div class="roadmap-item-footer"><span class="status-pill research">Pesquisa</span></div>
@@ -627,7 +634,7 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <a href="index.html" class="footer-logo">
-        <span>💧</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--accent)" aria-hidden="true"><path d="M12 2C8.5 7 5 12 5 16a7 7 0 0 0 14 0c0-4-3.5-9-7-14z"/></svg>
         <span class="footer-logo-name">HidroFlow</span>
       </a>
       <p class="footer-desc">

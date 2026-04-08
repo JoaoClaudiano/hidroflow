@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HidroFlow — Metodologia e Memorial de Cálculo</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%231a4fd6' d='M12 2C8.5 7 5 12 5 16a7 7 0 0 0 14 0c0-4-3.5-9-7-14z'/></svg>">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="theme-color" content="#1a4fd6" media="(prefers-color-scheme: light)">
@@ -455,7 +455,7 @@ O coeficiente decresce com a população porque redes maiores têm maior homogen
 
 Referência: Harmon (1918) apud Metcalf & Eddy (2003)
             Babbit et al. (1962) — variante para P < 1.000 hab usa Babbit</span></div>
-  <div class="alert-note">💡 A opção Harmon é acessível no acordeão <strong>"Opções Avançadas — SES"</strong> do card de parâmetros de consumo. Quando ativada, a ficha de resultado exibe <em>Harmon K=x,xx</em> em vez de <em>K1 = x,xx</em>.</div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> A opção Harmon é acessível no acordeão <strong>"Opções Avançadas — SES"</strong> do card de parâmetros de consumo. Quando ativada, a ficha de resultado exibe <em>Harmon K=x,xx</em> em vez de <em>K1 = x,xx</em>.</div>
 
   <h3>3.3.2 Dimensionamento de Coletores de Esgoto — Equação de Manning (conduto parcialmente cheio)</h3>
   <p>O HidroFlow dimensiona o coletor de esgoto pelo critério de velocidade mínima de auto-limpeza e capacidade hidráulica disponível, considerando a lâmina d'água parcial conforme a geometria circular do tubo:</p>
@@ -497,7 +497,7 @@ O coletor é considerado adequado quando:
   Q_coletor(Manning) ≥ Q_design   e   v ≥ 0,6 m/s
 
 Referência: Von Sperling (2002); Tsutiya & Alem Sobrinho (2011)</span></div>
-  <div class="alert-note">💡 Os parâmetros de Manning (n, S, DN, lâmina e taxa de infiltração) são configuráveis no acordeão <strong>"Opções Avançadas — SES"</strong>. O card de resultado exibe capacidade, velocidade e comparação com a vazão de projeto.</div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> Os parâmetros de Manning (n, S, DN, lâmina e taxa de infiltração) são configuráveis no acordeão <strong>"Opções Avançadas — SES"</strong>. O card de resultado exibe capacidade, velocidade e comparação com a vazão de projeto.</div>
 
   <h3>3.4 Resíduos Sólidos Urbanos</h3>
   <div class="formula-block">G_res = Pop × g_per_capita / 1000   <span class="comment">[ton/dia]</span>
@@ -574,7 +574,7 @@ Faixa válida: 10⁻⁶ ≤ ε/D ≤ 10⁻²  e  5.000 ≤ Re ≤ 10⁸
 Erro máximo em relação a Colebrook-White: &lt; 3%
 
 Referência: Swamee &amp; Jain (1976)</span></div>
-  <div class="alert-note">💡 A seleção do método (Hazen-Williams ou Darcy-Weisbach) é feita pelo seletor de rádio <strong>"Método hidráulico"</strong> no card de adução. Ao escolher D-W, o campo de rugosidade ε [mm] é exibido automaticamente.</div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> A seleção do método (Hazen-Williams ou Darcy-Weisbach) é feita pelo seletor de rádio <strong>"Método hidráulico"</strong> no card de adução. Ao escolher D-W, o campo de rugosidade ε [mm] é exibido automaticamente.</div>
 
   <h3>4.2.3 Biblioteca de Materiais Hidráulicos</h3>
   <p>O HidroFlow inclui uma biblioteca de materiais (<code>MATERIAIS_HIDRO</code>) que preenche automaticamente o coeficiente C de Hazen-Williams, o coeficiente n de Manning, o módulo de elasticidade E (para cálculo de golpe de aríete) e o fator de emissão de CO₂ do material:</p>
@@ -591,7 +591,7 @@ Referência: Swamee &amp; Jain (1976)</span></div>
       <tr><td>Aço sem revestimento</td><td>90</td><td>0,011</td><td>210.000</td><td>1,85</td></tr>
     </tbody>
   </table>
-  <div class="alert-note">💡 Ao selecionar um material no campo <strong>"Material da tubulação"</strong>, os campos C, E e o fator de CO₂ são preenchidos automaticamente. O E inserido pelo usuário prevalece sobre o da biblioteca.</div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> Ao selecionar um material no campo <strong>"Material da tubulação"</strong>, os campos C, E e o fator de CO₂ são preenchidos automaticamente. O E inserido pelo usuário prevalece sobre o da biblioteca.</div>
 
   <h3>4.2.4 Envelhecimento da Tubulação (C Futuro — Hazen-Williams)</h3>
   <p>Com o envelhecimento, o coeficiente C de Hazen-Williams decresce por incrustação, corrosão ou biofilme. O HidroFlow permite informar um C futuro para simular a perda de carga ao final do horizonte de projeto:</p>
@@ -634,7 +634,7 @@ Após aplicar fs, busca-se a próxima potência comercial ≥ P_kW_fs na série 
 Exemplo:
   P_calc = 8,5 kW (≈11,6 CV → faixa ≤ 20 CV → fs = 1,15)
   P_kW_fs = 8,5 × 1,15 = 9,78 kW → Motor comercial: 11 kW</span></div>
-  <div class="alert-note">💡 O fator de serviço é ativado pelo acordeão <strong>"Opções Avançadas"</strong> do card de parâmetros hidráulicos. Quando ativo, o resultado exibe o motor calculado (sem margem) e o motor de catálogo (com margem) lado a lado.</div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> O fator de serviço é ativado pelo acordeão <strong>"Opções Avançadas"</strong> do card de parâmetros hidráulicos. Quando ativo, o resultado exibe o motor calculado (sem margem) e o motor de catálogo (com margem) lado a lado.</div>
 
   <h3>4.4 NPSH — Verificação Anti-Cavitação</h3>
   <p>O HidroFlow verifica automaticamente se o NPSH disponível é suficiente para evitar cavitação na bomba, usando a pressão de vapor saturada calculada pela equação de Buck:</p>
@@ -652,11 +652,11 @@ Exemplo:
 
 Critério de segurança (com margem de 0,5 m):
   NPSH_d ≥ NPSH_requerido + 0,5 m  → sem risco de cavitação
-  NPSH_d &lt; NPSH_requerido + 0,5 m  → 🚨 RISCO DE CAVITAÇÃO
+  NPSH_d &lt; NPSH_requerido + 0,5 m  → <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg> RISCO DE CAVITAÇÃO
 
 Referência: Buck (1981) — equação de pressão de vapor
             Azevedo Netto (1998) — verificação de NPSH</span></div>
-  <div class="alert-note">💡 Os campos de altura de sucção (Hs), NPSH requerido pelo fabricante e temperatura da água são editáveis no card de adução. O resultado de NPSH é exibido na ficha de resultados com indicador visual de risco.</div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> Os campos de altura de sucção (Hs), NPSH requerido pelo fabricante e temperatura da água são editáveis no card de adução. O resultado de NPSH é exibido na ficha de resultados com indicador visual de risco.</div>
 
   <h3>4.5 Pegada de Carbono da Adutora</h3>
   <p>Quando um material é selecionado na biblioteca, o HidroFlow estima a pegada de carbono total em 20 anos de operação, considerando a emissão da fabricação da tubulação e o consumo energético da bomba:</p>
@@ -675,7 +675,7 @@ CO₂_total  = CO₂_tubo + CO₂_op_ano × 20              <span class="comment
   FE        = 0,088 kg CO₂e/kWh — Fator de Emissão médio do SIN (EPE, 2023)
 
 Referência: EPE (2023) — Fator médio de emissão do Sistema Interligado Nacional (SIN)</span></div>
-  <div class="alert-note">💡 A pegada de carbono só é calculada e exibida quando um material é selecionado na biblioteca. O resultado aparece no card de adutora com decomposição entre emissão da tubulação e da operação.</div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> A pegada de carbono só é calculada e exibida quando um material é selecionado na biblioteca. O resultado aparece no card de adutora com decomposição entre emissão da tubulação e da operação.</div>
 
   <h3>4.6 Verificação de Velocidade e Pressão</h3>
   <table class="param-table">
@@ -757,7 +757,7 @@ Exemplo:
   Se T_c = 3 s  → Joukowsky → ΔH = 1200×1,5/9,81     = 183,5 m
 
 Referência: Michaud (1878) apud Wylie & Streeter (1993)</span></div>
-  <div class="alert-note">💡 O campo <strong>"Tempo de fechamento da válvula T_c (s)"</strong> é opcional. Quando deixado em branco, o sistema usa Joukowsky (comportamento original). O limiar 2L/a e a fórmula aplicada são exibidos no painel de resultados e no memorial de cálculo.</div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> O campo <strong>"Tempo de fechamento da válvula T_c (s)"</strong> é opcional. Quando deixado em branco, o sistema usa Joukowsky (comportamento original). O limiar 2L/a e a fórmula aplicada são exibidos no painel de resultados e no memorial de cálculo.</div>
 
   <h3>5.4 Recomendações de Proteção — VAO e Outros Dispositivos</h3>
   <p>Quando a sobrepressão é classificada como <strong>Crítica</strong> (ΔH &gt; 50% da Hm), o HidroFlow recomenda automaticamente dispositivos de proteção contra golpe de aríete:</p>
@@ -768,7 +768,7 @@ Referência: Michaud (1878) apud Wylie & Streeter (1993)</span></div>
     <li><strong>Reservatório pulmão (surge tank):</strong> absorve variações de pressão ao longo da linha.</li>
     <li><strong>Fechamento lento de válvula:</strong> aumentar T_c além de 2L/a para enquadrar no regime de Michaud.</li>
   </ul>
-  <div class="alert-note">💡 A exibição do comprimento da adutora em km e da comparação explícita T_c vs. 2L/a no alerta de saída facilita a decisão do engenheiro sobre qual dispositivo aplicar.</div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> A exibição do comprimento da adutora em km e da comparação explícita T_c vs. 2L/a no alerta de saída facilita a decisão do engenheiro sobre qual dispositivo aplicar.</div>
 </div>
 
 <!-- ============================
@@ -797,7 +797,7 @@ Referência: Michaud (1878) apud Wylie & Streeter (1993)</span></div>
 
 <span class="comment">Referência: Rippl (1883) apud Porto (1999), NBR 12217 (ABNT, 1994)</span></div>
 
-  <div class="alert-note">💡 O HidroFlow exibe o diagrama de massa interativo no módulo <strong>Adução & Elevatórias</strong>, permitindo visualizar graficamente o volume de regularização para diferentes regimes de bombeamento.</div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> O HidroFlow exibe o diagrama de massa interativo no módulo <strong>Adução & Elevatórias</strong>, permitindo visualizar graficamente o volume de regularização para diferentes regimes de bombeamento.</div>
 </div>
 
 <!-- ============================
@@ -867,7 +867,7 @@ Após o cálculo:
 
 Referência: Sinnott (1984) — fórmula de Haversine
             NASA SRTM / Open-Elevation API — resolução ~90 m</span></div>
-  <div class="alert-note">💡 Selecione a ferramenta "🔺 Medir" na barra de ferramentas do mapa, clique no ponto de captação (origem) e depois no ponto do reservatório (destino). A distância e as cotas são transferidas automaticamente para o módulo de Adução.</div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> Selecione a ferramenta "Medir" na barra de ferramentas do mapa, clique no ponto de captação (origem) e depois no ponto do reservatório (destino). A distância e as cotas são transferidas automaticamente para o módulo de Adução.</div>
 </div>
 
 <!-- ============================
@@ -906,7 +906,7 @@ Referência: Plano Diretor Municipal, Freitas (2000)</span></div>
     <tbody>
       <tr><td>✅ OK</td><td>Demanda ≤ capacidade instalada</td><td>Monitoramento periódico</td></tr>
       <tr><td>⚠️ Atenção</td><td>Demanda entre 80% e 100% da capacidade</td><td>Planejar ampliação</td></tr>
-      <tr><td>🚨 Crítico</td><td>Demanda > capacidade (déficit)</td><td>Intervenção imediata</td></tr>
+      <tr><td><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg> Crítico</td><td>Demanda > capacidade (déficit)</td><td>Intervenção imediata</td></tr>
       <tr><td>ℹ️ Info</td><td>Dado estatístico relevante</td><td>Análise técnica</td></tr>
     </tbody>
   </table>
@@ -967,7 +967,7 @@ Efeito:
 
 O override persiste durante a sessão. Para reverter, basta selecionar outro modelo
 ou recarregar a página (o sistema retorna ao modelo de maior score).</span></div>
-  <div class="alert-note">💡 O painel de comparação de modelos exibe R², LOO-RMSE individual e score composto para cada modelo, facilitando a decisão técnica de qual modelo usar para o horizonte de projeto.</div>
+  <div class="alert-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> O painel de comparação de modelos exibe R², LOO-RMSE individual e score composto para cada modelo, facilitando a decisão técnica de qual modelo usar para o horizonte de projeto.</div>
 </div>
 
 <!-- ============================
@@ -1157,7 +1157,7 @@ Onde Q_aduc é a vazão de adução configurada no módulo SAA.</span></div>
   </ul>
 
   <div class="alert-note" style="margin-top:1.2rem;">
-    📄 Este documento foi gerado pelo HidroFlow e descreve a metodologia implementada no código-fonte disponível em <strong>github.com/JoaoClaudiano/hidroflow</strong>. Os cálculos são realizados integralmente no navegador do usuário (client-side), sem envio de dados para servidores externos, exceto nas consultas às APIs públicas do IBGE e OpenStreetMap.
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Este documento foi gerado pelo HidroFlow e descreve a metodologia implementada no código-fonte disponível em <strong>github.com/JoaoClaudiano/hidroflow</strong>. Os cálculos são realizados integralmente no navegador do usuário (client-side), sem envio de dados para servidores externos, exceto nas consultas às APIs públicas do IBGE e OpenStreetMap.
   </div>
 </div>
 
@@ -1189,7 +1189,7 @@ updateThemeIcon();
   <div class="footer-inner">
     <div class="footer-brand">
       <a href="index.html" class="footer-logo">
-        <span>💧</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--accent)" aria-hidden="true"><path d="M12 2C8.5 7 5 12 5 16a7 7 0 0 0 14 0c0-4-3.5-9-7-14z"/></svg>
         <span class="footer-logo-name">HidroFlow</span>
       </a>
       <p class="footer-desc">

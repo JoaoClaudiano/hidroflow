@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HidroFlow — Suporte à Análise e Dimensionamento de Sistemas de Abastecimento de Água</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%231a4fd6' d='M12 2C8.5 7 5 12 5 16a7 7 0 0 0 14 0c0-4-3.5-9-7-14z'/></svg>">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="theme-color" content="#1a4fd6" media="(prefers-color-scheme: light)">
@@ -220,19 +220,19 @@
   <div class="alert alert-info" id="decisao-empty" style="margin-bottom:1rem;">Execute o <strong>Best Fit</strong> e a <strong>Projeção</strong> para gerar o diagnóstico automático de decisão.</div>
   <div id="decisao-content" style="display:none;">
     <div class="decision-panel" id="dp-alertas">
-      <div class="decision-panel-title">🚨 Alertas críticos de capacidade</div>
+      <div class="decision-panel-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg> Alertas críticos de capacidade</div>
       <div class="decision-items" id="dp-alertas-items"></div>
     </div>
     <div class="decision-panel" id="dp-cenarios">
-      <div class="decision-panel-title">📋 Diagnóstico por sistema</div>
+      <div class="decision-panel-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="14" y2="15"/></svg> Diagnóstico por sistema</div>
       <div class="decision-items" id="dp-cenarios-items"></div>
     </div>
     <div class="decision-panel">
-      <div class="decision-panel-title">📐 Janela de confiança da projeção</div>
+      <div class="decision-panel-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="3 20 12 4 21 20"/><line x1="7" y1="14" x2="17" y2="14"/></svg> Janela de confiança da projeção</div>
       <div id="dp-confianca"></div>
     </div>
     <div class="decision-panel">
-      <div class="decision-panel-title">📊 Score comparativo dos modelos</div>
+      <div class="decision-panel-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Score comparativo dos modelos</div>
       <div id="dp-score-modelos"></div>
     </div>
   </div>
@@ -590,7 +590,7 @@
       <div>
         <label>Horas de bombeamento N (h/dia) <span class="tip-icon" data-tip="N = número de horas diárias de operação das bombas. FUNASA recomenda N = 16–20h. Evitar 18h–21h (pico tarifário ANEEL). N menor = adutora maior. Usar N = 24h apenas com reservatório de regularização adequado.">?</span></label>
         <input type="number" id="ad-horas" value="16" min="1" max="24" step="1" oninput="calcAducao()">
-        <div style="font-size:10px;color:var(--amber);font-family:var(--mono);margin-top:3px;">⚡ Evitar 18h–21h (pico tarifário ANEEL)</div>
+        <div style="font-size:10px;color:var(--amber);font-family:var(--mono);margin-top:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Evitar 18h–21h (pico tarifário ANEEL)</div>
       </div>
       <div>
         <label>Rendimento global bomba η (%) <span class="tip-icon" data-tip="Rendimento global da bomba = rendimento hidráulico x mecânico x elétrico x transmissão. Bombas centrífugas novas: 70–82%. Incluir motor e variador de frequência. Valor abaixo de 60% indica equipamento sobredimensionado ou degradado.">?</span></label>
@@ -705,7 +705,7 @@
       <!-- COLUNA A — BOMBAS -->
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="card" style="margin-bottom:0;">
-          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;border-bottom:2px solid var(--accent);padding-bottom:6px;">⚡ Coluna A — Recalque</div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;border-bottom:2px solid var(--accent);padding-bottom:6px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Coluna A — Recalque</div>
           <div id="ad-col-bombas"></div>
         </div>
       </div>
@@ -713,7 +713,7 @@
       <!-- COLUNA B — ADUTORA -->
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="card" style="margin-bottom:0;">
-          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;border-bottom:2px solid var(--green);padding-bottom:6px;">🔧 Coluna B — Adutora</div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;border-bottom:2px solid var(--green);padding-bottom:6px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Coluna B — Adutora</div>
           <div id="ad-col-adutora"></div>
         </div>
       </div>
@@ -721,7 +721,7 @@
       <!-- COLUNA C — RESERVATÓRIO -->
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="card" style="margin-bottom:0;">
-          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;border-bottom:2px solid var(--amber);padding-bottom:6px;">🏗️ Coluna C — Reservatório</div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;border-bottom:2px solid var(--amber);padding-bottom:6px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></svg> Coluna C — Reservatório</div>
           <div id="ad-col-reservatorio"></div>
         </div>
       </div>
@@ -769,7 +769,7 @@
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
         <button class="btn btn-primary" onclick="gerarPainelPublico()">
           <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          🗺️ Abrir Painel Público
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Abrir Painel Público
         </button>
         <span style="font-size:11px;color:var(--text3);font-family:var(--mono);">Abre mapa de infraestrutura em nova aba (OpenStreetMap) — ideal para audiências públicas e captação de recursos</span>
       </div>
@@ -909,7 +909,7 @@
 
       <!-- INP export info -->
       <div class="rede-panel" style="background:var(--accent-bg);border-color:rgba(79,126,245,.2);">
-        <div class="rede-panel-title" style="color:var(--accent);">💡 Integração EPANET</div>
+        <div class="rede-panel-title" style="color:var(--accent);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> Integração EPANET</div>
         <p style="font-size:11px;font-family:var(--mono);color:var(--accent);line-height:1.6;">Exporte o arquivo <strong>.INP</strong> para abrir no <a href="https://epanetjs.com" target="_blank" style="color:var(--accent);">epanet-js app</a> (browser, sem instalação) ou no EPANET 2.2 desktop para simulação completa com qualidade de água e análise temporal.</p>
       </div>
     </div>
@@ -1139,7 +1139,7 @@
 
     <!-- Biblioteca de Bombas Padrão -->
     <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:14px;">
-      <div style="font-size:11px;font-weight:600;color:var(--text2);font-family:var(--mono);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">📚 Biblioteca de Bombas Padrão — dimensionamento preliminar</div>
+      <div style="font-size:11px;font-weight:600;color:var(--text2);font-family:var(--mono);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Biblioteca de Bombas Padrão — dimensionamento preliminar</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
         <select id="pump-biblioteca" style="padding:5px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;background:var(--input-bg);color:var(--text);">
           <option value="">— Selecione um modelo —</option>
@@ -1148,7 +1148,7 @@
           Carregar curva
         </button>
         <button class="btn btn-sm btn-primary" onclick="sugerirBombaAuto()">
-          ⚡ Sugerir bomba para adução
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Sugerir bomba para adução
         </button>
       </div>
       <div id="pump-sugestao"></div>
@@ -1209,7 +1209,7 @@
 
   <!-- ALERTA CLIMÁTICO — HidroWeb / ANA -->
   <details class="advanced-opts" style="margin-top:0;">
-    <summary>🌊 Alerta Climático — Vazão de Seca Q95 (HidroWeb / ANA) — experimental</summary>
+    <summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M2 17c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/></svg> Alerta Climático — Vazão de Seca Q95 (HidroWeb / ANA) — experimental</summary>
     <div class="advanced-opts-body">
       <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:12px;">Busca a série histórica de vazões de uma estação fluviométrica da ANA e calcula a Q95 (vazão excedida 95% do tempo). Compara com a Q·K1 do projeto para avaliar viabilidade de captação e outorga.</p>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
@@ -1272,7 +1272,7 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <a href="index.html" class="footer-logo">
-        <span>💧</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--accent)" aria-hidden="true"><path d="M12 2C8.5 7 5 12 5 16a7 7 0 0 0 14 0c0-4-3.5-9-7-14z"/></svg>
         <span class="footer-logo-name">HidroFlow</span>
       </a>
       <p class="footer-desc">
