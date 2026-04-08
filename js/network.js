@@ -306,14 +306,14 @@ function applyEdit(){
   const wasCalc = redeState.calculated;
   if(type==='node'){
     const n = redeState.nodes.find(x=>x.id===id);
-    n.label = document.getElementById('edit-label').value.trim() || n.id;
+    n.label = document.getElementById('edit-label').value.trim();
     n.elevation = +document.getElementById('edit-elevation').value;
     n.demand = +document.getElementById('edit-demand').value;
     if(n.type==='reservoir') n.head = +document.getElementById('edit-head').value||50;
     renderNode(n);
   } else {
     const p = redeState.pipes.find(x=>x.id===id);
-    p.label = document.getElementById('edit-label').value.trim() || p.id;
+    p.label = document.getElementById('edit-label').value.trim();
     p.dn = +document.getElementById('edit-dn').value;
     p.c = +document.getElementById('edit-c').value;
     p.length = +document.getElementById('edit-length').value;
