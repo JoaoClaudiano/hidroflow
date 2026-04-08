@@ -485,6 +485,16 @@
         <input type="number" id="ad-comp" value="3500" step="10" oninput="calcAducao()">
       </div>
       <div>
+        <label>Cota do ponto mais baixo da rede (m) <span style="font-size:10px;color:var(--text3);">opcional — mapa de pressões</span></label>
+        <input type="number" id="ad-cota-ponto-baixo" placeholder="Ex: 5 (cota da extremidade mais baixa)" step="0.1" oninput="calcAducao()" style="width:100%;">
+        <span style="font-size:10px;color:var(--text3);">Alerta se pressão estática &gt; 50 mca — VRP necessária</span>
+      </div>
+      <div>
+        <label>Cota do ponto mais alto da rede (m) <span style="font-size:10px;color:var(--text3);">opcional — mapa de pressões</span></label>
+        <input type="number" id="ad-cota-ponto-alto" placeholder="Ex: 82 (cota da extremidade mais alta)" step="0.1" oninput="calcAducao()" style="width:100%;">
+        <span style="font-size:10px;color:var(--text3);">Alerta se pressão residual &lt; 10 mca</span>
+      </div>
+      <div>
         <label>Material da tubulação (biblioteca)</label>
         <select id="ad-material" onchange="applyMaterialAducao(this.value)">
           <option value="pvc_novo">150 — PVC / PEAD (novo)</option>
@@ -669,6 +679,23 @@
     <div class="card">
       <div class="card-title">Análise de Ciclo de Vida (LCC) — Comparação de cenários de diâmetro · Tarifa ANEEL estática</div>
       <div id="ad-lcc-display"><div class="alert alert-info" style="font-size:12px;">LCC calculado automaticamente após dimensionamento.</div></div>
+    </div>
+
+    <!-- MAPA DE PRESSÕES — preenchido por calcAducao() se campos informados -->
+    <div class="card" id="ad-pressao-card" style="display:none;">
+      <div class="card-title">Mapa de Pressões — Pré-EPANET (pontos extremos da rede)</div>
+      <div id="ad-pressao-display"></div>
+    </div>
+
+    <!-- PAINEL PÚBLICO -->
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="gerarPainelPublico()">
+          <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          🗺️ Abrir Painel Público
+        </button>
+        <span style="font-size:11px;color:var(--text3);font-family:var(--mono);">Abre mapa de infraestrutura em nova aba (OpenStreetMap) — ideal para audiências públicas e captação de recursos</span>
+      </div>
     </div>
   </div>
 
@@ -1015,6 +1042,26 @@
   <div class="card">
     <div class="card-title">Curva do Sistema vs. Curva da Bomba — Ponto de Operação</div>
     <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:14px;">Intersecção entre a curva característica da bomba (fornecida pelo fabricante) e a curva do sistema (H_sis = H_man + K·Q²).</p>
+
+    <!-- Biblioteca de Bombas Padrão -->
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:600;color:var(--text2);font-family:var(--mono);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">📚 Biblioteca de Bombas Padrão — dimensionamento preliminar</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+        <select id="pump-biblioteca" style="padding:5px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;background:var(--input-bg);color:var(--text);">
+          <option value="">— Selecione um modelo —</option>
+        </select>
+        <button class="btn btn-sm" onclick="carregarBombaModelo(document.getElementById('pump-biblioteca').value)">
+          Carregar curva
+        </button>
+        <button class="btn btn-sm btn-primary" onclick="sugerirBombaAuto()">
+          ⚡ Sugerir bomba para adução
+        </button>
+      </div>
+      <div id="pump-sugestao"></div>
+      <div id="pump-npsh-result"></div>
+      <p style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:6px;">Curvas de referência para pré-dimensionamento — consulte o catálogo do fabricante para seleção definitiva</p>
+    </div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
       <div>
         <label style="font-size:11px;font-weight:500;text-transform:uppercase;color:var(--text3);">H manométrica estática (m)</label>
@@ -1052,6 +1099,40 @@
     <div class="chart-wrap" style="margin-top:1rem;"><canvas id="chart-pump"></canvas></div>
   </div>
 
+  <!-- SIMULAÇÃO DE RACIONAMENTO — Resiliência Hídrica -->
+  <div class="card">
+    <div class="card-title">Simulação de Racionamento — Resiliência Hídrica (Secas Severas)</div>
+    <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:12px;">Simula quanto tempo o reservatório aguenta sem nova captação quando o manancial está reduzido. Execute o módulo de Adução primeiro.</p>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;flex-wrap:wrap;">
+      <label style="font-size:12px;font-weight:500;color:var(--text2);white-space:nowrap;">Vazão disponível do manancial</label>
+      <input type="range" id="rac-pct" min="0" max="100" value="50" step="5" oninput="calcRacionamento()" style="flex:1;min-width:120px;accent-color:var(--accent);">
+      <span id="rac-pct-label" style="font-size:16px;font-weight:700;color:var(--accent);min-width:40px;text-align:right;">50%</span>
+      <span style="font-size:11px;color:var(--text3);">da normal</span>
+    </div>
+    <div id="rac-q95-hint" style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px;"></div>
+    <div id="rac-result"><div class="alert alert-info" style="font-size:12px;">Execute o módulo de Adução para habilitar a simulação.</div></div>
+  </div>
+
+  <!-- ALERTA CLIMÁTICO — HidroWeb / ANA -->
+  <details class="advanced-opts" style="margin-top:0;">
+    <summary>🌊 Alerta Climático — Vazão de Seca Q95 (HidroWeb / ANA) — experimental</summary>
+    <div class="advanced-opts-body">
+      <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:12px;">Busca a série histórica de vazões de uma estação fluviométrica da ANA e calcula a Q95 (vazão excedida 95% do tempo). Compara com a Q·K1 do projeto para avaliar viabilidade de captação e outorga.</p>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+        <div>
+          <label style="font-size:11px;font-weight:500;text-transform:uppercase;color:var(--text3);">Código estação ANA (8 dígitos)</label>
+          <input type="text" id="hidroweb-cod" placeholder="Ex: 62845000" maxlength="10" style="margin-top:4px;width:140px;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;background:var(--input-bg);color:var(--text);">
+        </div>
+        <button class="btn btn-primary" onclick="buscarVazaoHidroweb()" style="margin-top:18px;">
+          <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Buscar Q95
+        </button>
+      </div>
+      <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:10px;">Consulte o código em <a href="https://hidroweb.ana.gov.br" target="_blank" rel="noopener" style="color:var(--accent);">hidroweb.ana.gov.br</a> · Em caso de falha de CORS, use entrada manual de Q95</div>
+      <div id="hidroweb-result"></div>
+    </div>
+  </details>
+
 </div>
 
 </div><!-- /app -->
@@ -1076,6 +1157,20 @@
 <script src="js/decision.js"></script>
 <script src="js/avancados.js"></script>
 <script src="js/main.js"></script>
+<script>
+// Popula o select de biblioteca de bombas após carregar avancados.js
+(function(){
+  var sel = document.getElementById('pump-biblioteca');
+  if(sel && typeof BOMBAS_PADRAO !== 'undefined'){
+    BOMBAS_PADRAO.forEach(function(b){
+      var opt = document.createElement('option');
+      opt.value = b.id;
+      opt.textContent = b.label;
+      sel.appendChild(opt);
+    });
+  }
+})();
+</script>
 
 <!-- FOOTER -->
 <footer class="site-footer" role="contentinfo">

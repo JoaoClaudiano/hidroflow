@@ -152,6 +152,25 @@ function renderObras(pop,v,p,ano){
   const warnAdut=v_adut_real>3?`<div style="margin-top:4px;color:var(--red);font-family:var(--mono);font-size:10px;">⚠ Velocidade real ${v_adut_real.toFixed(2)} m/s &gt; 3,0 m/s — risco de erosão. Considere aumentar o DN.</div>`:'';
   const warnRede=v_rede_real>3?`<div style="margin-top:4px;color:var(--red);font-family:var(--mono);font-size:10px;">⚠ Velocidade real ${v_rede_real.toFixed(2)} m/s &gt; 3,0 m/s — risco de erosão. Considere aumentar o DN.</div>`:'';
 
+  // ── Estimativa de custos CAPEX/OPEX ─────────────────────────────────────────
+  // Comprimento da adutora: lê do módulo de Adução se disponível, ou usa padrão de 5 km
+  const L_adutora=+(document.getElementById('ad-comp')?.value)||5000;
+  const L_adutora_km=(L_adutora/1000).toFixed(1);
+  // Estimativa de comprimento da rede: ~8 m de rede por habitante (típico Brasil)
+  const L_rede=pop*8;
+  const capex_res=vol_res_total*TABELA_CUSTOS.reservatorio_m3;
+  const capex_adut=estimarCustoAdutora(DN_adut,L_adutora);
+  const capex_rede=estimarCustoRede(DN_rede,L_rede);
+  const capex_eta=area_eta*TABELA_CUSTOS.eta_m2;
+  const capex_ete=vol_ete*TABELA_CUSTOS.ete_m3;
+  const opex_pct=TABELA_CUSTOS.opex_pct;
+  const opexLabel=(capex)=>`OPEX/ano ≈ ${formatBRL(capex*opex_pct)}`;
+  const custoTag=(capex,extra='')=>`
+    <div style="margin-top:8px;padding:6px 10px;background:var(--green-bg);border-radius:var(--radius);font-size:11px;font-family:var(--mono);">
+      💰 CAPEX estimado: <strong>${formatBRL(capex)}</strong> · ${opexLabel(capex)}${extra}
+      <span style="color:var(--text3);display:block;margin-top:2px;font-size:10px;">Ref: SINAPI 2024 — apenas para estudo de viabilidade</span>
+    </div>`;
+
   document.getElementById('dim-display').innerHTML=`
     <p style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:14px;">Dimensionamento de obras para <strong style="color:var(--text);">${pop.toLocaleString('pt-BR')} hab</strong> em <strong style="color:var(--text);">${ano}</strong></p>
 
@@ -162,6 +181,7 @@ function renderObras(pop,v,p,ano){
       </div>
       <div class="dim-detail">Volume de regularização (1/3 do volume do dia de maior consumo, NBR 12217) + reserva de incêndio NBR 13714 (${V_incendio.toFixed(0)} m³). Ref: NBR 12217 / FUNASA.</div>
       <div class="dim-formula">V_reg = (1/3) × Q·K1 × 86.400 / 1.000 = ${vol_res.toFixed(0)} m³ · V_inc = ${V_incendio.toFixed(0)} m³ → <strong>V_total = ${vol_res_total.toFixed(0)} m³</strong></div>
+      ${custoTag(capex_res,' · R$1.800/m³ concreto armado')}
     </div>
 
     <div class="dim-card">
@@ -172,6 +192,7 @@ function renderObras(pop,v,p,ano){
       <div class="dim-detail">Diâmetro calculado para conduzir Q·K1 com velocidade de 1,5 m/s. DN nominal arredondado para cima (série ABNT). Velocidade real no DN ${DN_adut} mm: ${v_adut_real.toFixed(2)} m/s.</div>
       <div class="dim-formula">D = √(4·Q / π·v) = ${diam_adut.toFixed(0)} mm calc. → DN ${DN_adut} mm · v = ${v_adut_real.toFixed(2)} m/s</div>
       ${warnAdut}
+      ${custoTag(capex_adut,` · ${L_adutora_km} km (comprimento do módulo Adução)`)}
     </div>
 
     <div class="dim-card">
@@ -182,6 +203,7 @@ function renderObras(pop,v,p,ano){
       <div class="dim-detail">Diâmetro para conduzir Q·K1·K2 (hora de ponta) com velocidade de 2,0 m/s no tronco. Derivações secundárias: DN 75–100 mm. Velocidade real no tronco: ${v_rede_real.toFixed(2)} m/s. NBR 12218.</div>
       <div class="dim-formula">D_rede = √(4·Q·K1·K2 / (π·v)) = ${diam_rede.toFixed(0)} mm calc. → DN ${DN_rede} mm · v = ${v_rede_real.toFixed(2)} m/s</div>
       ${warnRede}
+      ${custoTag(capex_rede,` · L≈${(L_rede/1000).toFixed(1)} km estimada (~8 m/hab)`)}
     </div>
 
     <div class="dim-card">
@@ -191,6 +213,7 @@ function renderObras(pop,v,p,ano){
       </div>
       <div class="dim-detail">Área de leito filtrante para taxa de filtração de 600 m³/m²/dia (filtro rápido pressão). Capacidade de tratamento: ${v.m3dia.toFixed(0)} m³/dia.</div>
       <div class="dim-formula">A_ETA = Q / τ = ${v.m3dia.toFixed(0)} m³/dia ÷ 600 m³/m²/dia = ${area_eta.toFixed(0)} m²</div>
+      ${custoTag(capex_eta,' · R$8.500/m² filtração')}
       ${renderETAAvancadaCard(v)}
     </div>
 
@@ -201,6 +224,7 @@ function renderObras(pop,v,p,ano){
       </div>
       <div class="dim-detail">Lagoa facultativa com tempo de detenção hidráulica de <strong>20 dias</strong> (Von Sperling 2002 / FUNASA — clima tropical). Profundidade útil: 3,5 m. Área da lagoa: ${area_lagoa.toFixed(0)} m² = ${(area_lagoa/10000).toFixed(2)} ha. Vazão afluente: ${v.Qesg.toFixed(2)} L/s. <em>Nota: TDH de 2 dias é adequado para reatores UASB, não para lagoa facultativa.</em></div>
       <div class="dim-formula">V_ETE = Q_esg × 86.400 × TDH(20d) / 1.000 = ${v.Qesg.toFixed(2)} L/s × 86.400 × 20 / 1.000 = ${vol_ete.toFixed(0)} m³</div>
+      ${custoTag(capex_ete,' · R$95/m³ lagoa facultativa')}
     </div>
 
     <div class="dim-card">
@@ -210,6 +234,19 @@ function renderObras(pop,v,p,ano){
       </div>
       <div class="dim-detail">Geração de ${v.res_td.toFixed(1)} ton/dia. Volume de aterro necessário para 20 anos: ${(v.res_td*365*20/0.8).toFixed(0)} m³ (densidade 0,8 t/m³).</div>
       <div class="dim-formula">V_aterro = ${v.res_td.toFixed(1)} × 365 × 20 / 0,8 = ${(v.res_td*365*20/0.8).toFixed(0)} m³</div>
+    </div>
+
+    <div class="dim-card" style="background:var(--green-bg);">
+      <div class="dim-header">
+        <div class="dim-title">💰 Resumo CAPEX/OPEX estimado</div>
+        <div><div class="dim-result" style="font-size:20px;">${formatBRL(capex_res+capex_adut+capex_eta+capex_ete)}</div><div class="dim-unit">CAPEX total (sem rede)</div></div>
+      </div>
+      <div class="dim-detail" style="font-family:var(--mono);font-size:11px;">
+        Reservatório: ${formatBRL(capex_res)} · Adutora (${L_adutora_km} km): ${formatBRL(capex_adut)} · ETA: ${formatBRL(capex_eta)} · ETE: ${formatBRL(capex_ete)}<br>
+        Rede de distribuição (${(L_rede/1000).toFixed(1)} km estimada): ${formatBRL(capex_rede)}<br>
+        OPEX anual estimado: ${formatBRL((capex_res+capex_adut+capex_eta+capex_ete+capex_rede)*opex_pct)}
+      </div>
+      <div class="dim-formula" style="color:var(--text3);font-size:10px;">Ref: SINAPI / SABESP 2024 · Valores médios Nordeste/Sudeste · Não inclui desapropriações, projetos, LI/LP/LO</div>
     </div>
     ${renderManningCard(v,p,pop)}`;
 }
