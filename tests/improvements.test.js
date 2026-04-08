@@ -255,6 +255,50 @@ describe('autoParshallIdx — seleção automática de garganta Parshall', () =>
   });
 });
 
+// ── calcPotBombeamento (infra.js) ─────────────────────────────────────────────
+describe('calcPotBombeamento — potencia de bombeamento', () => {
+  // Pot (CV) = (1000 * Q_m3s * H_man) / (75 * eta)
+  // Q_m3s = Q_ls / 1000
+  test('100 L/s, H=30m, eta=0.65: Pot_cv ≈ 61.5 CV', () => {
+    const r = infra.calcPotBombeamento(100, 30, 0.65, 16);
+    // (1000 * 0.1 * 30) / (75 * 0.65) = 3000 / 48.75 ≈ 61.54
+    expect(r.pot_cv).toBeCloseTo(61.54, 1);
+  });
+
+  test('pot_kw = pot_cv * 0.7355', () => {
+    const r = infra.calcPotBombeamento(100, 30, 0.65, 16);
+    expect(r.pot_kw).toBeCloseTo(r.pot_cv * 0.7355, 4);
+  });
+
+  test('en_mwh_ano = pot_kw * N_horas * 365 / 1000', () => {
+    const N = 16;
+    const r = infra.calcPotBombeamento(100, 30, 0.65, N);
+    expect(r.en_mwh_ano).toBeCloseTo(r.pot_kw * N * 365 / 1000, 4);
+  });
+
+  test('N_horas padrao 16 quando nao informado', () => {
+    const r = infra.calcPotBombeamento(100, 30, 0.65, undefined);
+    expect(r.N_horas).toBe(16);
+  });
+
+  test('eta padrao 0.65 quando nao informado', () => {
+    const r1 = infra.calcPotBombeamento(100, 30, undefined, 16);
+    const r2 = infra.calcPotBombeamento(100, 30, 0.65, 16);
+    expect(r1.pot_cv).toBeCloseTo(r2.pot_cv, 4);
+  });
+
+  test('maior H_man aumenta potencia proporcionalmente', () => {
+    const r20 = infra.calcPotBombeamento(100, 20, 0.65, 16);
+    const r40 = infra.calcPotBombeamento(100, 40, 0.65, 16);
+    expect(r40.pot_cv).toBeCloseTo(r20.pot_cv * 2, 4);
+  });
+
+  test('Q zero resulta em pot_cv zero', () => {
+    const r = infra.calcPotBombeamento(0, 30, 0.65, 16);
+    expect(r.pot_cv).toBe(0);
+  });
+});
+
 // ── calcInfra — reservatório NBR 12217 e QesgK1K2 ────────────────────────────
 describe('calcInfra — volume de reservatório e SES hora de ponta', () => {
   const p = {
