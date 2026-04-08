@@ -29,12 +29,12 @@ function toggleCustomParams(){
 // eta   : rendimento global da bomba (decimal, ex: 0.65)
 // N_horas_dia: horas de operacao por dia (default 16 h — FUNASA)
 function calcPotBombeamento(Q_ls, H_man_m, eta, N_horas_dia){
-  var Q_m3s=Q_ls/1000;
-  var pot_cv=(1000*Q_m3s*H_man_m)/(75*(eta||0.65));
-  var pot_kw=pot_cv*0.7355;
-  var N=N_horas_dia||16;
-  var en_mwh_ano=pot_kw*N*365/1000;
-  return{pot_cv:pot_cv,pot_kw:pot_kw,en_mwh_ano:en_mwh_ano,N_horas:N};
+  const Q_m3s=Q_ls/1000;
+  const pot_cv=(1000*Q_m3s*H_man_m)/(75*(eta||0.65));
+  const pot_kw=pot_cv*0.7355;
+  const N=N_horas_dia||16;
+  const en_mwh_ano=pot_kw*N*365/1000;
+  return{pot_cv,pot_kw,en_mwh_ano,N_horas:N};
 }
 
 // Coeficiente de ponta de esgoto pela Fórmula de Harmon (P em mil hab)
