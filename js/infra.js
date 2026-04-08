@@ -22,6 +22,21 @@ function toggleCustomParams(){
   renderDimensionamento();
 }
 
+// ── Potência de bombeamento — fórmula clássica ────────────────────────────────
+// Pot (CV) = (1000 × Q_m3s × H_man) / (75 × eta)
+// Q_ls  : vazão em L/s
+// H_man_m: altura manométrica total (m) = desnivel geometrico + perdas de carga
+// eta   : rendimento global da bomba (decimal, ex: 0.65)
+// N_horas_dia: horas de operacao por dia (default 16 h — FUNASA)
+function calcPotBombeamento(Q_ls, H_man_m, eta, N_horas_dia){
+  var Q_m3s=Q_ls/1000;
+  var pot_cv=(1000*Q_m3s*H_man_m)/(75*(eta||0.65));
+  var pot_kw=pot_cv*0.7355;
+  var N=N_horas_dia||16;
+  var en_mwh_ano=pot_kw*N*365/1000;
+  return{pot_cv:pot_cv,pot_kw:pot_kw,en_mwh_ano:en_mwh_ano,N_horas:N};
+}
+
 // Coeficiente de ponta de esgoto pela Fórmula de Harmon (P em mil hab)
 // M = 1 + 14/(4+√P) = (4+√P+14)/(4+√P) = (18+√P)/(4+√P)
 function harmonPeakFactor(pop){
@@ -113,6 +128,10 @@ function renderDimensionamento(){
   const p=getParams();
   const v=calcInfra(pop,p);
   const customTag=p.custom?`<span style="font-size:10px;background:var(--amber-bg);color:var(--amber);padding:1px 6px;border-radius:3px;font-family:var(--mono);margin-left:6px;">param. customizados</span>`:'';
+  const H_man=+(document.getElementById('bomba-hman')?.value)||30;
+  const eta_pct=+(document.getElementById('bomba-eta')?.value)||65;
+  const N_horas=+(document.getElementById('ad-horas')?.value)||16;
+  const bomb=calcPotBombeamento(v.QK1,H_man,eta_pct/100,N_horas);
 
   document.getElementById('infra-display').innerHTML=`
     <p style="font-size:12px;color:var(--text3);margin-bottom:16px;font-family:var(--mono);">
@@ -131,10 +150,11 @@ function renderDimensionamento(){
       <div class="infra-card red">${ic(SVG_FLOW,'red')}<div class="infra-title">Qesg hora de ponta</div><div class="infra-value">${v.QesgK1K2.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">${v.useHarmon?`Harmon K=${v.K_harmon.toFixed(2)}`:`K1·K2 = ${(p.K1*p.K2).toFixed(2)}`}</div></div>
       <div class="infra-card">${ic(SVG_FLOW)}<div class="infra-title">Q mínima noturna</div><div class="infra-value">${v.QK3.toFixed(2)}</div><div class="infra-unit">L/s</div><div class="infra-ponta">K3 = ${p.K3.toFixed(2)}</div></div>
     </div>
-    <div class="infra-section-title">Resíduos e energia</div>
+    <div class="infra-section-title">Res&iacute;duos e energia</div>
     <div class="infra-grid-4">
-      <div class="infra-card amber">${ic(SVG_WASTE,'amber')}<div class="infra-title">Resíduos sólidos</div><div class="infra-value">${v.res_td.toFixed(1)}</div><div class="infra-unit">ton/dia</div><div class="infra-unit" style="margin-top:3px;">${(v.res_td*365).toFixed(0)} ton/ano</div></div>
-      <div class="infra-card amber">${ic(SVG_ENERGY,'amber')}<div class="infra-title">Energia elétrica</div><div class="infra-value">${v.en_mwh.toFixed(0)}</div><div class="infra-unit">MWh/mês</div><div class="infra-unit" style="margin-top:3px;">${(v.en_mwh*12).toLocaleString('pt-BR')} MWh/ano</div></div>
+      <div class="infra-card amber">${ic(SVG_WASTE,'amber')}<div class="infra-title">Res&iacute;duos s&oacute;lidos</div><div class="infra-value">${v.res_td.toFixed(1)}</div><div class="infra-unit">ton/dia</div><div class="infra-unit" style="margin-top:3px;">${(v.res_td*365).toFixed(0)} ton/ano</div><div style="margin-top:6px;padding:3px 6px;background:var(--amber-bg);border-left:2px solid var(--amber);border-radius:3px;font-size:9px;color:var(--amber);font-weight:600;">Dado de apoio ao PMGIRS &mdash; n&atilde;o &eacute; projeto de aterro</div></div>
+      <div class="infra-card amber">${ic(SVG_ENERGY,'amber')}<div class="infra-title">Energia &mdash; &iacute;ndice setorial</div><div class="infra-value">${v.en_mwh.toFixed(0)}</div><div class="infra-unit">MWh/m&ecirc;s</div><div class="infra-unit" style="margin-top:3px;">${(v.en_mwh*12).toLocaleString('pt-BR')} MWh/ano</div><div style="margin-top:4px;font-size:9px;color:var(--text3);">Estimativa setorial (${p.en} kWh/hab/m&ecirc;s) &mdash; veja recalque &rarr;</div></div>
+      <div class="infra-card amber">${ic(SVG_ENERGY,'amber')}<div class="infra-title">Recalque &mdash; c&aacute;lculo de engenharia</div><div class="infra-value">${bomb.pot_cv.toFixed(0)}</div><div class="infra-unit">CV &mdash; ${bomb.pot_kw.toFixed(0)} kW</div><div class="infra-unit" style="margin-top:3px;">${bomb.en_mwh_ano.toFixed(0)} MWh/ano (${N_horas}h/dia)</div><div style="margin-top:4px;font-size:9px;color:var(--text3);">Pot = 1000&middot;Q&middot;H/(75&middot;&eta;) | Q·K1=${v.QK1.toFixed(1)} L/s | H=${H_man}m | &eta;=${eta_pct}%</div></div>
       ${p.extra1Nome&&p.extra1Val>0?`<div class="infra-card green">${ic(SVG_FLOW,'green')}<div class="infra-title">${p.extra1Nome}</div><div class="infra-value">${p.extra1Val.toFixed(2)}</div><div class="infra-unit">L/s (fixo)</div></div>`:''}
     </div>`;
 
@@ -183,7 +203,7 @@ function renderObras(pop,v,p,ano){
   const custoTag=(capex,extra='')=>`
     <div style="margin-top:8px;padding:6px 10px;background:var(--green-bg);border-radius:var(--radius);font-size:11px;font-family:var(--mono);">
       💰 CAPEX estimado: <strong>${formatBRL(capex)}</strong> · ${opexLabel(capex)}${extra}
-      <span style="color:var(--text3);display:block;margin-top:2px;font-size:10px;">Ref: SINAPI 2024 — apenas para estudo de viabilidade</span>
+      <div style="margin-top:5px;padding:4px 8px;background:var(--amber-bg);border-left:3px solid var(--amber);border-radius:3px;font-size:10px;color:var(--amber);font-weight:600;">&#9432; Ordem de grandeza (&plusmn;30%) &mdash; Estudo Preliminar &middot; Ref: SINAPI 2024 &middot; Sem terraplenagem, licenciamento ou desapropria&ccedil;&otilde;es</div>
     </div>`;
 
   document.getElementById('dim-display').innerHTML=`
@@ -244,24 +264,26 @@ function renderObras(pop,v,p,ano){
 
     <div class="dim-card">
       <div class="dim-header">
-        <div class="dim-title">${ic(SVG_WASTE,'amber')} Aterro sanitário / Galpão de triagem</div>
+        <div class="dim-title">${ic(SVG_WASTE,'amber')} Res&iacute;duos S&oacute;lidos &mdash; Indicador de Planejamento</div>
         <div><div class="dim-result">${(v.res_td*365*20/1000).toFixed(1)}</div><div class="dim-unit">mil ton (20 anos)</div></div>
       </div>
-      <div class="dim-detail">Geração de ${v.res_td.toFixed(1)} ton/dia. Volume de aterro necessário para 20 anos: ${(v.res_td*365*20/0.8).toFixed(0)} m³ (densidade 0,8 t/m³).</div>
-      <div class="dim-formula">V_aterro = ${v.res_td.toFixed(1)} × 365 × 20 / 0,8 = ${(v.res_td*365*20/0.8).toFixed(0)} m³</div>
+      <div style="margin-bottom:8px;padding:5px 8px;background:var(--amber-bg);border-left:3px solid var(--amber);border-radius:3px;font-size:10px;color:var(--amber);font-weight:600;">&#9432; Dado de apoio ao PMGIRS (Plano Municipal de Gest&atilde;o Integrada de Res&iacute;duos S&oacute;lidos) &mdash; N&atilde;o &eacute; projeto de aterro. N&atilde;o inclui c&aacute;lculo de c&eacute;lulas, drenagem de chorume ou licenciamento ambiental.</div>
+      <div class="dim-detail">Gera&ccedil;&atilde;o de ${v.res_td.toFixed(1)} ton/dia. Volume estimado para 20 anos: ${(v.res_td*365*20/0.8).toFixed(0)} m&sup3; (densidade 0,8 t/m&sup3;).</div>
+      <div class="dim-formula">V_aterro = ${v.res_td.toFixed(1)} &times; 365 &times; 20 / 0,8 = ${(v.res_td*365*20/0.8).toFixed(0)} m&sup3;</div>
     </div>
 
     <div class="dim-card" style="background:var(--green-bg);">
       <div class="dim-header">
-        <div class="dim-title">💰 Resumo CAPEX/OPEX estimado</div>
+        <div class="dim-title">💰 Ordem de Grandeza Or&ccedil;ament&aacute;ria &mdash; Estudo de Viabilidade</div>
         <div><div class="dim-result" style="font-size:20px;">${formatBRL(capex_res+capex_adut+capex_eta+capex_ete)}</div><div class="dim-unit">CAPEX total (sem rede)</div></div>
       </div>
+      <div style="margin-bottom:8px;padding:5px 8px;background:var(--amber-bg);border-left:3px solid var(--amber);border-radius:3px;font-size:10px;color:var(--amber);font-weight:600;">&#9432; Estimativa de ordem de grandeza (&plusmn;30%) baseada em indicadores m&eacute;dios nacionais (SINAPI 2024). N&atilde;o considera topografia, tipo de solo, dist&acirc;ncias reais, terraplenagem, licenciamento (LI/LP/LO), desapropria&ccedil;&otilde;es ou custos ambientais.</div>
       <div class="dim-detail" style="font-family:var(--mono);font-size:11px;">
-        Reservatório: ${formatBRL(capex_res)} · Adutora (${L_adutora_km} km): ${formatBRL(capex_adut)} · ETA: ${formatBRL(capex_eta)} · ETE: ${formatBRL(capex_ete)}<br>
-        Rede de distribuição (${(L_rede/1000).toFixed(1)} km estimada): ${formatBRL(capex_rede)}<br>
+        Reservat&oacute;rio: ${formatBRL(capex_res)} · Adutora (${L_adutora_km} km): ${formatBRL(capex_adut)} · ETA: ${formatBRL(capex_eta)} · ETE: ${formatBRL(capex_ete)}<br>
+        Rede de distribui&ccedil;&atilde;o (${(L_rede/1000).toFixed(1)} km estimada): ${formatBRL(capex_rede)}<br>
         OPEX anual estimado: ${formatBRL((capex_res+capex_adut+capex_eta+capex_ete+capex_rede)*opex_pct)}
       </div>
-      <div class="dim-formula" style="color:var(--text3);font-size:10px;">Ref: SINAPI / SABESP 2024 · Valores médios Nordeste/Sudeste · Não inclui desapropriações, projetos, LI/LP/LO<br><strong>Rede de distribuição:</strong> extensão estimada em ~8 m/hab — CAPEX da rede deve ser interpretado como ordem de grandeza. Use o módulo Rede de Distribuição (Hardy-Cross + EPANET) para quantificação detalhada.</div>
+      <div class="dim-formula" style="color:var(--text3);font-size:10px;">Ref: SINAPI / SABESP 2024 · Valores m&eacute;dios Nordeste/Sudeste<br><strong>Rede de distribui&ccedil;&atilde;o:</strong> extens&atilde;o estimada em ~8 m/hab — use o m&oacute;dulo Rede de Distribui&ccedil;&atilde;o (Hardy-Cross + EPANET) para quantifica&ccedil;&atilde;o detalhada.</div>
     </div>
     ${renderManningCard(v,p,pop)}`;
 }
