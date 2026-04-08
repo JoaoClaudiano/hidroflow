@@ -161,6 +161,17 @@
   <div class="wp-sep"></div>
   <div class="wp-step" id="wp-5" title="Relatorio"><span class="wp-circle">5</span><span class="wp-label">Relatorio</span></div>
 </div>
+
+<!-- AVISO DE VIABILIDADE — dismissível -->
+<div id="banner-viabilidade" style="background:var(--amber-bg,#fef3c7);border:1px solid var(--amber,#f59e0b);border-radius:var(--radius,6px);padding:10px 14px;margin-bottom:4px;display:flex;align-items:flex-start;gap:10px;font-family:var(--mono);font-size:12px;">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--amber,#f59e0b)" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <div style="flex:1;color:var(--text2,#374151);line-height:1.55;">
+    <strong style="color:var(--text,#111);">Ferramenta exclusivamente para estudo de pré-viabilidade.</strong>
+    Todos os resultados (vazões, dimensionamentos, CAPEX, diagnósticos) são <strong>estimativas preliminares</strong> baseadas em dados censitários e parâmetros típicos. Não substituem projetos executivos, laudos técnicos assinados por profissional habilitado (CREA/CAU) nem estudos de impacto ambiental. Consulte o <a href="disclaimer.html" style="color:var(--amber,#b45309);">Aviso Legal</a> completo antes de tomar decisões de investimento.
+  </div>
+  <button onclick="dismissBannerViabilidade()" style="background:none;border:none;cursor:pointer;color:var(--text3,#6b7280);font-size:16px;line-height:1;padding:0 2px;flex-shrink:0;" title="Fechar aviso" aria-label="Fechar aviso">&#x2715;</button>
+</div>
+<script>(function(){try{if(sessionStorage.getItem('hf_banner_ok')){var b=document.getElementById('banner-viabilidade');if(b)b.style.display='none';}}catch(e){}}());</script>
 <!-- TABS -->
 <div class="tabs" role="tablist" aria-label="Abas principais">
   <button class="tab" onclick="showTab('decisao',this)">
@@ -334,10 +345,10 @@
 <div id="sec-dimensionamento" class="section">
   <div class="card">
     <div class="card-title">Parâmetros de consumo</div>
-    <div class="slider-row"><label>Água (L/hab/dia)</label><input type="range" min="80" max="300" value="150" step="5" id="sl-agua" oninput="updateSlider('agua')"><span class="slider-val" id="sv-agua">150 L/hab/dia</span></div>
-    <div class="slider-row"><label>Retorno esgoto (%)</label><input type="range" min="50" max="95" value="80" step="1" id="sl-esgoto" oninput="updateSlider('esgoto')"><span class="slider-val" id="sv-esgoto">80%</span></div>
-    <div class="slider-row"><label>Resíduos (kg/hab/dia)</label><input type="range" min="0.3" max="1.5" value="0.7" step="0.05" id="sl-residuos" oninput="updateSlider('residuos')"><span class="slider-val" id="sv-residuos">0.70 kg/hab/dia</span></div>
-    <div class="slider-row"><label>Energia (kWh/hab/mês)</label><input type="range" min="50" max="500" value="180" step="5" id="sl-energia" oninput="updateSlider('energia')"><span class="slider-val" id="sv-energia">180 kWh/hab/mês</span></div>
+    <div class="slider-row"><label>Água (L/hab/dia) <span class="tip-icon" data-tip="Consumo médio per capita (q). FUNASA: 150 L/hab/dia (urbano). NBR 12211 mínimo: 100 L/hab/dia. Região Nordeste: 120–150. Grandes cidades: 180–250.">?</span></label><input type="range" min="80" max="300" value="150" step="5" id="sl-agua" oninput="updateSlider('agua')"><span class="slider-val" id="sv-agua">150 L/hab/dia</span></div>
+    <div class="slider-row"><label>Retorno esgoto (%) <span class="tip-icon" data-tip="Coeficiente de retorno C: parcela do consumo de água que gera esgoto. NBR 9648: C = 0,80 (80%). Valores 70–85% são aceitos conforme uso do solo.">?</span></label><input type="range" min="50" max="95" value="80" step="1" id="sl-esgoto" oninput="updateSlider('esgoto')"><span class="slider-val" id="sv-esgoto">80%</span></div>
+    <div class="slider-row"><label>Resíduos (kg/hab/dia) <span class="tip-icon" data-tip="Produção per capita de resíduos sólidos domiciliares. Brasil: 0,5–1,2 kg/hab/dia (SNIS 2023). Municípios de pequeno porte: 0,5–0,8. Grandes cidades: 1,0–1,3.">?</span></label><input type="range" min="0.3" max="1.5" value="0.7" step="0.05" id="sl-residuos" oninput="updateSlider('residuos')"><span class="slider-val" id="sv-residuos">0.70 kg/hab/dia</span></div>
+    <div class="slider-row"><label>Energia (kWh/hab/mês) <span class="tip-icon" data-tip="Consumo residencial médio de energia elétrica. Média brasileira: ~180 kWh/hab/mês (ANEEL). Nordeste: ~130. Sul: ~200+. Usado para estimativa de demanda de concessionária.">?</span></label><input type="range" min="50" max="500" value="180" step="5" id="sl-energia" oninput="updateSlider('energia')"><span class="slider-val" id="sv-energia">180 kWh/hab/mês</span></div>
 
     <!-- PARÂMETROS CUSTOMIZADOS -->
     <div style="margin-top:12px;">
@@ -362,9 +373,9 @@
     <div class="separator"></div>
     <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Coeficientes de ponta (NBR 12211 / FUNASA)</div>
     <div class="grid-3">
-      <div><label>K1 — dia de maior consumo</label><input type="number" id="k1" value="1.2" step="0.01" min="1" max="1.5" oninput="renderDimensionamento();validarCampoNumerico(this,1.0,1.5,'K1')"></div>
-      <div><label>K2 — hora de maior consumo</label><input type="number" id="k2" value="1.5" step="0.01" min="1" max="2" oninput="renderDimensionamento();validarCampoNumerico(this,1.2,2.5,'K2')"></div>
-      <div><label>K3 — hora de menor consumo</label><input type="number" id="k3" value="0.5" step="0.01" min="0.1" max="1" oninput="renderDimensionamento();validarCampoNumerico(this,0.3,0.7,'K3')"></div>
+      <div><label>K1 — dia de maior consumo <span class="tip-icon" data-tip="Coeficiente do dia de maior consumo. NBR 12211: K1 = 1,2 (típico urbano). Municípios turísticos ou rurais podem usar 1,3–1,5. Multiplica a vazão média diária para obter a vazão do dia de ponta.">?</span></label><input type="number" id="k1" value="1.2" step="0.01" min="1" max="1.5" oninput="renderDimensionamento();validarCampoNumerico(this,1.0,1.5,'K1')"></div>
+      <div><label>K2 — hora de maior consumo <span class="tip-icon" data-tip="Coeficiente da hora de maior consumo. NBR 12211: K2 = 1,5 (urbano típico). Pode chegar a 2,0–3,0 para pequenas localidades. Multiplica Q·K1 para obter a vazão de ponta horária.">?</span></label><input type="number" id="k2" value="1.5" step="0.01" min="1" max="2" oninput="renderDimensionamento();validarCampoNumerico(this,1.2,2.5,'K2')"></div>
+      <div><label>K3 — hora de menor consumo <span class="tip-icon" data-tip="Coeficiente da hora de menor consumo. NBR 12211: K3 = 0,5 (típico). Indica que a vazão mínima é 50% da média horária. Usado no dimensionamento do reservatório de regularização.">?</span></label><input type="number" id="k3" value="0.5" step="0.01" min="0.1" max="1" oninput="renderDimensionamento();validarCampoNumerico(this,0.3,0.7,'K3')"></div>
     </div>
 
     <!-- OPÇÕES AVANÇADAS — ESGOTO -->
@@ -493,7 +504,8 @@
 <div id="sec-aducao" class="section">
 
   <div class="alert alert-info" style="margin-bottom:1rem;font-family:var(--mono);font-size:12px;">
-    <strong>Módulo de Infraestrutura Hidráulica</strong> · Bresse · Rippl · Hazen-Williams · Golpe de Aríete · Verificação NBR · Preset CAGECE/UFC
+    <strong>Módulo de Infraestrutura Hidráulica</strong> · Bresse · Rippl · Hazen-Williams · <strong>Golpe de Aríete (Joukowsky/Michaud)</strong> · NPSH · LCC · Verificação NBR · Preset CAGECE/UFC
+    <br><span style="color:var(--text3);font-size:11px;">Preencha os parâmetros abaixo. Os resultados ficam disponíveis após executar a <strong>Projeção + Envelope</strong>. Passe o cursor sobre o ícone <span class="tip-icon">?</span> para ver a descrição de cada campo.</span>
   </div>
 
   <!-- PRESET + DADOS ENTRADA -->
@@ -514,15 +526,15 @@
 
     <div class="grid-3" style="margin-bottom:14px;">
       <div>
-        <label>Cota captação / manancial (m)</label>
+        <label>Cota captação / manancial (m) <span class="tip-icon" data-tip="Altitude do ponto de captação no manancial (m acima do nível do mar). A diferença entre a cota do reservatório e a do manancial define a altura geométrica de recalque (Hgeo).">?</span></label>
         <input type="number" id="ad-cota-cap" value="10" step="0.1" oninput="calcAducao()">
       </div>
       <div>
-        <label>Cota chegada / reservatório (m)</label>
+        <label>Cota chegada / reservatório (m) <span class="tip-icon" data-tip="Altitude do reservatório de distribuição (m acima do nível do mar). Deve estar acima da maior cota da área de abastecimento para garantir pressão mínima de 10 mca nos pontos extremos (NBR 12218).">?</span></label>
         <input type="number" id="ad-cota-res" value="85" step="0.1" oninput="calcAducao()">
       </div>
       <div>
-        <label>Comprimento da adutora (m)</label>
+        <label>Comprimento da adutora (m) <span class="tip-icon" data-tip="Comprimento real da adutora medido em planta. Recomenda-se adicionar 10–15% para compensar curvas, conexões e singularidades. É o principal fator no cálculo de perda de carga (Hazen-Williams ou Darcy-Weisbach).">?</span></label>
         <input type="number" id="ad-comp" value="3500" step="10" oninput="calcAducao()">
       </div>
       <div>
@@ -552,18 +564,18 @@
         <input type="hidden" id="ad-chw" value="140">
       </div>
       <div>
-        <label>Horas de bombeamento N (h/dia)</label>
+        <label>Horas de bombeamento N (h/dia) <span class="tip-icon" data-tip="N = número de horas diárias de operação das bombas. FUNASA recomenda N = 16–20h. Evitar 18h–21h (pico tarifário ANEEL). N menor = adutora maior. Usar N = 24h apenas com reservatório de regularização adequado.">?</span></label>
         <input type="number" id="ad-horas" value="16" min="1" max="24" step="1" oninput="calcAducao()">
         <div style="font-size:10px;color:var(--amber);font-family:var(--mono);margin-top:3px;">⚡ Evitar 18h–21h (pico tarifário ANEEL)</div>
       </div>
       <div>
-        <label>Rendimento global bomba η (%)</label>
+        <label>Rendimento global bomba η (%) <span class="tip-icon" data-tip="Rendimento global da bomba = rendimento hidráulico x mecânico x elétrico x transmissão. Bombas centrífugas novas: 70–82%. Incluir motor e variador de frequência. Valor abaixo de 60% indica equipamento sobredimensionado ou degradado.">?</span></label>
         <input type="number" id="ad-eta" value="72" min="30" max="95" step="1" oninput="calcAducao()">
       </div>
     </div>
     <div class="grid-3">
       <div>
-        <label>Constante K — Fórmula de Bresse</label>
+        <label>Constante K — Fórmula de Bresse <span class="tip-icon" data-tip="K na fórmula de Bresse: D = K * sqrt(Q/1000). K depende do regime de bombeamento. 'Auto' calcula K = 1,3 * (N/24)^0,25 (recomendado). Para bombeamento contínuo (24h): K = 0,9. Para N=16h: K ≈ 1,2 (FUNASA).">?</span></label>
         <select id="ad-k-bresse" onchange="calcAducao()">
           <option value="auto" selected>Auto — K = 1,3·(N/24)^0,25</option>
           <option value="0.9">0,9 — Bombeamento 24h contínuo</option>
@@ -574,7 +586,7 @@
         </select>
       </div>
       <div>
-        <label>Espessura parede tubo e (mm) <span style="font-size:10px;color:var(--text3);">golpe aríete</span></label>
+        <label>Espessura parede tubo e (mm) <span class="tip-icon" data-tip="Espessura nominal da parede da tubulação. Afeta diretamente o cálculo da celeridade da onda de pressão (a) e a magnitude do golpe de aríete (Joukowsky/Michaud). Valor típico: 6–15 mm dependendo do DN e material.">?</span> <span style="font-size:10px;color:var(--text3);">golpe aríete</span></label>
         <input type="number" id="ad-esp" value="8" min="1" max="50" step="0.5" oninput="calcAducao()">
       </div>
       <div>
@@ -740,11 +752,20 @@
     </div>
   </div>
 
-  <div id="ad-empty" class="alert alert-info">Execute a <strong>Projeção + Envelope</strong> para habilitar o módulo de infraestrutura hidráulica.</div>
+  <div id="ad-empty" class="alert alert-info">
+    <strong>Módulo desabilitado.</strong> Execute a <strong>Projeção + Envelope</strong> (aba Projeção) para habilitar o módulo de infraestrutura hidráulica. Os campos de entrada acima (cotas, comprimento, material, etc.) já podem ser preenchidos — os resultados (adutora, bomba, golpe de aríete, Rippl, LCC) serão exibidos assim que a projeção populacional estiver disponível.
+  </div>
 </div>
 
 <!-- ═══════════ TAB 4b — REDE DE DISTRIBUIÇÃO ═══════════ -->
 <div id="sec-rede" class="section">
+
+  <!-- DISCLAIMER — rede simplificada -->
+  <div class="alert alert-warning" style="margin-bottom:12px;font-family:var(--mono);font-size:12px;">
+    <strong>⚠ Nota técnica — Estimativas preliminares:</strong>
+    O dimensionamento do tronco e o CAPEX da rede no módulo <em>Dimensionamento</em> usam extensão estimada (~8 m/hab), adequada apenas para <strong>pré-viabilidade e ordem de grandeza</strong>. Para projeto executivo, modele a topologia completa abaixo (nós + trechos), exporte o <strong>.INP</strong> e simule no EPANET com curvas de demanda e qualidade de água.
+  </div>
+
   <div style="display:grid;grid-template-columns:1fr 280px;gap:12px;align-items:start;">
 
     <!-- MAPA + TOOLBAR -->

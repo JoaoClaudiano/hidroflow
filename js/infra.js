@@ -261,7 +261,7 @@ function renderObras(pop,v,p,ano){
         Rede de distribuição (${(L_rede/1000).toFixed(1)} km estimada): ${formatBRL(capex_rede)}<br>
         OPEX anual estimado: ${formatBRL((capex_res+capex_adut+capex_eta+capex_ete+capex_rede)*opex_pct)}
       </div>
-      <div class="dim-formula" style="color:var(--text3);font-size:10px;">Ref: SINAPI / SABESP 2024 · Valores médios Nordeste/Sudeste · Não inclui desapropriações, projetos, LI/LP/LO</div>
+      <div class="dim-formula" style="color:var(--text3);font-size:10px;">Ref: SINAPI / SABESP 2024 · Valores médios Nordeste/Sudeste · Não inclui desapropriações, projetos, LI/LP/LO<br><strong>Rede de distribuição:</strong> extensão estimada em ~8 m/hab — CAPEX da rede deve ser interpretado como ordem de grandeza. Use o módulo Rede de Distribuição (Hardy-Cross + EPANET) para quantificação detalhada.</div>
     </div>
     ${renderManningCard(v,p,pop)}`;
 }
