@@ -3,38 +3,179 @@
     "fonte": "ANEEL — Dados Abertos (dadosabertos.aneel.gov.br)",
     "dataset": "Componentes Tarifários — Tarifa de Energia Elétrica",
     "vigencia": "2024-01-01",
-    "atualizacao": "2024-10-01",
+    "atualizacao": "2026-05-01",
     "nota": "Tarifas médias por distribuidora (R$/kWh). Categoria B3 — serviços de água/saneamento (CNAE 3600-3/01). Valores sem impostos (ICMS varia por estado). Fonte: ANEEL Resolução Homologatória. Atualizar via GitHub Actions mensalmente.",
-    "fator_co2_kwh": 0.088
+    "fator_co2_kwh": 0.088,
+    "verificado_em": "2026-05-01"
   },
   "tarifas": [
-    {"distribuidora": "COELCE",    "estado": "CE", "tarifa_kwh": 0.7214, "vigencia": "2024-04-01"},
-    {"distribuidora": "CELPE",     "estado": "PE", "tarifa_kwh": 0.7018, "vigencia": "2024-04-01"},
-    {"distribuidora": "COSERN",    "estado": "RN", "tarifa_kwh": 0.6895, "vigencia": "2024-04-01"},
-    {"distribuidora": "COELBA",    "estado": "BA", "tarifa_kwh": 0.7124, "vigencia": "2024-04-01"},
-    {"distribuidora": "ENERGISA PB","estado": "PB","tarifa_kwh": 0.7256, "vigencia": "2024-04-01"},
-    {"distribuidora": "ENERGISA SE","estado": "SE","tarifa_kwh": 0.7310, "vigencia": "2024-04-01"},
-    {"distribuidora": "ENERGISA AL","estado": "AL","tarifa_kwh": 0.7405, "vigencia": "2024-04-01"},
-    {"distribuidora": "ENERGISA PI","estado": "PI","tarifa_kwh": 0.7532, "vigencia": "2024-04-01"},
-    {"distribuidora": "ENERGISA MA","estado": "MA","tarifa_kwh": 0.7623, "vigencia": "2024-04-01"},
-    {"distribuidora": "CELG",      "estado": "GO", "tarifa_kwh": 0.6612, "vigencia": "2024-04-01"},
-    {"distribuidora": "CEMIG",     "estado": "MG", "tarifa_kwh": 0.6342, "vigencia": "2024-04-01"},
-    {"distribuidora": "COPEL",     "estado": "PR", "tarifa_kwh": 0.6121, "vigencia": "2024-04-01"},
-    {"distribuidora": "CELESC",    "estado": "SC", "tarifa_kwh": 0.5934, "vigencia": "2024-04-01"},
-    {"distribuidora": "CPFL Paulista","estado": "SP","tarifa_kwh": 0.6823, "vigencia": "2024-04-01"},
-    {"distribuidora": "ENEL SP",   "estado": "SP", "tarifa_kwh": 0.7056, "vigencia": "2024-04-01"},
-    {"distribuidora": "LIGHT",     "estado": "RJ", "tarifa_kwh": 0.7234, "vigencia": "2024-04-01"},
-    {"distribuidora": "ENEL RJ",   "estado": "RJ", "tarifa_kwh": 0.7189, "vigencia": "2024-04-01"},
-    {"distribuidora": "ENERGISA MT","estado": "MT","tarifa_kwh": 0.6934, "vigencia": "2024-04-01"},
-    {"distribuidora": "ENERGISA MS","estado": "MS","tarifa_kwh": 0.6712, "vigencia": "2024-04-01"},
-    {"distribuidora": "ENERGISA RO","estado": "RO","tarifa_kwh": 0.5823, "vigencia": "2024-04-01"},
-    {"distribuidora": "ENERGISA AC","estado": "AC","tarifa_kwh": 0.6145, "vigencia": "2024-04-01"},
-    {"distribuidora": "AMAZONAS ENERGIA","estado": "AM","tarifa_kwh": 0.6432, "vigencia": "2024-04-01"},
-    {"distribuidora": "CELPA",     "estado": "PA", "tarifa_kwh": 0.6723, "vigencia": "2024-04-01"},
-    {"distribuidora": "CEA",       "estado": "AP", "tarifa_kwh": 0.5912, "vigencia": "2024-04-01"},
-    {"distribuidora": "CERON",     "estado": "RO", "tarifa_kwh": 0.5734, "vigencia": "2024-04-01"},
-    {"distribuidora": "BOA VISTA ENERGIA","estado": "RR","tarifa_kwh": 0.5645, "vigencia": "2024-04-01"},
-    {"distribuidora": "AFLUENTE",  "estado": "TO", "tarifa_kwh": 0.6234, "vigencia": "2024-04-01"},
-    {"distribuidora": "MEDIA BRASIL","estado": "BR","tarifa_kwh": 0.6800, "vigencia": "2024-04-01"}
+    {
+      "distribuidora": "COELCE",
+      "estado": "CE",
+      "tarifa_kwh": 0.7214,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "CELPE",
+      "estado": "PE",
+      "tarifa_kwh": 0.7018,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "COSERN",
+      "estado": "RN",
+      "tarifa_kwh": 0.6895,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "COELBA",
+      "estado": "BA",
+      "tarifa_kwh": 0.7124,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "ENERGISA PB",
+      "estado": "PB",
+      "tarifa_kwh": 0.7256,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "ENERGISA SE",
+      "estado": "SE",
+      "tarifa_kwh": 0.731,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "ENERGISA AL",
+      "estado": "AL",
+      "tarifa_kwh": 0.7405,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "ENERGISA PI",
+      "estado": "PI",
+      "tarifa_kwh": 0.7532,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "ENERGISA MA",
+      "estado": "MA",
+      "tarifa_kwh": 0.7623,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "CELG",
+      "estado": "GO",
+      "tarifa_kwh": 0.6612,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "CEMIG",
+      "estado": "MG",
+      "tarifa_kwh": 0.6342,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "COPEL",
+      "estado": "PR",
+      "tarifa_kwh": 0.6121,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "CELESC",
+      "estado": "SC",
+      "tarifa_kwh": 0.5934,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "CPFL Paulista",
+      "estado": "SP",
+      "tarifa_kwh": 0.6823,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "ENEL SP",
+      "estado": "SP",
+      "tarifa_kwh": 0.7056,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "LIGHT",
+      "estado": "RJ",
+      "tarifa_kwh": 0.7234,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "ENEL RJ",
+      "estado": "RJ",
+      "tarifa_kwh": 0.7189,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "ENERGISA MT",
+      "estado": "MT",
+      "tarifa_kwh": 0.6934,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "ENERGISA MS",
+      "estado": "MS",
+      "tarifa_kwh": 0.6712,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "ENERGISA RO",
+      "estado": "RO",
+      "tarifa_kwh": 0.5823,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "ENERGISA AC",
+      "estado": "AC",
+      "tarifa_kwh": 0.6145,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "AMAZONAS ENERGIA",
+      "estado": "AM",
+      "tarifa_kwh": 0.6432,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "CELPA",
+      "estado": "PA",
+      "tarifa_kwh": 0.6723,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "CEA",
+      "estado": "AP",
+      "tarifa_kwh": 0.5912,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "CERON",
+      "estado": "RO",
+      "tarifa_kwh": 0.5734,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "BOA VISTA ENERGIA",
+      "estado": "RR",
+      "tarifa_kwh": 0.5645,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "AFLUENTE",
+      "estado": "TO",
+      "tarifa_kwh": 0.6234,
+      "vigencia": "2024-04-01"
+    },
+    {
+      "distribuidora": "MEDIA BRASIL",
+      "estado": "BR",
+      "tarifa_kwh": 0.68,
+      "vigencia": "2024-04-01"
+    }
   ]
 }
